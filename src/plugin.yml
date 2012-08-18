@@ -1,0 +1,9 @@
+name: RubinBank
+main: RubinBank.RubinBank
+version: UNSTABLE UNTESTED
+commands:
+    rubinbank:
+        description: RubinBank Dummy-Command
+        usage: /rubinbank
+        permission: RubinBank.dummy
+        permission-message: You need the RubinBank.dummy Permission to do this. CHANGE
