@@ -23,9 +23,10 @@ public class listeners implements Listener{
 					evt.getPlayer().sendMessage(ChatColor.RED + "Fehler! Bitte benachrichtige umgehen einen Dev.\n Fehlercode 0x0001");
 					evt.setCancelled(true);
 				}
+				Config conf = new Config();
 				Material itemInHand = evt.getMaterial();
-				Material up = Config.getBankomatUp();
-				Material down = Config.getBankomatDown();
+				Material up = conf.getBankomatUp();
+				Material down = conf.getBankomatDown();
 				if(evt.getPlayer().hasPermission("RubinBank.Bankomat.Use")){
 					if(itemInHand == up || itemInHand == down ){
 						//change amount up/down
@@ -67,6 +68,7 @@ public class listeners implements Listener{
 		}
 	}
 	public static void onSignChange(SignChangeEvent evt){
+		Config conf = new Config();
 		Player player = evt.getPlayer();
 		if(player.hasPermission("RubinBank.Bankomat.createSign")){
 			Sign sign = (Sign) evt.getBlock();
@@ -76,8 +78,8 @@ public class listeners implements Listener{
 				if(sign.getLine(1) == "Abheben" || sign.getLine(1) == "Auszahlen"){
 					out = true;
 					sign.setLine(1, ChatColor.GOLD + "Abheben");
-					sign.setLine(2, "10 "+Config.getMajorP());
-					sign.setLine(3, "10 "+Config.getMinorP());
+					sign.setLine(2, "10 "+conf.getMajorP());
+					sign.setLine(3, "10 "+conf.getMinorP());
 					bankomatsign bmatsign = new bankomatsign(out);
 					bmatsign.setBlock(evt.getBlock());
 					RubinBank.addBankomatSign(bmatsign);
@@ -85,8 +87,8 @@ public class listeners implements Listener{
 				if(sign.getLine(1) == "Einzahlen"){
 					out = false;
 					sign.setLine(1, ChatColor.WHITE + "Einzahlen");
-					sign.setLine(2, "10 "+Config.getMajorP());
-					sign.setLine(3, "10 "+Config.getMinorP());
+					sign.setLine(2, "10 "+conf.getMajorP());
+					sign.setLine(3, "10 "+conf.getMinorP());
 					bankomatsign bmatsign = new bankomatsign(out);
 					bmatsign.setBlock(evt.getBlock());
 					RubinBank.addBankomatSign(bmatsign);

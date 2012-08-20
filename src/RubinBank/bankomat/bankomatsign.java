@@ -13,11 +13,13 @@ public class bankomatsign {
 	private static boolean Out;
 	private static Block Block;
 	private static bankomat bankomat;
+	private Config conf;
 	public bankomatsign(boolean withdraw){
 		Out = withdraw;
+		conf = new Config();
 	}
-	public static double getAmount(){
-		Amount = AmountMajor + (AmountMinor * Config.getMinorRatio());
+	public double getAmount(){
+		Amount = AmountMajor + (AmountMinor * conf.getMinorRatio());
 		return Amount;
 	}
 	public static int getMajorAmount(){
