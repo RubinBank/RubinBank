@@ -1,0 +1,31 @@
+enabled: true
+mysql:
+    Host:
+        Address: localhost
+        User:
+        Password:
+        Database:
+        #none = Default (RubinBank)
+            Table:
+            #none = Default (RubinBank)
+Currency:
+    Name:
+        Major:
+            Singular: Rubin
+            Plural: Rubins
+        Minor:
+            Singular: Gold
+            usePlural: true
+            Plural: of Gold
+    Major:
+        ItemID: 388
+    Minor:
+        useItem: true # if false it's only a number without a item
+        ItemID: 266
+    ratio: 1/3 # Major/Minor. YOU MUST USE X/Y!
+Bankomat:
+    Item:
+        Up:
+            ID: 288
+        Down:
+            ID: 280
