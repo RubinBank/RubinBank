@@ -6,7 +6,13 @@ commands:
         description: RubinBank Dummy-Command
         usage: /rubinbank
         permission: RubinBank.dummy
-        permission-message: You need the RubinBank.dummy Permission to do this.
+        permission-message: Du brauchst die Berechtigung "RubinBank.dummy".
     error:
         description: Error Command
         usage: /error
+    playerdetail:
+        description: Set a Player Detail.
+        usage: /pd <Detail> <Value>
+        permission: RubinBank.Playerdetail;
+        permissions-message: Du hast keine Berechtigung deine PlayerDetails zu bearbeiten.
+        aliases: pd

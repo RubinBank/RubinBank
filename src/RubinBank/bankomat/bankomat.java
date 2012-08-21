@@ -1,21 +1,33 @@
 //TODO meld bankomat.java and bankomatsign.java
 package RubinBank.bankomat;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import RubinBank.RubinBank;
 import RubinBank.bank.Bank;
+import RubinBank.tools.BankomatTyp;
+import RubinBank.tools.PlayerDetails;
 import config.Config;
 
 
 public class bankomat {
 	private static Player player;
 	private static String Name;
-	private static bankomatsign attachedbmatsign;
 	private Config conf;
-	public bankomat(Player p){
-		player = p;
+	private static Block b;
+	private static BankomatTyp typ;
+	private int MajorAmount;
+	private int MinorAmount;
+	private int incrasevaluemajor;
+	private int incrasevalueminor;
+	private int decrasevaluemajor;
+	private int decrasevalueminor;
+	public bankomat(Block block){
+		b = block;
 		conf = new Config();
 	}
 	public static void setName(String name){
@@ -30,9 +42,9 @@ public class bankomat {
 	public void withdraw(double amount, Player player){
 		double withdraw = Bank.withdraw(amount, player);
 		if(withdraw > 0){
-			int major = (int) ((amount - (amount % 4)) * 0.75); //75% von der geraden Anzahl von Major
-			double restamount = (amount - major) % conf.getMinorRatio();//Rest von Major / 4
-			int minor = (int) (((amount - major)+restamount) / conf.getMinorRatio());//Minor in ganzer Zahl
+			int major = (int) ((amount - (amount % 4)) * 0.75); //75% of even Major
+			double restamount = (amount - major) % conf.getMinorRatio();//Rest of Major / 4(ratio)
+			int minor = (int) ((amount - major)-restamount / conf.getMinorRatio());//Minor integer
 			restamount -= minor;
 			if(restamount > 0){
 				player.sendMessage("Es wurden "+(restamount / conf.getMinorRatio())+" "+conf.getMajorS()+" zurückgebucht, da diese sich nicht sinnvoll umwandeln lassen.");
@@ -64,19 +76,90 @@ public class bankomat {
 				player.sendMessage("Du hast " + major + " " + majorName + " und " + minor + " " + minorName + " abgehoben.\nAlles wurde in deinem Inventar abgelegt.");
 			}
 			else{
-				player.sendMessage("Noch nicht eingebunden");
-				Bank.store(amount, player);
+				
 			}	
 		}
 	
 	}
-	public static void setattachedSign(bankomatsign bmatsign){
-		attachedbmatsign = bmatsign;
+	public void setType(BankomatTyp t){
+		typ = t;
 	}
-	public static bankomatsign getattachedSign(){
-		return attachedbmatsign;
+	public static BankomatTyp getTyp(){
+		return typ;
+	}
+	public Block getBlock(){
+		return b;
+	}
+	public Location getLoc(){
+		return b.getLocation();
 	}
 	public static void store(double amount, Player player){
 		Bank.store(amount, player);
+	}
+	public int getMajorAmount(){
+		return MajorAmount;
+	}
+	public int getMinorAmount(){
+		return MinorAmount;
+	}
+	public void incraseMajor(int i){
+		MajorAmount += i;
+	}
+	public void decraseMajor(int i){
+		MajorAmount -= i;
+	}
+	public void incraseMinor(int i){
+		MinorAmount += i;
+	}
+	public void decraseMinor(int i){
+		MinorAmount -= i;
+	}
+	public void setIncraseValueMajor(int i){
+		incrasevaluemajor = i;
+	}
+	public void setIncraseValueMinor(int i){
+		incrasevalueminor = i;
+	}
+	public void setDecraseValueMajor(int i){
+		decrasevaluemajor = i;
+	}
+	public void setDecraseValueMinor(int i){
+		decrasevalueminor = i;
+	}
+	public int getIncraseValueMajor(Player p){
+		if(p == null)
+		return incrasevaluemajor;
+		else{
+			PlayerDetails pd = RubinBank.getPlayerDetails(p);
+			return Integer.parseInt((String) pd.getDetail("incrasevaluemajor"));
+		}
+			
+	}
+	public int getIncraseValueMinor(Player p){
+		if(p == null)
+		return incrasevalueminor;
+		else{
+			PlayerDetails pd = RubinBank.getPlayerDetails(p);
+			return Integer.parseInt((String) pd.getDetail("incrasevalueminor"));
+		}
+			
+	}
+	public int getDecraseValueMajor(Player p){
+		if(p == null)
+		return decrasevaluemajor;
+		else{
+			PlayerDetails pd = RubinBank.getPlayerDetails(p);
+			return Integer.parseInt((String) pd.getDetail("decrasevaluemajor"));
+		}
+			
+	}
+	public int getDecraseValueMinor(Player p){
+		if(p == null)
+		return decrasevalueminor;
+		else{
+			PlayerDetails pd = RubinBank.getPlayerDetails(p);
+			return Integer.parseInt((String) pd.getDetail("decrasevalueminor"));
+		}
+			
 	}
 }

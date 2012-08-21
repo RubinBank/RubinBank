@@ -6,20 +6,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import config.Config;
-
 import RubinBank.bankomat.bankomat;
-import RubinBank.bankomat.bankomatsign;
+import RubinBank.tools.PlayerDetails;
+import RubinBank.tools.Temp;
+import config.Config;
 
 public class RubinBank extends JavaPlugin{
 	private static ArrayList<bankomat> bankomats;
-	private static ArrayList<bankomatsign> bankomatsigns;
+	private static ArrayList<Temp> temp;
+	private static ArrayList<PlayerDetails> pd;
 	private Config conf;
 	public static Logger log = Bukkit.getLogger();
 	private Date date1;
@@ -30,6 +32,8 @@ public class RubinBank extends JavaPlugin{
 		conf = new Config();
 		conf.doNothing();
 		this.reloadConfig();
+		temp = new ArrayList<Temp>();
+		pd = new ArrayList<PlayerDetails>();
 		log.info("RubinBank enabled.");
 	}
 	public void onDisable(){
@@ -45,6 +49,7 @@ public class RubinBank extends JavaPlugin{
 		}
 		this.reloadConfig();
 		log.info("RubinBank disabeling after "+Time+"...");
+		temp = null;
 		log.info("RubinBank disabled.");
 	}
 	
@@ -57,6 +62,25 @@ public class RubinBank extends JavaPlugin{
 			if(cmd.getName().equalsIgnoreCase("error")){
 				player.sendMessage("You performed the Error command...\n");
 				return false;
+			}
+			if(cmd.getName().equalsIgnoreCase("playerdetails")){
+				if(args.length < 2){
+					if(args[0].equals(";")){
+						player.sendMessage(ChatColor.RED+"Es darft kein"+ChatColor.ITALIC+"\";\""+ChatColor.RESET+ChatColor.RED+" enthalten sein!");
+						return true;
+					}
+					else{
+						PlayerDetails details = getPlayerDetails(player);
+						details.addDetail(args[1], args[0]);
+						setPlayerDetails(details);
+						player.sendMessage(ChatColor.GREEN+"Hinzugefügt.");
+						return true;
+					}
+				}
+				else{
+					player.sendMessage(ChatColor.RED+"Du brauchst wenigstens "+ChatColor.ITALIC+"2"+ChatColor.RESET+ChatColor.RED+" Argumente");
+					return true;
+				}
 			}
 		}
 		else{
@@ -76,19 +100,55 @@ public class RubinBank extends JavaPlugin{
 	public static void addBankomat(bankomat bankomat){
 		bankomats.add(bankomat);
 	}
-	public static void addBankomatSign(bankomatsign bankomatsign){
-		bankomatsigns.add(bankomatsign);
-	}
-	public static bankomatsign getbankomatsign(Block block){
+	public static boolean isBankomat(Block b, int tmp){
 		int i = 0;
-		while(i < bankomatsigns.size()){
-			Block b = bankomatsigns.get(i).getBlock();
-			if(b == block){
-				return bankomatsigns.get(i);
+		while(i < bankomats.size()){
+			if(bankomats.get(i).getBlock() == b){
+				Temp t = new Temp("block");
+				t.temp(bankomats.get(i));
+				return true;
+			}
+			i++;
+		}
+		return false;
+	}
+	public static int getATemp(){
+		int i = temp.size();
+		Temp nulltmp = null;
+		temp.add(i, nulltmp);
+		return i;
+	}
+	public static Temp getTemp(int i){
+		if(i < temp.size())
+			return temp.get(i);
+		else
+			return null;
+	}
+	public void overrideTemp(int i, Temp tmp){
+		if(i < temp.size())
+			temp.set(i, tmp);
+	}
+	public static PlayerDetails getPlayerDetails(Player p){
+		int i = 0;
+		while(i < pd.size()){
+			if(pd.get(i).getPlayer() == p){
+				return pd.get(i);
 			}
 			i++;
 		}
 		return null;
 	}
-	
+	public static void setPlayerDetails(PlayerDetails pds){
+		int i = 0;
+		while(i < pd.size()){
+			if(pd.get(i).getPlayer() == pds.getPlayer()){
+				break;
+			}
+			i++;
+		}
+		if(i == pd.size())
+			pd.add(pds);
+		else
+			pd.set(i, pds);
+	}
 }

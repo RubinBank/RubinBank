@@ -1,13 +1,11 @@
 package config;
 import java.io.File;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Config {
-	private Logger log = RubinBank.RubinBank.log;
 	private static String sep = File.separator;
 	JavaPlugin jp;
 	private static File RubinBankConf = new File(Bukkit.getPluginManager().getPlugin("RubinBank").getDataFolder() + "config.yml");
@@ -18,9 +16,7 @@ public class Config {
 		}
 	}
 	public void doNothing(){
-		log.info(getMajorP());
-		log.info(getMajorS());
-		log.info(getMinorP());
+
 	}
 	public int getMajorID(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getInt("Currency.Major.ItemID");

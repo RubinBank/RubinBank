@@ -5,35 +5,41 @@ import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import RubinBank.RubinBank;
-import RubinBank.bankomat.bankomatsign;
-
+import RubinBank.bankomat.bankomat;
+import RubinBank.tools.BankomatTyp;
 import config.Config;
 
 public class listeners implements Listener{
+	private static Config conf = new Config();
 	public void onPlayerClick(PlayerInteractEvent evt){
 		if(evt.getMaterial() == Material.SIGN){
 			Sign gray = (Sign) evt.getClickedBlock();
 			if(gray.getLine(0) == "[Bankomat]"){
-				bankomatsign bsign = RubinBank.getbankomatsign(evt.getClickedBlock());
-				if(bsign == null){
-					evt.getPlayer().sendMessage(ChatColor.RED + "Fehler! Bitte benachrichtige umgehen einen Dev.\n Fehlercode 0x0001");
-					evt.setCancelled(true);
+				int temp = RubinBank.getATemp();
+				if(!RubinBank.isBankomat(gray.getBlock(), temp)){
+					evt.getPlayer().sendMessage(ChatColor.RED+"Fehler: Block ist kein Schild. Bitte benachrichtige einen Dev. Code 01.");
 				}
-				Config conf = new Config();
+				bankomat bmat = (bankomat) RubinBank.getTemp(temp).getTemp();
 				Material itemInHand = evt.getMaterial();
 				Material up = conf.getBankomatUp();
 				Material down = conf.getBankomatDown();
 				if(evt.getPlayer().hasPermission("RubinBank.Bankomat.Use")){
-					if(itemInHand == up || itemInHand == down ){
+					if(itemInHand == up || itemInHand == down ){					
 						//change amount up/down
 						if(itemInHand == up){
 							//up
 							if(evt.getPlayer().hasPermission("RubinBank.Bankomat.changeAmout.up")){
-								bsign.incraseAmount(10);
+								//left click MAJOR
+								if(evt.getAction() == Action.LEFT_CLICK_BLOCK)
+									bmat.incraseMajor(bmat.getIncraseValueMajor(null));
+								//right click MINOR
+								if(evt.getAction() == Action.RIGHT_CLICK_BLOCK)
+									bmat.incraseMinor(bmat.getIncraseValueMinor(null));
 							}
 							else{
 								evt.getPlayer().sendMessage(ChatColor.RED + "Du hast nicht die Berechtigung die Menge zu verändern.");
@@ -44,7 +50,12 @@ public class listeners implements Listener{
 						if(itemInHand == down){
 							//down
 							if(evt.getPlayer().hasPermission("RubinBank.Bankomat.changeAmout.down")){
-								bsign.decraseAmount(10);
+								//left click MAJOR
+								if(evt.getAction() == Action.LEFT_CLICK_BLOCK)
+									bmat.decraseMajor(bmat.getDecraseValueMajor(null));
+								//right click MINOR
+								if(evt.getAction() == Action.RIGHT_CLICK_BLOCK)
+									bmat.decraseMinor(bmat.getDecraseValueMinor(null));
 							}
 							else{
 								evt.getPlayer().sendMessage(ChatColor.RED + "Du hast nicht die Berechtigung die Menge zu verändern.");
@@ -55,10 +66,11 @@ public class listeners implements Listener{
 					else{
 						//do withdraw
 						if(evt.getPlayer().hasPermission("RubinBank.Bankomat.withdraw")){
-							
+							evt.getPlayer().sendMessage("Not Implemented Yet");
+							evt.setCancelled(true);
 						}
 						else{
-							evt.getPlayer().sendMessage(ChatColor.RED + "DU hast nicht die Berechtiging die Menge zu verändern.");
+							evt.getPlayer().sendMessage(ChatColor.RED + "DU hast nicht die Berechtigung etwas Abzuheben.");
 							evt.setCancelled(true);
 						}
 					}
@@ -68,30 +80,22 @@ public class listeners implements Listener{
 		}
 	}
 	public static void onSignChange(SignChangeEvent evt){
-		Config conf = new Config();
 		Player player = evt.getPlayer();
 		if(player.hasPermission("RubinBank.Bankomat.createSign")){
 			Sign sign = (Sign) evt.getBlock();
 			if(sign.getLine(0) == "[Bankomat]" || sign.getLine(0) == "[bankomat]"){
 				sign.setLine(0, ChatColor.AQUA + "[Bankomat]");
-				boolean out = false;
 				if(sign.getLine(1) == "Abheben" || sign.getLine(1) == "Auszahlen"){
-					out = true;
-					sign.setLine(1, ChatColor.GOLD + "Abheben");
-					sign.setLine(2, "10 "+conf.getMajorP());
-					sign.setLine(3, "10 "+conf.getMinorP());
-					bankomatsign bmatsign = new bankomatsign(out);
-					bmatsign.setBlock(evt.getBlock());
-					RubinBank.addBankomatSign(bmatsign);
+					int temp = RubinBank.getATemp();
+					RubinBank.isBankomat(sign.getBlock(), temp);
+					bankomat bmat = (bankomat) RubinBank.getTemp(temp).getTemp();
+					bmat.setType(BankomatTyp.OUT);
 				}
 				if(sign.getLine(1) == "Einzahlen"){
-					out = false;
-					sign.setLine(1, ChatColor.WHITE + "Einzahlen");
-					sign.setLine(2, "10 "+conf.getMajorP());
-					sign.setLine(3, "10 "+conf.getMinorP());
-					bankomatsign bmatsign = new bankomatsign(out);
-					bmatsign.setBlock(evt.getBlock());
-					RubinBank.addBankomatSign(bmatsign);
+					int temp =RubinBank.getATemp();
+					RubinBank.isBankomat(sign.getBlock(), temp);
+					bankomat bmat = (bankomat) RubinBank.getTemp(temp).getTemp();
+					bmat.setType(BankomatTyp.IN);
 				}
 			}
 
