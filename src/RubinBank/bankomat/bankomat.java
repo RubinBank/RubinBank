@@ -1,4 +1,3 @@
-//TODO meld bankomat.java and bankomatsign.java
 package RubinBank.bankomat;
 
 import org.bukkit.Location;
@@ -76,7 +75,7 @@ public class bankomat {
 				player.sendMessage("Du hast " + major + " " + majorName + " und " + minor + " " + minorName + " abgehoben.\nAlles wurde in deinem Inventar abgelegt.");
 			}
 			else{
-				
+					//TODO minor not choose able?
 			}	
 		}
 	

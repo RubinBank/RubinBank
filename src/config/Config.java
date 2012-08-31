@@ -4,12 +4,10 @@ import java.io.File;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
-
 public class Config {
 	private static String sep = File.separator;
 	JavaPlugin jp;
 	private static File RubinBankConf = new File(Bukkit.getPluginManager().getPlugin("RubinBank").getDataFolder() + "config.yml");
-	//TODO Make Comments / Config File head
 	public Config(){
 		if(!RubinBankConf.exists()){
 			Bukkit.getServer().getPluginManager().getPlugin("RubinBank").saveDefaultConfig();

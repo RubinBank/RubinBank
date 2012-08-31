@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import RubinBank.bankomat.bankomat;
+import RubinBank.listeners.listeners;
 import RubinBank.tools.PlayerDetails;
 import RubinBank.tools.Temp;
 import config.Config;
@@ -28,6 +29,7 @@ public class RubinBank extends JavaPlugin{
 	private Date date2;
 	public void onEnable(){
 		log.info("RubinBank enabeling...");
+		Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
 		date1 = new Date();
 		conf = new Config();
 		conf.doNothing();
