@@ -17,13 +17,11 @@ import RubinBank.bankomat.bankomat;
 import RubinBank.listeners.listeners;
 import RubinBank.tools.PlayerDetails;
 import RubinBank.tools.Temp;
-import config.Config;
 
 public class RubinBank extends JavaPlugin{
 	private static ArrayList<bankomat> bankomats;
 	private static ArrayList<Temp> temp;
 	private static ArrayList<PlayerDetails> pd;
-	private Config conf;
 	public static Logger log = Bukkit.getLogger();
 	private Date date1;
 	private Date date2;
@@ -31,27 +29,18 @@ public class RubinBank extends JavaPlugin{
 		log.info("RubinBank enabeling...");
 		Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
 		date1 = new Date();
-		conf = new Config();
-		conf.doNothing();
 		this.reloadConfig();
 		temp = new ArrayList<Temp>();
 		pd = new ArrayList<PlayerDetails>();
+		bankomats = new ArrayList<bankomat>();
 		log.info("RubinBank enabled.");
 	}
 	public void onDisable(){
 		date2 = new Date();
 		String Time;
 		long time = date2.getTime() - date1.getTime();
-		if(!(time / 60 < 5)){
-			time = time / 60;
-			Time = time + "min";
-		}
-		else{
-			Time = time + "ms";
-		}
-		this.reloadConfig();
+		Time = time+"ms";
 		log.info("RubinBank disabeling after "+Time+"...");
-		temp = null;
 		log.info("RubinBank disabled.");
 	}
 	
@@ -59,7 +48,7 @@ public class RubinBank extends JavaPlugin{
 		if(sender instanceof Player){
 			Player player = (Player) sender;
 			if(cmd.getName().equalsIgnoreCase("rubinbank")){
-				player.sendMessage("Du hast das RubinBank Dummy-Command ausgeführt.");
+				player.sendMessage("Du hast das RubinBank Dummy-Command ausgefuehrt.");
 			}
 			if(cmd.getName().equalsIgnoreCase("error")){
 				player.sendMessage("You performed the Error command...\n");
@@ -83,6 +72,10 @@ public class RubinBank extends JavaPlugin{
 					player.sendMessage(ChatColor.RED+"Du brauchst wenigstens "+ChatColor.ITALIC+"2"+ChatColor.RESET+ChatColor.RED+" Argumente");
 					return true;
 				}
+			}
+			if(cmd.getName().equalsIgnoreCase("yaw")){
+				player.sendMessage("Your Yaw: "+player.getLocation().getYaw());
+				return true;
 			}
 		}
 		else{

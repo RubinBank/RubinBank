@@ -16,3 +16,5 @@ commands:
         permission: RubinBank.Playerdetail;
         permissions-message: Du hast keine Berechtigung deine PlayerDetails zu bearbeiten.
         aliases: pd
+    yaw:
+        description: Return Players Yaw.

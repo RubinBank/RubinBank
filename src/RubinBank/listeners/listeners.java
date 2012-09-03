@@ -13,13 +13,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import RubinBank.RubinBank;
 import RubinBank.bankomat.bankomat;
 import RubinBank.tools.BankomatTyp;
-import RubinBank.tools.GetCompassDirection;
 import config.Config;
 
 public class listeners implements Listener{
 	private static Config conf = new Config();
 	@EventHandler
-	public void onPlayerClick(PlayerInteractEvent evt){
+	public static void onPlayerClick(PlayerInteractEvent evt){
 		if(evt.getMaterial() == Material.SIGN){
 			Sign gray;
 			if(evt.getClickedBlock().getState() instanceof Sign){
@@ -93,38 +92,38 @@ public class listeners implements Listener{
 	@EventHandler
 	public static void onSignChange(SignChangeEvent evt){
 		Player player = evt.getPlayer();
-		player.sendMessage("SignChangeEvent...");
+		//player.sendMessage("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
+		//player.sendMessage("SignChangeEvent...");
 		if(evt.getBlock().getState() instanceof Sign){
-			player.sendMessage("Its a sign...");
+			//player.sendMessage("Its a sign...");
 			if(player.hasPermission("RubinBank.Bankomat.createSign")){
-				player.sendMessage("Has Permission...");
-					player.sendMessage("Direction: "+GetCompassDirection.getCardinalDirection(player));
-					player.sendMessage("Direction: "+GetCompassDirection.getAntiBlockFace(player).toString());
-					player.sendMessage("Block.getState: "+evt.getBlock().getRelative(GetCompassDirection.getBlockFace(player)));
-					Sign sign = (Sign) evt.getBlock().getRelative(GetCompassDirection.getBlockFace(player));
-					if(sign.getLine(0) == "[Bankomat]" || sign.getLine(0) == "[bankomat]"){
-						player.sendMessage("Its a bankomatsign");
-						sign.setLine(0, ChatColor.AQUA + "[Bankomat]");
-						if(sign.getLine(1) == "Abheben" || sign.getLine(1) == "Auszahlen"){
+				//player.sendMessage("Has Permission...");
+					String[] lines = evt.getLines();
+					if(lines[0].equals("[Bankomat]") || lines[0].equals("[bankomat]")){
+						//player.sendMessage("Its a bankomatsign");
+						evt.setLine(0, ChatColor.AQUA + "[Bankomat]");
+						if(lines[1].equals("Abheben")  || lines[1].equals("Auszahlen") ){
 							int temp = RubinBank.getATemp();
-							RubinBank.isBankomat(sign.getBlock(), temp);
+							RubinBank.isBankomat(evt.getBlock(), temp);
 							bankomat bmat = (bankomat) RubinBank.getTemp(temp).getTemp();
 							bmat.setType(BankomatTyp.OUT);
 						}
-						if(sign.getLine(1) == "Einzahlen"){
+						if(lines[1].equals("Einzahlen")){
 							int temp =RubinBank.getATemp();
-							RubinBank.isBankomat(sign.getBlock(), temp);
+							RubinBank.isBankomat(evt.getBlock(), temp);
 							bankomat bmat = (bankomat) RubinBank.getTemp(temp).getTemp();
 							bmat.setType(BankomatTyp.IN);
 						}
 					}
-					player.sendMessage("Its not a bankomatsign...");
+					//player.sendMessage("Its not a bankomatsign...");
 					String test = "Test";
-					player.sendMessage("sign:"+sign.toString());
-					player.sendMessage(sign.getLines());
-					if(sign.getLine(1).equals(test)){
+					if(lines[0].equals(test)){
+						evt.setLine(1, ChatColor.STRIKETHROUGH+"Not a Test Sign");
 						player.sendMessage("Its a test sign...");
 					}
+					if(lines[0].equals("LightSign")){
+						evt.getPlayer().setPlayerTime(0, false);
+						player.sendMessage("HI");					}
 				}
 			else{
 				player.sendMessage("!");
