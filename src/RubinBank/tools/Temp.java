@@ -9,7 +9,7 @@ public class Temp {
 	public String getName(){
 		return name;
 	}
-	public void temp(Object o){
+	public void setTemp(Object o){
 		temp = o;
 	}
 	public Object getTemp(){

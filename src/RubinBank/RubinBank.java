@@ -1,3 +1,4 @@
+//TODO Version
 package RubinBank;
 
 import java.util.ArrayList;
@@ -48,10 +49,11 @@ public class RubinBank extends JavaPlugin{
 		if(sender instanceof Player){
 			Player player = (Player) sender;
 			if(cmd.getName().equalsIgnoreCase("rubinbank")){
-				player.sendMessage("Du hast das RubinBank Dummy-Command ausgefuehrt.");
+				if(player.hasPermission("RubinBank.dummy"))
+				player.sendMessage("Du hast das RubinBank Dummy-Command ausgef\u00FChrt.");
 			}
 			if(cmd.getName().equalsIgnoreCase("error")){
-				player.sendMessage("You performed the Error command...\n");
+				player.sendMessage("You performed the Error command...\n\u00A2");
 				return false;
 			}
 			if(cmd.getName().equalsIgnoreCase("playerdetails")){
@@ -64,7 +66,7 @@ public class RubinBank extends JavaPlugin{
 						PlayerDetails details = getPlayerDetails(player);
 						details.addDetail(args[1], args[0]);
 						setPlayerDetails(details);
-						player.sendMessage(ChatColor.GREEN+"Hinzugefügt.");
+						player.sendMessage(ChatColor.GREEN+"Hinzugef\u00FCgt.");
 						return true;
 					}
 				}
@@ -95,18 +97,25 @@ public class RubinBank extends JavaPlugin{
 	public static void addBankomat(bankomat bankomat){
 		bankomats.add(bankomat);
 	}
+	//Temp used to return a existing bankomat.
 	public static boolean isBankomat(Block b, int tmp){
 		int i = 0;
 		while(i < bankomats.size()){
 			if(bankomats.get(i).getBlock() == b){
-				Temp t = new Temp("block");
-				t.temp(bankomats.get(i));
+				if(tmp != -1){
+					getTemp(tmp).setTemp(bankomats.get(i));
+				}
 				return true;
 			}
 			i++;
 		}
 		return false;
 	}
+	/*TEMP usage:
+	 * you cannot create a temp, you request one
+	 * after a request you get an id for your temp.
+	 * Then you can use your temp by your id.
+	*/
 	public static int getATemp(){
 		int i = temp.size();
 		Temp nulltmp = null;
@@ -123,6 +132,12 @@ public class RubinBank extends JavaPlugin{
 		if(i < temp.size())
 			temp.set(i, tmp);
 	}
+	/*PlayerDetails 
+	 * bmat.ic.Ma: Bankomat incrase major
+	 * bmat.ic.Mi:     --||--		minor
+	 * bmat.dc.Ma: --||--   decrase major
+	 * bmat.dc.Mi:     --||--		minor
+	*/
 	public static PlayerDetails getPlayerDetails(Player p){
 		int i = 0;
 		while(i < pd.size()){

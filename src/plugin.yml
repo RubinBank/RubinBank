@@ -1,6 +1,6 @@
 name: RubinBank
 main: RubinBank.RubinBank
-version: pre-20082012
+version: pre-20120907
 commands:
     rubinbank:
         description: RubinBank Dummy-Command

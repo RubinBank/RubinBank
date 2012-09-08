@@ -161,4 +161,36 @@ public class bankomat {
 		}
 			
 	}
+	public void incraseMajorPD(Player p){
+		if(p.hasPermission("RubinBank.Bankomat.changeAmount.up.byPD")){
+			incraseMajor(Integer.parseInt(RubinBank.getPlayerDetails(p).getDetail("bmat.ic.Ma").toString()));
+		}
+		else{
+			incraseMajor(incrasevaluemajor);
+		}
+	}
+	public void incraseMinorPD(Player p){
+		if(p.hasPermission("RubinBank.Bankomat.changeAmount.up.byPD")){
+			incraseMajor(Integer.parseInt(RubinBank.getPlayerDetails(p).getDetail("bmat.ic.Mi").toString()));
+		}
+		else{
+			incraseMajor(incrasevalueminor);
+		}
+	}
+	public void decraseMajorPD(Player p){
+		if(p.hasPermission("RubinBank.Bankomat.changeAmount.down.byPD")){
+			incraseMajor(Integer.parseInt(RubinBank.getPlayerDetails(p).getDetail("bmat.dc.Ma").toString()));
+		}
+		else{
+			incraseMajor(decrasevaluemajor);
+		}
+	}
+	public void decraseMinorPD(Player p){
+		if(p.hasPermission("RubinBank.Bankomat.changeAmount.down.byPD")){
+			incraseMajor(Integer.parseInt(RubinBank.getPlayerDetails(p).getDetail("bmat.dc.Mi").toString()));
+		}
+		else{
+			incraseMajor(decrasevalueminor);
+		}
+	}
 }
