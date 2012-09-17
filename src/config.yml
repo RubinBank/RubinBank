@@ -1,13 +1,13 @@
 enabled: true
-mysql:
+MySQL:
     Host:
         Address: localhost
         User:
         Password:
         Database:
         #none = Default (RubinBank)
-            Table:
-            #none = Default (RubinBank)
+        Table:
+        #none = Default (RubinBank)
 Currency:
     Name:
         Major:

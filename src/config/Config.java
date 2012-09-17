@@ -5,9 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 public class Config {
-	private static String sep = File.separator;
+	public static String sep = File.separator;
 	JavaPlugin jp;
-	private static File RubinBankConf = new File(Bukkit.getPluginManager().getPlugin("RubinBank").getDataFolder() + "config.yml");
+	private static File RubinBankConf = new File(Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getDataFolder() + sep + "config.yml");
 	public Config(){
 		if(!RubinBankConf.exists()){
 			Bukkit.getServer().getPluginManager().getPlugin("RubinBank").saveDefaultConfig();
@@ -51,12 +51,12 @@ public class Config {
 			
 		}
 	}
-	public Material getBankomatUp(){
+	public static Material getBankomatUp(){
 		int id = Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getInt("Bankomat.Item.Up.ID");
 		Material mat = Material.getMaterial(id);
 		return mat;
 	}
-	public Material getBankomatDown(){
+	public static Material getBankomatDown(){
 		int id = Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getInt("Bankomat.Item.Down.ID");
 		Material mat = Material.getMaterial(id);
 		return mat;
@@ -72,5 +72,20 @@ public class Config {
 	}
 	public static String sep(){
 		return sep;
+	}
+	public static String HostAddress(){
+		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.Address");
+	}
+	public static String HostUser(){
+		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.User");
+	}
+	public static String HostPassword(){
+		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.Password");
+	}
+	public static String HostDatabase(){
+		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.Database");
+	}
+	public static String HostTable(){
+		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.Table");
 	}
 }

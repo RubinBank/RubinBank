@@ -16,17 +16,19 @@ import RubinBank.tools.BankomatTyp;
 import config.Config;
 
 public class listeners implements Listener{
-	private static Config conf = new Config();
 	@EventHandler
 	public static void onPlayerClick(PlayerInteractEvent evt){
-		if(evt.getMaterial() == Material.SIGN){
+		if(evt.getAction() == Action.LEFT_CLICK_BLOCK || evt.getAction() == Action.RIGHT_CLICK_BLOCK){
 			if(evt.getClickedBlock().getState() instanceof Sign){
-				int temp = RubinBank.getATemp();
-				if(RubinBank.isBankomat(evt.getClickedBlock(), temp)){
-					bankomat bmat = (bankomat) RubinBank.getTemp(temp).getTemp();
+				evt.getPlayer().sendMessage("Sign Click...");
+				int tmp = RubinBank.getATemp();
+				evt.getPlayer().sendMessage("bankomats.size: " + RubinBank.getBankomats().size());
+				if(RubinBank.isBankomat(evt.getClickedBlock(), tmp)){
+					evt.getPlayer().sendMessage("Its a bankomat...");
+					bankomat bmat = (bankomat) RubinBank.getTemp(tmp).getTemp();
 					Material itemInHand = evt.getMaterial();
-					Material up = conf.getBankomatUp();
-					Material down = conf.getBankomatDown();
+					Material up = Config.getBankomatUp();
+					Material down = Config.getBankomatDown();
 					if(evt.getPlayer().hasPermission("RubinBank.Bankomat.Use")){
 						if(itemInHand == up || itemInHand == down ){					
 							//change amount up/down
@@ -77,6 +79,13 @@ public class listeners implements Listener{
 						}
 					}
 
+					
+				}
+				else{
+					evt.getPlayer().sendMessage("Its not a bankomat.");
+				}
+				if(evt.getItem().getTypeId() == 289){
+					evt.getClickedBlock().getLocation().getWorld().createExplosion(evt.getClickedBlock().getLocation(), 10);
 				}
 			}
 		}
@@ -92,8 +101,10 @@ public class listeners implements Listener{
 				if(lines[1].equals("Abheben")  || lines[1].equals("Auszahlen") ){
 					bankomat bmat = new bankomat(evt.getBlock());
 					bmat.setType(BankomatTyp.OUT);
+					RubinBank.addBankomat(bmat);
 				}
 				if(lines[1].equals("Einzahlen")){
+					evt.getPlayer().sendMessage("Its a Einzahlen Sign...");
 					bankomat bmat = new bankomat(evt.getBlock());
 					bmat.setType(BankomatTyp.IN);
 					RubinBank.addBankomat(bmat);

@@ -1,6 +1,6 @@
 name: RubinBank
 main: RubinBank.RubinBank
-version: pre-20120907
+version: pre-20120910
 commands:
     rubinbank:
         description: RubinBank Dummy-Command
@@ -18,3 +18,12 @@ commands:
         aliases: pd
     yaw:
         description: Return Players Yaw.
+    tools:
+        description: Return tools.
+    bankomats:
+        description: Return all Bankomats.
+    mysql:
+        description: Dummy Command für MySQL Datenbank
+        permission: RubinBank.dummy.MySQL
+        permission-message: Du brauchst die Berechtigung "RubinBank.dummy.MySQL".
+        

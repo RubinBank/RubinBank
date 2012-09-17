@@ -3,8 +3,8 @@ package RubinBank.tools;
 public class Temp {
 	private String name;
 	private Object temp;
-	public Temp(String n){
-		name = n;
+	public Temp(Object o){
+		temp = o;
 	}
 	public String getName(){
 		return name;
