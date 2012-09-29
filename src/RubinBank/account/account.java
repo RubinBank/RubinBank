@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import RubinBank.RubinBank;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 
 import config.Config;
 
@@ -31,13 +32,13 @@ public class account {
 			
 			ResultSet resultset = stmt.executeQuery("Select * from "+Config.HostDatabase()+"."+Config.HostTable() + "where player='"+player.getName()+"'");
 			
-			Amount = resultset.getDouble("Amount");
+			Amount = resultset.getDouble("amount");
 			
 			stmt.close();
 			
 			con.close();
 		} catch(SQLException e){
-			RubinBank.log.severe("SQL Exception");
+			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
 		}
 	}
 	public Player getPlayer(){
@@ -55,15 +56,4 @@ public class account {
 	public void setAmount(double i){
 		Amount = i;
 	}
-	/*public boolean accountExists(Player p){
-		try{
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch(ClassNotFoundException e){
-			RubinBank.log.severe("Treiberklasse nicht gefunden!");
-		}
-		try{
-			Connection con = DriverManager.getConnection(RubinBank.getURL());
-		}
-		return true;
-	}*/
 }

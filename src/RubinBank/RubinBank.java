@@ -43,6 +43,21 @@ public class RubinBank extends JavaPlugin{
 		pd = new ArrayList<PlayerDetails>();
 		bankomats = new ArrayList<bankomat>();
 		url = "jdbc:mysql://"+Config.HostAddress()+"/"+Config.HostDatabase()+"?user="+Config.HostUser()+"&password="+Config.HostPassword();
+		try{
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch(ClassNotFoundException e){
+			log.severe("MySQL Driver Class not found!\nDisabeling...");
+			Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getPluginLoader().disablePlugin(this);
+		}
+		try{
+			Connection con = DriverManager.getConnection(url);
+			
+			Statement stmt = con.createStatement();
+			
+			stmt.executeUpdate("create table if not exists "+Config.DataBaseAndTable()+" (id int not null auto_increment, user varchar(50) not null, amount double");
+		} catch(SQLException e){
+			log.severe("MySQL Exception:\n"+e.toString());
+		}
 		log.info("RubinBank enabled.");
 	}
 	public void onDisable(){
@@ -118,7 +133,7 @@ public class RubinBank extends JavaPlugin{
 				e.printStackTrace();
 				return true;
 			}
-		}
+		}//MySQL end
 			if(cmd.getName().equalsIgnoreCase("account")){
 				if(args.length > 1){
 					if(args[0].equals("create")){
@@ -158,6 +173,19 @@ public class RubinBank extends JavaPlugin{
 						resultset = stmt.executeQuery("describe "+Config.HostDatabase()+"."+Config.HostTable());
 					}
 					else{
+						if(args.length > 2){
+							if(args[0].equals("update")){
+								String query = "";
+								log.info(Integer.toString(args.length));
+								for(int i = 1; i < args.length; i++){
+									query += " " + args[i];
+								}
+								log.info(query);
+								
+								stmt.executeUpdate(query);
+								return true;
+							}
+						}
 						String query = "";
 						log.info(Integer.toString(args.length));
 						for(int i = 0; i < args.length; i++){
@@ -167,8 +195,25 @@ public class RubinBank extends JavaPlugin{
 						
 						resultset = stmt.executeQuery(query);
 					}
-					while(resultset.next()){
-						log.info(resultset.getString(1));
+					resultset.last();
+					int rowcount = resultset.getRow();
+					resultset.beforeFirst();
+					int columns = resultset.getMetaData().getColumnCount();
+					String results[][] = new String[rowcount+1][columns];
+					for(int k = 1; k <= columns; k++){
+						results[0][k-1] = resultset.getMetaData().getColumnName(k);
+					}
+					for(int i = 1; resultset.next(); i++){
+						for(int j = 1; j <= columns; j++){
+							results[i][j-1] = resultset.getString(j);
+						}
+					}
+					for(int i = 0; i < results.length; i++){
+						String out = "";
+						for(int j = 0; j < results[i].length; j++){
+							out += results[i][j]+ " ";
+						}
+						log.info(out);
 					}
 					return true;
 			} catch(SQLException e){
@@ -252,5 +297,25 @@ public class RubinBank extends JavaPlugin{
 	}
 	public static String getURL(){
 		return url;
+	}
+	public static boolean isinDB(Player p){
+		try{
+			Connection con = DriverManager.getConnection(url);
+			
+			Statement stmt = con.createStatement();
+			
+			ResultSet rs = stmt.executeQuery("select user from "+Config.DataBaseAndTable());
+			
+			ArrayList<String> users = new ArrayList<String>();
+			while(rs.next()){
+				users.add(rs.getString("user"));
+			}
+			if(users.equals(p.getName())){
+				return true;
+			}
+		} catch (SQLException e) {
+			log.severe("MySQL Exception:\n"+e.toString());
+		}
+		return false;
 	}
 }

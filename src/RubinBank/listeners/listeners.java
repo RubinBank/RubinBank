@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 
 import RubinBank.RubinBank;
 import RubinBank.bankomat.bankomat;
@@ -118,6 +119,11 @@ public class listeners implements Listener{
 				evt.setLine(1, ChatColor.STRIKETHROUGH+"STRIKETHROUGH");
 				player.sendMessage("Its a Test Sign...");
 			}
+		}
+	}
+	public static void onPlayerLogin(PlayerLoginEvent evt){
+		if(!RubinBank.isinDB(evt.getPlayer())){
+			
 		}
 	}
 }

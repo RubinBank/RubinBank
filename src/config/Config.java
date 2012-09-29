@@ -88,4 +88,8 @@ public class Config {
 	public static String HostTable(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.Table");
 	}
+	public static String DataBaseAndTable(){
+		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.Database") + "."
+				+ Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("MySQL.Host.Table");
+	}
 }
