@@ -4,10 +4,10 @@ MySQL:
         Address: localhost
         User:
         Password:
-        Database:
+        Database: RubinBank
         #none = Default (RubinBank)
-        Table:
-        #none = Default (RubinBank)
+        Table: RubinBank
+        #Do not create the table! The Plugin will create it.
 Currency:
     Name:
         Major:
@@ -20,7 +20,8 @@ Currency:
     Major:
         ItemID: 388
     Minor:
-        useItem: true # if false it's only a number without a item
+        useItem: true
+        #if false it's only a number without a item
         ItemID: 266
     ratio: 1/3 # Major/Minor. YOU MUST USE X/Y!
 Bankomat:

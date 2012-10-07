@@ -1,59 +1,128 @@
 package RubinBank.account;
 
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import RubinBank.RubinBank;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-
 import config.Config;
 
 public class account {
-	private static Player player;
-	private static double Amount;
-	public account(Player p){
-		player = p;
+	public static boolean createAccount(Player p){
 		try{
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch(ClassNotFoundException e){
-			RubinBank.log.severe("Database driver not found!");
-		}
-		try{
-			String url = "jdbc:mysql://"+Config.HostAddress()+"/"+Config.HostDatabase()+"?user="+Config.HostUser()+"&password="+Config.HostPassword();
-			Connection con = DriverManager.getConnection(url);
+			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
 			
-			ResultSet resultset = stmt.executeQuery("Select * from "+Config.HostDatabase()+"."+Config.HostTable() + "where player='"+player.getName()+"'");
+			rs.first();
 			
-			Amount = resultset.getDouble("amount");
+			boolean hasaccount = rs.getBoolean("account");
 			
-			stmt.close();
+			if(hasaccount)
+				return false;
 			
-			con.close();
+			stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount=0, account=true where user='"+p.getName()+"'");
+			return true;
 		} catch(SQLException e){
 			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+			return false;
 		}
 	}
-	public Player getPlayer(){
-		return player;
+	public static double getAccountAmount(Player p){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			ResultSet rs = stmt.executeQuery("Select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
+			
+			rs.first();
+			
+			if(rs.getBoolean("account"))
+				return rs.getDouble("amount");
+			else
+				return -1;
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+			return -1;
+		}
 	}
-	public double getAmount(){
-		return Amount;
+	public static boolean payinToAccount(Player p, double incrase){
+		int major = (int) incrase;
+		int minor = (int) (incrase - major)*10;
+		p.sendMessage("Major: "+major);
+		p.sendMessage("Minor: "+minor);
+		if(p.getInventory().contains(Material.getMaterial(major), major) && p.getInventory().contains(Material.getMaterial(minor), minor)){
+			try{
+				p.getInventory().removeItem(new ItemStack(Config.getMajorID(), major));
+				p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));
+			} catch(Exception e){
+			 RubinBank.log.severe(e.toString());
+			 return false;
+			}
+			
+			try{
+				Statement stmt = RubinBank.getConnection().createStatement();
+				
+				ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
+				
+				rs.first();
+				
+				double amount = rs.getDouble("amount");
+				
+				if(!rs.getBoolean("account"))
+					return false;
+				
+				p.sendMessage("Kontostand: "+amount);
+				
+				amount += incrase;
+				
+				p.sendMessage("neuer Kontostand: "+amount);
+				
+				stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount="+amount+" where user='"+p.getName()+"'");
+				return true;
+			} catch(SQLException e){
+				RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+				return false;
+			}
+		}
+		else{
+			p.sendMessage("Du hast nicht genug Items in deinem Inventar!");
+			return false;
+		}
+
 	}
-	public void incraseAccount(double i){
-		Amount += i;
-	}
-	public void decraseAccount(double i){
-		Amount -= i;
-	}
-	public void setAmount(double i){
-		Amount = i;
+	public static boolean payoutFromAccount(Player p, double decrase){
+		try{
+			
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user=\""+p.getName()+"\"");
+			
+			rs.first();
+			
+			if(rs.getBoolean("account")){
+				double amount = rs.getDouble("amount");
+				amount -= decrase;
+				RubinBank.log.info("Amount: "+amount);
+				if(amount >= 0){
+					stmt.executeUpdate("update "+Config.DataBaseAndTable()+" set amount=\""+amount+"\" where user=\""+p.getName()+"\"");
+					return true;
+				}
+				else{
+					RubinBank.log.info("Player "+p.getName()+" PayOut Error...(amount < 0)");
+					return false;
+				}
+			}
+			else{
+				RubinBank.log.info("Player "+p.getName()+" PayOut Error... has no account");
+				return false;
+			}
+		} catch(SQLException e){
+			RubinBank.log.info("SQLEception: "+e.toString());
+			return false;
+		}
 	}
 }

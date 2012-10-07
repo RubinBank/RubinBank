@@ -1,13 +1,10 @@
 package RubinBank.bankomat;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import RubinBank.RubinBank;
-import RubinBank.bank.Bank;
 import RubinBank.tools.BankomatTyp;
 import RubinBank.tools.PlayerDetails;
 import config.Config;
@@ -16,7 +13,6 @@ import config.Config;
 public class bankomat {
 	private static Player player;
 	private static String Name;
-	private Config conf;
 	private static Block b;
 	private static BankomatTyp typ;
 	private int MajorAmount;
@@ -27,7 +23,7 @@ public class bankomat {
 	private int decrasevalueminor;
 	public bankomat(Block block){
 		b = block;
-		conf = new Config();
+		new Config();
 	}
 	public static void setName(String name){
 		Name = name;
@@ -38,7 +34,7 @@ public class bankomat {
 	public static String getName(){
 		return Name;
 	}
-	public void withdraw(double amount, Player player){
+	/*public void withdraw(double amount, Player player){
 		double withdraw = Bank.withdraw(amount, player);
 		if(withdraw > 0){
 			int major = (int) ((amount - (amount % 4)) * 0.75); //75% of even Major
@@ -79,7 +75,7 @@ public class bankomat {
 			}	
 		}
 	
-	}
+	}*/
 	public void setType(BankomatTyp t){
 		typ = t;
 	}
@@ -92,9 +88,10 @@ public class bankomat {
 	public Location getLoc(){
 		return b.getLocation();
 	}
+	/*
 	public static void store(double amount, Player player){
 		Bank.store(amount, player);
-	}
+	}*/
 	public int getMajorAmount(){
 		return MajorAmount;
 	}

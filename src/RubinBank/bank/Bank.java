@@ -1,21 +1,5 @@
 package RubinBank.bank;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
-
-import config.Config;
-
-import RubinBank.RubinBank;
-import RubinBank.account.account;
 
 
 public class Bank {
@@ -23,10 +7,6 @@ public class Bank {
 	private static int Major; 
 	private static int Minor;
 	private static double Amount;// Bank Currency (Major + Minor in Major)
-	private static ArrayList<account> accounts;
-	private static File SaveFile = new File("plugins"+Config.sep()+"RubinBank"+Config.sep()+"Bank"+Config.sep()+"save.yml");
-	private static String sep = File.separator;
-	private static FileConfiguration s;
 	public Bank(){
 		
 	}
@@ -46,7 +26,7 @@ public class Bank {
 	public static String getName(){
 		return Name;
 	}
-	public static double withdraw(double amount, Player player){
+	/*public static double withdraw(double amount, Player player){
 		account acc = getAccount(player);
 		double accamount = acc.getAmount();
 		if(accamount > 0 && accamount - amount > 0){
@@ -135,5 +115,5 @@ public class Bank {
 			long time = date2.getTime() - date1.getTime();
 			RubinBank.log.info("Loaded Save ("+time+" ms)");
 		}
-	}
+	}*/
 }

@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import RubinBank.RubinBank;
 import RubinBank.bankomat.bankomat;
 import RubinBank.tools.BankomatTyp;
+import RubinBank.tools.MySQL;
 import config.Config;
 
 public class listeners implements Listener{
@@ -85,9 +86,11 @@ public class listeners implements Listener{
 				else{
 					evt.getPlayer().sendMessage("Its not a bankomat.");
 				}
-				if(evt.getItem().getTypeId() == 289){
-					evt.getClickedBlock().getLocation().getWorld().createExplosion(evt.getClickedBlock().getLocation(), 10);
-				}
+			}
+			if(evt.hasItem()){
+				if(evt.getItem().getTypeId() == 289)
+					if(evt.getPlayer().hasPermission("RubinBank.createExplosion"))
+						evt.getClickedBlock().getLocation().getWorld().createExplosion(evt.getClickedBlock().getLocation(), 10);
 			}
 		}
 	}
@@ -121,9 +124,16 @@ public class listeners implements Listener{
 			}
 		}
 	}
+	@EventHandler
 	public static void onPlayerLogin(PlayerLoginEvent evt){
+		RubinBank.log.info("RubinBank PlayerLoginEvent: "+evt.getPlayer().getName());
 		if(!RubinBank.isinDB(evt.getPlayer())){
-			
+			RubinBank.log.info("Not in DB");
+			MySQL.addPlayer(evt.getPlayer());
+		}
+		else{
+			RubinBank.log.info("Updated Last Login");
+			MySQL.updateLastLogin(evt.getPlayer());
 		}
 	}
 }

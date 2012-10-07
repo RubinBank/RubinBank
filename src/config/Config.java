@@ -16,10 +16,10 @@ public class Config {
 	public void doNothing(){
 
 	}
-	public int getMajorID(){
+	public static int getMajorID(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getInt("Currency.Major.ItemID");
 	}
-	public int getMinorID(){
+	public static int getMinorID(){
 		if(useMinor()){
 			return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getInt("Currency.Minor.ItemID");
 		}
@@ -27,22 +27,22 @@ public class Config {
 		return -1;
 		}
 	}
-	public boolean useMinor(){
+	public static boolean useMinor(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getBoolean("Currency.Minor.useItem");
 	}
-	public String getMajorS(){
+	public static String getMajorS(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("Currency.Name.Major.Singular");
 	}
-	public String getMajorP(){
+	public static String getMajorP(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("Currency.Name.Major.Plural");
 	}
-	public String getMinorS(){
+	public static String getMinorS(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("Currency.Name.Minor.Singular");
 	}
-	public boolean useMinorP(){
+	public static  boolean useMinorP(){
 		return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getBoolean("Currency.Name.Minor.usePlural");
 	}
-	public String getMinorP(){
+	public static String getMinorP(){
 		if(useMinorP()){
 			return Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("Currency.Name.Minor.Plural");
 		}
@@ -61,7 +61,7 @@ public class Config {
 		Material mat = Material.getMaterial(id);
 		return mat;
 	}
-	public double getMinorRatio(){
+	public static double getMinorRatio(){
 		double x = 0;
 		String y = Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig().getString("Currency.ratio.MajorToMinor");
 		String[] z = y.split("/");
