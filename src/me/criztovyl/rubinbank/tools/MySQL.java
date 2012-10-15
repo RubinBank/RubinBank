@@ -1,4 +1,4 @@
-package RubinBank.tools;
+package me.criztovyl.rubinbank.tools;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -8,11 +8,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.config.Config;
+
 import org.bukkit.entity.Player;
 
-import config.Config;
 
-import RubinBank.RubinBank;
 
 public class MySQL{
 	public static void addPlayer(Player p){

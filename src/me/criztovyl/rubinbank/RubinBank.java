@@ -1,39 +1,32 @@
-//TODO Version
-package RubinBank;
+package me.criztovyl.rubinbank;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import me.criztovyl.rubinbank.account.account;
+import me.criztovyl.rubinbank.config.Config;
+import me.criztovyl.rubinbank.listeners.listeners;
+import me.criztovyl.rubinbank.tools.MySQL;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import RubinBank.account.account;
-import RubinBank.bankomat.bankomat;
-import RubinBank.listeners.listeners;
-import RubinBank.tools.MySQL;
-import RubinBank.tools.PlayerDetails;
-import RubinBank.tools.Temp;
-import config.Config;
 
 public class RubinBank extends JavaPlugin{
-	private static ArrayList<bankomat> bankomats;
-	private static ArrayList<Temp> temp;
-	private static ArrayList<PlayerDetails> pd;
 	private static String url;
 	public static Logger log = Bukkit.getLogger();
 	private Date date1;
@@ -44,9 +37,6 @@ public class RubinBank extends JavaPlugin{
 		Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
 		date1 = new Date();
 		this.reloadConfig();
-		temp = new ArrayList<Temp>();
-		pd = new ArrayList<PlayerDetails>();
-		bankomats = new ArrayList<bankomat>();
 		url = "jdbc:mysql://"+Config.HostAddress()+"/"+Config.HostDatabase()+"?user="+Config.HostUser()+"&password="+Config.HostPassword();
 		try{
 			Class.forName("com.mysql.jdbc.Driver");
@@ -91,8 +81,19 @@ public class RubinBank extends JavaPlugin{
 						return true;
 					}
 					if(args[0].equals("inv")){
-						if(args[1].equals("test")){
-							player.getInventory().remove(Material.DIRT);
+						if(args[1].equals("nodirt")){
+							ItemStack items;
+							if(args.length == 3)
+								try{
+									items = new ItemStack(Material.DIRT, Integer.parseInt(args[2]));
+								} catch(NumberFormatException e){
+									player.sendMessage("'amount' muss eine Zahl sein!\n" +
+											ChatColor.RED + "/rubinbank inv nodirt amount");
+									return true;
+								}
+							else
+								items = new ItemStack(Material.DIRT);
+							player.getInventory().removeItem(items);
 							player.sendMessage("Dirt entfernt ;)");
 							return true;
 						}
@@ -102,30 +103,36 @@ public class RubinBank extends JavaPlugin{
 							return true;
 						}
 					}
+					if(args[0].contains("day")){
+						player.getWorld().setTime(800);
+						return true;
+					}
+					if(args[0].contains("rain")){
+						player.getWorld().setStorm(!player.getWorld().hasStorm());
+						return true;
+					}
+					if(args[0].contains("setspawn")){
+						Location loc = player.getLocation();
+						Config.setGlobalSpawn(loc);
+						return true;
+					}
+					if(args[0].contains("help")){
+						player.sendMessage("/rubinbank ids - Alle Wichtigen IDs die für RubinBank wichtig sind(e.g. Major oder Minor)");
+						player.sendMessage("/rubinbank inv");
+						player.sendMessage("/rubinbank inv nodirt [X] - Entferne allen oder X Dirt(Blöcke) aus deinem Inventar.");
+						player.sendMessage("/rubinbank inv clear - Inventar leeren");
+						player.sendMessage("/rubinbank day - Tag machen ;) (0800h)");
+						player.sendMessage("/rubinbank rain - Stoppt Rain (oderr Sturm). Alias /rain.");
+						player.sendMessage("/rubinbank setspawn - Setzt den Spawn der Welt in der du bist.");
+						player.sendMessage("/rubinbank setglobalspawn - Setzt den Globalen Spawn");
+						player.sendMessage("Global Spawn: Spawnpunkt für alle Welten ohne Spawnpunkt. Aktiviert: "+Boolean.toString(Config.GlobalSpawn()));
+						return true;
+					}
 				}
-			}
+			}//RubinBank CMD END
 			if(cmd.getName().equalsIgnoreCase("error")){
 				player.sendMessage("Du hast das Error Command ausgeführt...\n\u00A2");
 				return false;
-			}
-			if(cmd.getName().equalsIgnoreCase("playerdetails")){
-				if(args.length < 2){
-					if(args[0].equals(";")){
-						player.sendMessage(ChatColor.RED+"Es darft kein"+ChatColor.ITALIC+"\";\""+ChatColor.RESET+ChatColor.RED+" enthalten sein!");
-						return true;
-					}
-					else{
-						PlayerDetails details = getPlayerDetails(player);
-						details.addDetail(args[1], args[0]);
-						setPlayerDetails(details);
-						player.sendMessage(ChatColor.GREEN+"Hinzugef\u00FCgt.");
-						return true;
-					}
-				}
-				else{
-					player.sendMessage(ChatColor.RED+"Du brauchst wenigstens "+ChatColor.ITALIC+"2"+ChatColor.RESET+ChatColor.RED+" Argumente");
-					return true;
-				}
 			}
 			if(cmd.getName().equalsIgnoreCase("yaw")){
 				player.sendMessage("Your Yaw: "+player.getLocation().getYaw());
@@ -283,11 +290,20 @@ public class RubinBank extends JavaPlugin{
 					return true;
 					}
 					else{
-						player.sendMessage(ChatColor.RED + "Interner Fehler! Versuche es später noch ein mal...");
+						player.sendMessage(ChatColor.RED + "Interner Fehler! Versuche es später noch ein mal... #mysql #lastlog");
 						return true;
 					}
 
 				}
+			}
+			if(cmd.getName().equalsIgnoreCase("spawn")){
+				if(Config.hasSpawn(player.getWorld().getName())){
+					player.teleport(Config.getSpawn(player.getWorld().getName()));
+					return true;
+				}
+				else
+					player.sendMessage("Kein Spawn gesetzt.");
+				return true;
 			}
 		}//PLAYER END
 		else{
@@ -361,79 +377,11 @@ public class RubinBank extends JavaPlugin{
 			}
 		}
 			log.info("Only a Player can perform this command!");
+			return true;
 		}//CONSOLE END
 		return false;
 	}
-	public static void addBankomat(bankomat bankomat){
-		bankomats.add(bankomat);
-	}
-	//Temp used to return a existing bankomat.
-	public static boolean isBankomat(Block b, int tmp){
-		int i = 0;
-		while(i < bankomats.size()){
-			if(bankomats.get(i).getBlock() == b){
-				if(tmp != -1){
-					getTemp(tmp).setTemp(bankomats.get(i));
-				}
-				return true;
-			}
-			i++;
-		}
-		return false;
-	}
-	/*TEMP usage:
-	 * you cannot create a temp, you request one
-	 * after a request you get an id for your temp.
-	 * Then you can use your temp by your id.
-	*/
-	public static int getATemp(){
-		int i = temp.size();
-		Temp nulltmp = null;
-		temp.add(i, nulltmp);
-		return i;
-	}
-	public static Temp getTemp(int i){
-		if(i < temp.size())
-			return temp.get(i);
-		else
-			return null;
-	}
-	public void overrideTemp(int i, Temp tmp){
-		if(i < temp.size())
-			temp.set(i, tmp);
-	}
-	/*PlayerDetails 
-	 * bmat.ic.Ma: Bankomat incrase major
-	 * bmat.ic.Mi:     --||--		minor
-	 * bmat.dc.Ma: --||--   decrase major
-	 * bmat.dc.Mi:     --||--		minor
-	*/
-	public static PlayerDetails getPlayerDetails(Player p){
-		int i = 0;
-		while(i < pd.size()){
-			if(pd.get(i).getPlayer() == p){
-				return pd.get(i);
-			}
-			i++;
-		}
-		return null;
-	}
-	public static void setPlayerDetails(PlayerDetails pds){
-		int i = 0;
-		while(i < pd.size()){
-			if(pd.get(i).getPlayer() == pds.getPlayer()){
-				break;
-			}
-			i++;
-		}
-		if(i == pd.size())
-			pd.add(pds);
-		else
-			pd.set(i, pds);
-	}
-	public static ArrayList<bankomat> getBankomats(){
-		return bankomats;
-	}
+
 	public static String getURL(){
 		return url;
 	}

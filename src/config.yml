@@ -2,10 +2,9 @@ enabled: true
 MySQL:
     Host:
         Address: localhost
-        User:
-        Password:
+        User: user
+        Password: password
         Database: RubinBank
-        #none = Default (RubinBank)
         Table: RubinBank
         #Do not create the table! The Plugin will create it.
 Currency:
@@ -20,13 +19,18 @@ Currency:
     Major:
         ItemID: 388
     Minor:
-        useItem: true
-        #if false it's only a number without a item
         ItemID: 266
-    ratio: 1/3 # Major/Minor. YOU MUST USE X/Y!
-Bankomat:
-    Item:
-        Up:
-            ID: 288
-        Down:
-            ID: 280
+        ratio100: false #if true use ratio 1/100. Default is 1/10.
+GlobalSpawn:
+    use: true #teleport to Global Spawn if world have no set Spawnpoint.
+    set: false # do NOT change this value if x,y,z and world not set! The Plugin will change it automatically. Use command /setglobalspawn.
+    x:
+    y:
+    z:
+    world:
+#Bankomat:
+#    Item:
+#        Up:
+#            ID: 288
+#        Down:
+#            ID: 280

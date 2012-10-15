@@ -1,15 +1,16 @@
-package RubinBank.account;
+package me.criztovyl.rubinbank.account;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.config.Config;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import RubinBank.RubinBank;
-import config.Config;
 
 public class account {
 	public static boolean createAccount(Player p){
@@ -31,6 +32,21 @@ public class account {
 			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
 			return false;
 		}
+	}
+	public static boolean hasAccount(Player p){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
+			
+			rs.first();
+			
+			return rs.getBoolean("account");
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+			return false;
+		}
+
 	}
 	public static double getAccountAmount(Player p){
 		try{
@@ -54,7 +70,7 @@ public class account {
 		int minor = (int) (incrase - major)*10;
 		p.sendMessage("Major: "+major);
 		p.sendMessage("Minor: "+minor);
-		if(p.getInventory().contains(Material.getMaterial(major), major) && p.getInventory().contains(Material.getMaterial(minor), minor)){
+		if(p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major) && p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor)){
 			try{
 				p.getInventory().removeItem(new ItemStack(Config.getMajorID(), major));
 				p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));

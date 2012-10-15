@@ -1,6 +1,8 @@
 name: RubinBank
-main: RubinBank.RubinBank
-version: pre-2012103
+main: me.criztovyl.rubinbank.RubinBank
+version: pre-20121015
+database: true
+prefix: RubinBank
 commands:
     rubinbank:
         description: RubinBank Dummy-Command
@@ -11,18 +13,10 @@ commands:
     error:
         description: Error Command
         usage: ERROR
-    playerdetail:
-        description: Set a Player Detail.
-        usage: /pd <Detail> <Value>
-        permission: RubinBank.Playerdetail;
-        permissions-message: Du brauchts die Berechtigung "RubinBank.Playerdetail".
-        aliases: pd
     yaw:
         description: Return Players Yaw.
     tools:
         description: Return tools.
-    bankomats:
-        description: Return all Bankomats.
     mysql:
         description: Dummy Command f\u00FCr MySQL Datenbank
         permission: RubinBank.dummy.MySQL
@@ -38,3 +32,5 @@ commands:
        description: See last Login(s)
        permission: RubinBank.lastlog
        permission-message: Du brauchst die Berechtigung fuer "RubinBank.lastlog".
+    spawn:
+       description: Teleportiert dich zum Spawn
