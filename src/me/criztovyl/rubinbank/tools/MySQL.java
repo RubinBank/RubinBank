@@ -58,4 +58,20 @@ public class MySQL{
 			return null;
 		}
 	}
+	public static boolean isInDB(Player p){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			ResultSet rs = stmt.executeQuery("select * from "+Config.DataBaseAndTable());
+			
+			while(rs.next()){
+				if(rs.getString("user").equals(p.getName())){
+					return true;
+				}
+			}
+		} catch (SQLException e) {
+			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+		}
+		return false;
+	}
 }

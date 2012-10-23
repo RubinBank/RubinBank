@@ -5,32 +5,30 @@ database: true
 prefix: RubinBank
 commands:
     rubinbank:
-        description: RubinBank Dummy-Command
+        description: RubinBank Command
         usage: /rubinbank
-        permission: RubinBank.dummy
-        permission-message: Du brauchst die Berechtigung fuer "RubinBank.dummy".
+        permission: RubinBank
+        permission-message: Du brauchst die Berechtigung fuer "RubinBank".
         aliases: rb
     error:
         description: Error Command
-        usage: ERROR
     yaw:
-        description: Return Players Yaw.
+        description: Die Drehung des Spielers
     tools:
-        description: Return tools.
+        description: Wichtige Werkzeuge.
     mysql:
-        description: Dummy Command f\u00FCr MySQL Datenbank
-        permission: RubinBank.dummy.MySQL
-        permission-message: Du brauchst die Berechtigung fuer "RubinBank.dummy.MySQL".
+        description: Command fuer MySQL Datenbank
+        permission: RubinBank.MySQL
+        permission-message: Du brauchst die Berechtigung fuer "RubinBank.MySQL".
     account:
-        description: Manage your Account
+        description: Alles für dein RubinBank Konto.
         permission: RubinBank.account
         permission-message: Du brauchst die Berechtigung fuer "RubinBank.account".
     rain:
-       description: Toggle Rain or Storm
+       description: Regen (oder Sturm) ein- oder ausschalten.
        permission: RubinBank.rain
+       permission-message: Du brauchst die Berechtigung fuer "RubinBank.rain"
     lastlog:
-       description: See last Login(s)
+       description: Letztes Login eines oder alles Spieler.
        permission: RubinBank.lastlog
        permission-message: Du brauchst die Berechtigung fuer "RubinBank.lastlog".
-    spawn:
-       description: Teleportiert dich zum Spawn
