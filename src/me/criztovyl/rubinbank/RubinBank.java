@@ -205,7 +205,10 @@ public class RubinBank extends JavaPlugin{
 			}
 		}
 			if(cmd.getName().equalsIgnoreCase("account")){
-				log.info("args.length: "+args.length);
+				if(args.length == 0){
+					player.sendMessage("Dein Kontostand beträgt" + Double.toString(account.getAccountAmount(player)));
+					return true;
+				}
 				if(args.length >= 1){
 					if(args[0].equals("create")){
 						if(account.createAccount(player)){

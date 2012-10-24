@@ -1,6 +1,6 @@
 name: RubinBank
 main: me.criztovyl.rubinbank.RubinBank
-version: pre-20121015
+version: prerelease-20121024
 database: true
 prefix: RubinBank
 commands:
@@ -25,6 +25,7 @@ commands:
         description: Manage your Account
         permission: RubinBank.account
         permission-message: Du brauchst die Berechtigung fuer "RubinBank.account".
+        aliases: konto
     rain:
        description: Toggle Rain or Storm
        permission: RubinBank.rain
