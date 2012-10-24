@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +17,6 @@ import me.criztovyl.rubinbank.tools.MySQL;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -25,35 +25,70 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+
 
 public class RubinBank extends JavaPlugin{
 	private static String url;
-	public static Logger log = Bukkit.getLogger();
+	public static Logger log;
+	public static Logger console;
+	private static boolean useWorldGuard;
 	private Date date1;
 	private Date date2;
 	private static Connection con;
 	public void onEnable(){
-		log.info("RubinBank enabeling...");
-		Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
-		date1 = new Date();
-		this.reloadConfig();
-		url = "jdbc:mysql://"+Config.HostAddress()+"/"+Config.HostDatabase()+"?user="+Config.HostUser()+"&password="+Config.HostPassword();
-		try{
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch(ClassNotFoundException e){
-			log.severe("MySQL Driver Class not found!\nDisabeling...");
-			Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getPluginLoader().disablePlugin(this);
+		if(Config.enable()){
+			log = this.getLogger();
+			console = Bukkit.getLogger();
+			console.info("RubinBank enabeling...");
+			Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
+			date1 = new Date();
+			this.reloadConfig();
+			url = "jdbc:mysql://"+Config.HostAddress()+"/"+Config.HostDatabase()+"?user="+Config.HostUser()+"&password="+Config.HostPassword();
+			try{
+				Class.forName("com.mysql.jdbc.Driver");
+			} catch(ClassNotFoundException e){
+				log.severe("MySQL Driver Class not found!\nDisabeling...");
+				Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getPluginLoader().disablePlugin(this);
+			}
+			try{
+				con = DriverManager.getConnection(url);
+				
+				Statement stmt = con.createStatement();
+				
+				stmt.executeUpdate("create table if not exists "+Config.DataBaseAndTable()+" (id int not null auto_increment, user varchar(50) not null, amount double, lastlogin date)");
+			} catch(SQLException e){
+				log.severe("MySQL Exception:\n"+e.toString());
+			}
+			if(Config.useWorldGuard()){
+				if(Bukkit.getPluginManager().getPlugin("WorldGuard").equals(null)){
+					log.warning("RubinBank WorldGuard Implementation disabled: No WorldGuard found.");
+					useWorldGuard = false;
+					
+				}
+				else{
+					if(Bukkit.getPluginManager().getPlugin("WorldGuard").isEnabled()){
+						log.info("RubinBank WorldGuard Implementation enabled!");
+						useWorldGuard = true;
+					}
+					else{
+						log.warning("RubinBank WorldGuard Implementation disabled: WorldGuard not enabled.");
+						useWorldGuard = false;
+					}
+				}
+			}
+			else{
+				useWorldGuard = false;
+			}
+			log.info("RubinBank enabled.");
 		}
-		try{
-			con = DriverManager.getConnection(url);
-			
-			Statement stmt = con.createStatement();
-			
-			stmt.executeUpdate("create table if not exists "+Config.DataBaseAndTable()+" (id int not null auto_increment, user varchar(50) not null, amount double, lastlogin date)");
-		} catch(SQLException e){
-			log.severe("MySQL Exception:\n"+e.toString());
+		else{
+			log.info("RubinBank disabled by option from config.");
+			Bukkit.getPluginManager().getPlugin("RubinBank").getPluginLoader().disablePlugin(this);
 		}
-		log.info("RubinBank enabled.");
+
 	}
 	public void onDisable(){
 		date2 = new Date();
@@ -69,15 +104,17 @@ public class RubinBank extends JavaPlugin{
 			Player player = (Player) sender;
 			if(cmd.getName().equalsIgnoreCase("rubinbank")){
 				if(player.hasPermission("RubinBank.dummy"))
-				player.sendMessage("Du hast das RubinBank Dummy-Command ausgef\u00FChrt.");
 				if(args.length >= 1){
 					if(args[0].equals("ids")){
 						int major = Config.getMajorID();
 						int minor = Config.getMinorID();
+						int gunpowder = 289;
 						Material majormaterial = Material.getMaterial(major);
 						Material minormaterial = Material.getMaterial(minor);
+						Material gunpowdermaterial = Material.getMaterial(gunpowder);
 						player.sendMessage("Major: "+major+" ("+majormaterial.name()+")");
 						player.sendMessage("Minor: "+minor+" ("+minormaterial.name()+")");
+						player.sendMessage("Create Explosion: "+gunpowder+" ("+gunpowdermaterial.name()+")");
 						return true;
 					}
 					if(args[0].equals("inv")){
@@ -111,11 +148,6 @@ public class RubinBank extends JavaPlugin{
 						player.getWorld().setStorm(!player.getWorld().hasStorm());
 						return true;
 					}
-					if(args[0].contains("setspawn")){
-						Location loc = player.getLocation();
-						Config.setGlobalSpawn(loc);
-						return true;
-					}
 					if(args[0].contains("help")){
 						player.sendMessage("/rubinbank ids - Alle Wichtigen IDs die für RubinBank wichtig sind(e.g. Major oder Minor)");
 						player.sendMessage("/rubinbank inv");
@@ -123,10 +155,22 @@ public class RubinBank extends JavaPlugin{
 						player.sendMessage("/rubinbank inv clear - Inventar leeren");
 						player.sendMessage("/rubinbank day - Tag machen ;) (0800h)");
 						player.sendMessage("/rubinbank rain - Stoppt Rain (oderr Sturm). Alias /rain.");
-						player.sendMessage("/rubinbank setspawn - Setzt den Spawn der Welt in der du bist.");
-						player.sendMessage("/rubinbank setglobalspawn - Setzt den Globalen Spawn");
-						player.sendMessage("Global Spawn: Spawnpunkt für alle Welten ohne Spawnpunkt. Aktiviert: "+Boolean.toString(Config.GlobalSpawn()));
+						player.sendMessage("/rubinbank regiontest - Testet ob du in der RubinBank Region bist.");
 						return true;
+					}
+					if(args[0].contains("regiontest")){
+						if(useWorldGuard){
+							if(inWorldGuardRegion(player)){
+								player.sendMessage("UIIIII :D");
+							}
+							else{
+								player.sendMessage("Nicht in der RubinBank Region");
+							}
+						}
+						else{
+							player.sendMessage(":( kein WorldGuard geladen...oder abgeschaltet...");
+							return true;
+						}
 					}
 				}
 			}//RubinBank CMD END
@@ -136,11 +180,6 @@ public class RubinBank extends JavaPlugin{
 			}
 			if(cmd.getName().equalsIgnoreCase("yaw")){
 				player.sendMessage("Your Yaw: "+player.getLocation().getYaw());
-				return true;
-			}
-			if(cmd.getName().equalsIgnoreCase("tools")){
-				player.sendMessage("Bankomat Up:" + Config.getBankomatUp().name());
-				player.sendMessage("Bankomat Down: " + Config.getBankomatDown().name());
 				return true;
 			}
 			if(cmd.getName().equalsIgnoreCase("mysql")){
@@ -211,16 +250,51 @@ public class RubinBank extends JavaPlugin{
 				}
 				if(args.length >= 1){
 					if(args[0].equals("create")){
-						if(account.createAccount(player)){
-							player.sendMessage("Konto erstellt.");
-							return true;
+						if(Config.limitedToRegion().equals("create") || Config.limitedToRegion().equals("all")){
+							if(inWorldGuardRegion(player)){
+								if(account.createAccount(player)){
+									player.sendMessage("Konto eröffnet.");
+									return true;
+								}
+								else{
+									player.sendMessage("Du hast bereits ein Konto.");
+									return true;
+								}
+							}
+							else{
+								player.sendMessage("Du kannst ein Konto nur in einer Bankfiliale eröffnen.");
+								return true;
+							}
 						}
 						else{
-							player.sendMessage("Du hast bereits ein Konto.");
-							return true;
+							if(account.createAccount(player)){
+								player.sendMessage("Konto eröffnet.");
+								return true;
+							}
+							else{
+								player.sendMessage("Du hast bereits ein Konto.");
+								return true;
+							}
 						}
 					}
 					if(args[0].equals("amount")){
+						if(Config.limitedToRegion().equals("amount") || Config.limitedToRegion().equals("all")){
+							if(inWorldGuardRegion(player)){
+								double amount = account.getAccountAmount(player);
+								if(amount >= 0){
+									player.sendMessage("Dein Kontostand betr\u00E4gt "+account.getAccountAmount(player)+".");
+								}
+								else{
+									player.sendMessage("Du hast noch kein Konto.");
+								}
+								return true;
+							}
+							else{
+								player.sendMessage("Du kannst deinen Kontostand nur in einer Bankfiliale abfragen.");
+								return true;
+							}
+						}
+						else{
 							double amount = account.getAccountAmount(player);
 							if(amount >= 0){
 								player.sendMessage("Dein Kontostand betr\u00E4gt "+account.getAccountAmount(player)+".");
@@ -229,42 +303,99 @@ public class RubinBank extends JavaPlugin{
 								player.sendMessage("Du hast noch kein Konto.");
 							}
 							return true;
+						}
 					}
 					if(args.length >= 2){
 						if(args[0].equals("payin")){
-							double i;
-							try{
-								i = Double.parseDouble(args[1]);
-							} catch(NumberFormatException e){
-								player.sendMessage(ChatColor.RED + "'amount' muss eine Zahl sein!");
-								player.sendMessage("/account payin amount");
-								return true;
-							}
-							player.sendMessage(Boolean.toString(account.payinToAccount(player, i)));
-							player.sendMessage("Zahlung erfolgt.");
-						}
-						if(args[0].equals("payout")){
-							double  i;
-							try{
-								i = Double.parseDouble(args[1]);
-							} catch(NumberFormatException e){
-								player.sendMessage(ChatColor.RED + "'amount' muss eine Zahl sein!");
-								player.sendMessage("/account payout amount");
-								return true;
-							}
-							if(account.payoutFromAccount(player, i)){
-								player.sendMessage("PayOut "+i+"...");
-								int major = (int) i;
-								int minor = (int) ((i - major) * 10);
-								player.getInventory().addItem(new ItemStack(Config.getMajorID(), major));
-								if(i > 0)
-										player.getInventory().addItem(new ItemStack(Config.getMinorID(), minor));
-								return true;
-								
+							if(Config.limitedToRegion().equals("payin") || Config.limitedToRegion().equals("all")){
+								if(inWorldGuardRegion(player)){
+									double i;
+									try{
+										i = Double.parseDouble(args[1]);
+									} catch(NumberFormatException e){
+										player.sendMessage(ChatColor.RED + "'amount' muss eine Zahl sein!");
+										player.sendMessage("/account payin amount");
+										return true;
+									}
+									if(account.payinToAccount(player, i))
+										player.sendMessage(ChatColor.GREEN + "Zahlung erfolgt.");
+									else
+										player.sendMessage(ChatColor.RED + "Zahlung nicht erfolgreich :/");
+									return true;
+								}
+								else{
+									player.sendMessage("Du kannst nur in einer Bankfiliale einzahlen");
+								}
 							}
 							else{
-								player.sendMessage("Auszahlung fehlgeschlagen!");
+								double i;
+								try{
+									i = Double.parseDouble(args[1]);
+								} catch(NumberFormatException e){
+									player.sendMessage(ChatColor.RED + "'amount' muss eine Zahl sein!");
+									player.sendMessage("/account payin amount");
+									return true;
+								}
+								if(account.payinToAccount(player, i))
+									player.sendMessage(ChatColor.GREEN + "Zahlung erfolgt.");
+								else
+									player.sendMessage(ChatColor.RED + "Zahlung nicht erfolgreich :/");
 								return true;
+							}
+						}
+						if(args[0].equals("payout")){
+							if(Config.limitedToRegion().equals("payout") || Config.limitedToRegion().equals("all")){
+								if(inWorldGuardRegion(player)){
+									double  i;
+									try{
+										i = Double.parseDouble(args[1]);
+									} catch(NumberFormatException e){
+										player.sendMessage(ChatColor.RED + "'amount' muss eine Zahl sein!");
+										player.sendMessage("/account payout amount");
+										return true;
+									}
+									if(account.payoutFromAccount(player, i)){
+										player.sendMessage("PayOut "+i+"...");
+										int major = (int) i;
+										int minor = (int) ((i - major) * 10);
+										player.getInventory().addItem(new ItemStack(Config.getMajorID(), major));
+										if(i > 0)
+												player.getInventory().addItem(new ItemStack(Config.getMinorID(), minor));
+										player.sendMessage(ChatColor.GREEN + "Auszahlung erfolg.");
+										return true;
+									}
+									else{
+										player.sendMessage(ChatColor.RED + "Auszahlung fehlgeschlagen!");
+										return true;
+									}
+								}
+								else{
+									player.sendMessage("Du kannst nur in einer Bankfiliale Geld abheben.");
+								}
+							}
+							else{
+								double  i;
+								try{
+									i = Double.parseDouble(args[1]);
+								} catch(NumberFormatException e){
+									player.sendMessage(ChatColor.RED + "'amount' muss eine Zahl sein!");
+									player.sendMessage("/account payout amount");
+									return true;
+								}
+								if(account.payoutFromAccount(player, i)){
+									player.sendMessage("PayOut "+i+"...");
+									int major = (int) i;
+									int minor = (int) ((i - major) * 10);
+									player.getInventory().addItem(new ItemStack(Config.getMajorID(), major));
+									if(i > 0)
+											player.getInventory().addItem(new ItemStack(Config.getMinorID(), minor));
+									player.sendMessage(ChatColor.GREEN + "Auszahlung erfolg.");
+									return true;
+								}
+								else{
+									player.sendMessage(ChatColor.RED + "Auszahlung fehlgeschlagen!");
+									return true;
+								}
 							}
 						}
 					}
@@ -296,17 +427,7 @@ public class RubinBank extends JavaPlugin{
 						player.sendMessage(ChatColor.RED + "Interner Fehler! Versuche es später noch ein mal... #mysql #lastlog");
 						return true;
 					}
-
 				}
-			}
-			if(cmd.getName().equalsIgnoreCase("spawn")){
-				if(Config.hasSpawn(player.getWorld().getName())){
-					player.teleport(Config.getSpawn(player.getWorld().getName()));
-					return true;
-				}
-				else
-					player.sendMessage("Kein Spawn gesetzt.");
-				return true;
 			}
 		}//PLAYER END
 		else{
@@ -389,24 +510,33 @@ public class RubinBank extends JavaPlugin{
 		return url;
 	}
 	public static boolean isinDB(Player p){
-		try{
-			Connection con = DriverManager.getConnection(url);
-			
-			Statement stmt = con.createStatement();
-			
-			ResultSet rs = stmt.executeQuery("select * from "+Config.DataBaseAndTable());
-			
-			while(rs.next()){
-				if(rs.getString("user").equals(p.getName())){
-					return true;
-				}
-			}
-		} catch (SQLException e) {
-			log.severe("MySQL Exception:\n"+e.toString());
-		}
-		return false;
+		return MySQL.isInDB(p);
 	}
 	public static Connection getConnection(){
 		return con;
+	}
+	public static boolean getUseWorldGuard(){
+		return useWorldGuard;
+	}
+	public static void setUseWorldGuard(){
+		if(Config.useWorldGuard()){
+			useWorldGuard = true;
+		}
+	}
+	public static boolean inWorldGuardRegion(Player player){
+		if(Bukkit.getPluginManager().getPlugin("WorldGuard").isEnabled()){
+			WorldGuardPlugin wgp = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
+			ApplicableRegionSet regions = wgp.getRegionManager(player.getWorld()).getApplicableRegions(player.getLocation());
+			for(Iterator<ProtectedRegion> i = regions.iterator(); i.hasNext();){
+				ProtectedRegion region = i.next();
+				if(region.getParent().equals(Config.getRegion())){
+					return true;
+				}
+			}
+			return false;
+		}
+		else{
+			return false;
+		}
 	}
 }

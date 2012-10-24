@@ -4,6 +4,7 @@ package me.criztovyl.rubinbank.listeners;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.tools.MySQL;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.server.PluginEnableEvent;
 
 
 public class listeners implements Listener{
@@ -32,7 +34,7 @@ public class listeners implements Listener{
 		//Test Sign
 		String test = "Test";
 		if(lines[0].equals(test)){
-			if(player.hasPermission("RubinBank.dummy")){
+			if(player.hasPermission("RubinBank")){
 				evt.setLine(1, ChatColor.STRIKETHROUGH+"STRIKETHROUGH");
 				player.sendMessage("Its a Test Sign...");
 			}
@@ -48,6 +50,13 @@ public class listeners implements Listener{
 		else{
 			RubinBank.log.info("Updated Last Login");
 			MySQL.updateLastLogin(evt.getPlayer());
+		}
+	}
+	@EventHandler
+	public static void onPluginLoad(PluginEnableEvent evt){
+		if(evt.getPlugin().getName().equals("WorldGuard")){
+			RubinBank.setUseWorldGuard();
+			Bukkit.getPluginManager().getPlugin("RubinBank").getLogger().info("WorldGuard found :)");
 		}
 	}
 }
