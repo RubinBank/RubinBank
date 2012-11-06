@@ -7,7 +7,8 @@ MySQL:
         User: user
         Password: password
         Database: RubinBank
-        Table: RubinBank
+        Table_Users: RubinBank
+        Table_Bankomats: Bankomats
 Currency:
     Name:
         Major:
@@ -21,7 +22,6 @@ Currency:
         ItemID: 388
     Minor:
         ItemID: 266
-        ratio100: false #if true use ratio 1/100. Default is 1/10.
 WorldGuardOptions:
     limitToRegionWithParent: RubinBankAgency
     commandsLimitedToRegion: [create, payin, payout] #options: "create" (an account), "payin", "payout", "amount", "all"

@@ -1,7 +1,6 @@
 name: RubinBank
 main: me.criztovyl.rubinbank.RubinBank
-version: prerelease-20121024
-database: true
+version:  2012-11-01Prerelease3
 prefix: RubinBank
 commands:
     rubinbank:
@@ -12,8 +11,6 @@ commands:
         aliases: rb
     error:
         description: Error Command
-    yaw:
-        description: Die Drehung des Spielers
     tools:
         description: Wichtige Werkzeuge.
     mysql:
@@ -25,10 +22,6 @@ commands:
         permission: RubinBank.account
         permission-message: Du brauchst die Berechtigung fuer "RubinBank.account".
         aliases: konto
-    rain:
-       description: Regen (oder Sturm) ein- oder ausschalten.
-       permission: RubinBank.rain
-       permission-message: Du brauchst die Berechtigung fuer "RubinBank.rain"
     lastlog:
        description: Letztes Login eines oder alles Spieler.
        permission: RubinBank.lastlog

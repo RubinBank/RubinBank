@@ -4,17 +4,9 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 public class Config {
 	public static String sep = File.separator;
-	JavaPlugin jp;
-	private static File RubinBankConf = new File(Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getDataFolder() + sep + "config.yml");
 	private static FileConfiguration conf = Bukkit.getServer().getPluginManager().getPlugin("RubinBank").getConfig();
-	public Config(){
-		if(!RubinBankConf.exists()){
-			Bukkit.getServer().getPluginManager().getPlugin("RubinBank").saveDefaultConfig();
-		}
-	}
 	public static boolean enable(){
 		return conf.getBoolean("enabled.RubinBank");
 	}
@@ -22,15 +14,7 @@ public class Config {
 		return conf.getInt("Currency.Major.ItemID");
 	}
 	public static int getMinorID(){
-		if(useMinor()){
-			return conf.getInt("Currency.Minor.ItemID");
-		}
-		else{
-		return -1;
-		}
-	}
-	public static boolean useMinor(){
-		return conf.getBoolean("Currency.Minor.useItem");
+		return conf.getInt("Currency.Minor.ItemID");
 	}
 	public static String getMajorS(){
 		return conf.getString("Currency.Name.Major.Singular");
@@ -73,7 +57,11 @@ public class Config {
 	}
 	public static String DataBaseAndTable(){
 		return conf.getString("MySQL.Host.Database") + "."
-				+ conf.getString("MySQL.Host.Table");
+				+ conf.getString("MySQL.Host.Table_Users");
+	}
+	public static String DataBaseAndTable2(){
+		return conf.getString("MySQL.Host.Database") + "."
+				+ conf.getString("MySQL.Host.Table_Bankomats");
 	}
 	public static boolean useWorldGuard(){
 		return conf.getBoolean("enabled.WorldGuard");

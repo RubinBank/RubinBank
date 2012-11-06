@@ -17,7 +17,7 @@ public class account {
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
+			ResultSet rs = stmt.executeQuery("select amount, account from " + Config.DataBaseAndTable() + " where user='" + p.getName() + "'");
 			
 			rs.first();
 			
@@ -26,10 +26,10 @@ public class account {
 			if(hasaccount)
 				return false;
 			
-			stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount=0, account=true where user='"+p.getName()+"'");
+			stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount=0, account=true where user='" + p.getName() + "'");
 			return true;
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString());
 			return false;
 		}
 	}
@@ -37,13 +37,13 @@ public class account {
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
+			ResultSet rs = stmt.executeQuery("select amount, account from " + Config.DataBaseAndTable() + " where user='" + p.getName() + "'");
 			
 			rs.first();
 			
 			return rs.getBoolean("account");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString());
 			return false;
 		}
 
@@ -67,13 +67,23 @@ public class account {
 	}
 	public static boolean payinToAccount(Player p, double incrase){
 		int major = (int) incrase;
-		int minor = (int) (incrase - major)*10;
-		p.sendMessage("Major: "+major);
-		p.sendMessage("Minor: "+minor);
-		if(p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major) && p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor)){
+		int minor = (int) (Math.round( ((incrase - major)*10) * 100.0 ) / 100.0);//Thanks to http://stackoverflow.com/a/4796874
+		incrase = Math.round((incrase * 100.0 ) / 100.0);//Thanks to http://stackoverflow.com/a/4796874
+		boolean hasmajor = p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major);
+		boolean hasminor = p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor);
+		boolean ignoreminor;
+		if(minor <= 0){
+			hasminor = true;
+			ignoreminor = true;
+		}
+		else{
+			ignoreminor = false;
+		}
+		if(hasmajor && hasminor){
 			try{
 				p.getInventory().removeItem(new ItemStack(Config.getMajorID(), major));
-				p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));
+				if(!ignoreminor)
+					p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));
 			} catch(Exception e){
 			 RubinBank.log.severe(e.toString());
 			 return false;
@@ -105,7 +115,7 @@ public class account {
 			}
 		}
 		else{
-			p.sendMessage("Du hast nicht genug Items in deinem Inventar!");
+			p.sendMessage("Du hast nicht genug Items in deinem Inventar! ");
 			return false;
 		}
 
@@ -122,13 +132,19 @@ public class account {
 			if(rs.getBoolean("account")){
 				double amount = rs.getDouble("amount");
 				amount -= decrase;
-				RubinBank.log.info("Amount: "+amount);
 				if(amount >= 0){
 					stmt.executeUpdate("update "+Config.DataBaseAndTable()+" set amount=\""+amount+"\" where user=\""+p.getName()+"\"");
+					int major = (int) decrase;
+					int minor = (int) (Math.round( ((decrase - major)*10) * 100.0 ) / 100.0);//Thanks to http://stackoverflow.com/a/4796874
+					ItemStack majorStack = new ItemStack(Config.getMajorID(), major);
+					ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);
+					p.getInventory().addItem(minorStack);
+					p.getInventory().addItem(majorStack);
 					return true;
 				}
 				else{
 					RubinBank.log.info("Player "+p.getName()+" PayOut Error...(amount < 0)");
+					p.sendMessage("Du hast nicht genug Geld!");
 					return false;
 				}
 			}
