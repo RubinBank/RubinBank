@@ -7,6 +7,7 @@ import java.sql.Statement;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.config.Config;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -57,7 +58,7 @@ public class account {
 			rs.first();
 			
 			if(rs.getBoolean("account"))
-				return rs.getDouble("amount");
+				return (double) Math.round(rs.getDouble("amount")*10)/10;
 			else
 				return -1;
 		} catch(SQLException e){
@@ -66,9 +67,9 @@ public class account {
 		}
 	}
 	public static boolean payinToAccount(Player p, double incrase){
+		incrase = (double) Math.round((incrase * 10 ))/10;
 		int major = (int) incrase;
-		int minor = (int) (Math.round( ((incrase - major)*10) * 100.0 ) / 100.0);//Thanks to http://stackoverflow.com/a/4796874
-		incrase = Math.round((incrase * 100.0 ) / 100.0);//Thanks to http://stackoverflow.com/a/4796874
+		int minor = (int) ((double) Math.round(((incrase - major)*10)*10)/10);
 		boolean hasmajor = p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major);
 		boolean hasminor = p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor);
 		boolean ignoreminor;
@@ -101,11 +102,9 @@ public class account {
 				if(!rs.getBoolean("account"))
 					return false;
 				
-				p.sendMessage("Kontostand: "+amount);
+				amount += (double) Math.round(incrase * 10) /10;
 				
-				amount += incrase;
-				
-				p.sendMessage("neuer Kontostand: "+amount);
+				p.sendMessage(ChatColor.DARK_AQUA + "neuer Kontostand: " + (Math.round(amount * 10)/10));
 				
 				stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount="+amount+" where user='"+p.getName()+"'");
 				return true;
@@ -115,7 +114,7 @@ public class account {
 			}
 		}
 		else{
-			p.sendMessage("Du hast nicht genug Items in deinem Inventar! ");
+			p.sendMessage(ChatColor.YELLOW + "Du hast nicht genug Items in deinem Inventar! ");
 			return false;
 		}
 
@@ -131,11 +130,11 @@ public class account {
 			
 			if(rs.getBoolean("account")){
 				double amount = rs.getDouble("amount");
-				amount -= decrase;
+				amount -= (double) Math.round((decrase * 10 ))/10;;
 				if(amount >= 0){
 					stmt.executeUpdate("update "+Config.DataBaseAndTable()+" set amount=\""+amount+"\" where user=\""+p.getName()+"\"");
 					int major = (int) decrase;
-					int minor = (int) (Math.round( ((decrase - major)*10) * 100.0 ) / 100.0);//Thanks to http://stackoverflow.com/a/4796874
+					int minor = (int) ((double) Math.round(((decrase - major)*10)*10)/10);
 					ItemStack majorStack = new ItemStack(Config.getMajorID(), major);
 					ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);
 					p.getInventory().addItem(minorStack);
@@ -144,7 +143,7 @@ public class account {
 				}
 				else{
 					RubinBank.log.info("Player "+p.getName()+" PayOut Error...(amount < 0)");
-					p.sendMessage("Du hast nicht genug Geld!");
+					p.sendMessage(ChatColor.YELLOW + "Du hast nicht genug Geld!");
 					return false;
 				}
 			}

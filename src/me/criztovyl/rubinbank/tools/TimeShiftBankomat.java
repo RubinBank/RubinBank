@@ -6,6 +6,7 @@ import java.util.Map;
 
 import me.criztovyl.rubinbank.account.account;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -39,5 +40,16 @@ public class TimeShiftBankomat {
 			account.payinToAccount(p, amount);
 		}
 		type.remove(p);
+		shiftedBankomats.remove(p);
+	}
+	public static boolean isShifted(Player p){
+		return shiftedBankomats.contains(p);
+	}
+	public static void removeShifted(Player p){
+		if(isShifted(p)){
+			shiftedBankomats.remove(p);
+			type.remove(p);
+			p.sendMessage(ChatColor.YELLOW + "Chat reaktiviert.");
+		}
 	}
 }

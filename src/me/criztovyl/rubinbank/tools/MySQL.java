@@ -1,8 +1,6 @@
 package me.criztovyl.rubinbank.tools;
 
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,8 +21,7 @@ import org.bukkit.entity.Player;
 public class MySQL{
 	public static void addPlayer(Player p){
 		try{
-			Connection con = DriverManager.getConnection(RubinBank.getURL());
-			Statement stmt = con.createStatement();
+			Statement stmt = RubinBank.getConnection().createStatement();
 			
 			stmt.executeUpdate("insert into "+Config.DataBaseAndTable()+" values(default, '"+p.getName()+"', default, default, now())");
 		} catch(SQLException e){
@@ -76,6 +73,7 @@ public class MySQL{
 			}
 		} catch (SQLException e) {
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Select * from " + Config.DataBaseAndTable());
+			return true;
 		}
 		return false;
 	}
@@ -160,6 +158,53 @@ public class MySQL{
 			return true;
 		} catch(SQLException e){
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: Delete from " + Config.DataBaseAndTable2() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
+			return false;
+		}
+	}
+	public static void addTriggerButton(Location loc, String type){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			stmt.executeUpdate("Insert into " +  Config.DataBaseAndTable3() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Error: Insert into " +  Config.DataBaseAndTable3() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld() + "\", \"" + type +"\")");
+			RubinBank.log.severe(e.toString());
+		}
+	}
+	public static void updateTriggerButtons(){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			ResultSet rs = stmt.executeQuery("Select * from " +  Config.DataBaseAndTable3());
+			
+			ArrayList<Location> triggerButtons = new ArrayList<Location>();
+			Map<Location, TriggerButtonType> triggerButtonType = new HashMap<Location, TriggerButtonType>();
+			while(rs.next()){
+				int locX = rs.getInt("LocationX");
+				int locY = rs.getInt("LocationY");
+				int locZ = rs.getInt("LocationZ");
+				World world = Bukkit.getWorld(rs.getString("LocationWorld"));
+				TriggerButtonType type = TriggerButtonType.valueOf(rs.getString("Type"));
+				Location loc = new Location(world, locX, locY, locZ);
+				triggerButtons.add(loc);
+				triggerButtonType.put(loc, type);
+			}
+			TriggerButton.updateTriggerButtons(triggerButtons, triggerButtonType);
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Error: Select * from " +  Config.DataBaseAndTable3());
+			RubinBank.log.severe(e.toString());
+		}
+	}
+	public static boolean removeTriggerButton(Location loc){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			stmt.executeUpdate("Delete from " + Config.DataBaseAndTable3() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
+			
+			updateTriggerButtons();
+			return true;
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: Delete from " + Config.DataBaseAndTable3() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
 			return false;
 		}
 	}

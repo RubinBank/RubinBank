@@ -2,8 +2,11 @@ package me.criztovyl.rubinbank.listeners;
 
 
 import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.account.account;
 import me.criztovyl.rubinbank.tools.MySQL;
 import me.criztovyl.rubinbank.tools.TimeShiftBankomat;
+import me.criztovyl.rubinbank.tools.TriggerButton;
+import me.criztovyl.rubinbank.tools.TriggerButtonType;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -31,9 +34,30 @@ public class listeners implements Listener{
 					|| evt.getClickedBlock().getType().equals(Material.WALL_SIGN)){
 				BlockState state = evt.getClickedBlock().getState();
 				Sign sign = (Sign) state;
-				if(sign.getLine(0).equals("[RubinBank]")){
-					evt.getPlayer().sendMessage(ChatColor.DARK_BLUE+"Nope.");					
+				if(sign.getLine(0).equals(ChatColor.DARK_AQUA + "[RubinBank]")){
+					evt.getPlayer().sendMessage(ChatColor.DARK_BLUE + "Nope.");					
 				}	
+			}
+			if(evt.getClickedBlock().getType().equals(Material.STONE_BUTTON) || evt.getClickedBlock().equals(Material.WOOD_BUTTON)){
+				if(TriggerButton.isTriggerButton(evt.getClickedBlock().getLocation())){
+					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.AMOUNT)){
+						if(account.hasAccount(evt.getPlayer())){
+							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Dein Kontostand beträgt: " + account.getAccountAmount(evt.getPlayer()));
+						}
+						else{
+							evt.getPlayer().sendMessage(ChatColor.YELLOW + "Du hast kein Konto");
+						}
+					}
+					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.CREATE)){
+						boolean done = account.createAccount(evt.getPlayer());
+						if(done){
+							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Konto erstellt.");
+						}
+						else{
+							evt.getPlayer().sendMessage(ChatColor.YELLOW + "Du hast schon ein Konto.");
+						}
+					}
+				}
 			}
 		}
 	}
@@ -46,23 +70,24 @@ public class listeners implements Listener{
 				if(lines[3].toLowerCase().equals("up") || lines[3].toLowerCase().equals("down") || lines[3].toLowerCase().equals("2x2d") || lines[3].toLowerCase().equals("2x2u")){
 					if(lines[2].equals("Auszahlen")){
 						MySQL.insertBankomat(evt.getBlock().getLocation(), "Auszahlen", lines[3]);
-						player.sendMessage("Auszahlen...");
 					}
 					if(lines[2].equals("Einzahlen")){
 						MySQL.insertBankomat(evt.getBlock().getLocation(), "Einzahlen", lines[3]);
-						player.sendMessage("Einzahlen...");
 					}
 					if(lines[2].equals("Kontostand")){
 						MySQL.insertBankomat(evt.getBlock().getLocation(), "Amount", lines[3]);
-						player.sendMessage("Kontostand...");
+					}
+					if(lines[2].equals("Erstellen")){
+						MySQL.insertBankomat(evt.getBlock().getLocation(), "Create", lines[3]);
 					}
 					evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
-					player.sendMessage("Added Bankomat");
+					player.sendMessage(ChatColor.DARK_AQUA + "Added Bankomat");
 				}
 				else{
 					player.sendMessage("Zeile vier ist ungültig.");
 				}
 			}
+			evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
 		}
 	}
 	@EventHandler
@@ -70,10 +95,15 @@ public class listeners implements Listener{
 		if(evt.getBlock().getType().equals(Material.SIGN_POST) || evt.getBlock().getType().equals(Material.SIGN)
 				|| evt.getBlock().getType().equals(Material.WALL_SIGN)){
 			Sign sign = (Sign) evt.getBlock().getState();
-			if(sign.getLine(0).equals("[RubinBank]") || sign.getLine(0).equals("[RB]")){
+			if(sign.getLine(0).equals(ChatColor.DARK_AQUA + "[RubinBank]") || sign.getLine(0).equals("[RB]")){
 				if(sign.getLine(1).equals("Bankomat")){
 					MySQL.removeBankomat(evt.getBlock().getLocation());
 				}
+			}
+		}
+		if(evt.getBlock().getType().equals(Material.STONE_BUTTON) || evt.getBlock().equals(Material.WOOD_BUTTON)){
+			if(TriggerButton.isTriggerButton(evt.getBlock().getLocation())){
+				MySQL.removeTriggerButton(evt.getBlock().getLocation());
 			}
 		}
 	}

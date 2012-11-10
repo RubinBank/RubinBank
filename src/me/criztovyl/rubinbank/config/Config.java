@@ -63,6 +63,10 @@ public class Config {
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Bankomats");
 	}
+	public static String DataBaseAndTable3(){
+		return conf.getString("MySQL.Host.Database") + "."
+				+ conf.getString("MySQL.Host.Table_TriggerButtons");
+	}
 	public static boolean useWorldGuard(){
 		return conf.getBoolean("enabled.WorldGuard");
 	}
