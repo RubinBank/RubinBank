@@ -103,9 +103,9 @@ public class account {
 				if(!rs.getBoolean("account"))
 					return false;
 				
-				amount += (double) Math.round(incrase * 10) /10;
+				amount += (double) (Math.round(incrase * 10) /10);
 				
-				p.sendMessage(ChatColor.DARK_AQUA + "neuer Kontostand: " + (Math.round(amount * 10)/10));
+				p.sendMessage(ChatColor.DARK_AQUA + "neuer Kontostand: " + (Math.round(amount * 100)/100));
 				
 				stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount="+amount+" where user='"+p.getName()+"'");
 				return true;
@@ -121,40 +121,46 @@ public class account {
 
 	}
 	public static boolean payoutFromAccount(Player p, double decrase){
-		try{
-			
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user=\""+p.getName()+"\"");
-			
-			rs.first();
-			
-			if(rs.getBoolean("account")){
-				double amount = rs.getDouble("amount");
-				amount -= (double) Math.round((decrase * 10 ))/10;;
-				if(amount >= 0){
-					stmt.executeUpdate("update "+Config.DataBaseAndTable()+" set amount=\""+amount+"\" where user=\""+p.getName()+"\"");
-					int major = (int) decrase;
-					int minor = (int) ((double) Math.round(((decrase - major)*10)*10)/10);
-					ItemStack majorStack = new ItemStack(Config.getMajorID(), major);
-					ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);
-					p.getInventory().addItem(minorStack);
-					p.getInventory().addItem(majorStack);
-					return true;
+		if(decrase > 0){
+			try{
+				
+				Statement stmt = RubinBank.getConnection().createStatement();
+				
+				ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user=\""+p.getName()+"\"");
+				
+				rs.first();
+				
+				if(rs.getBoolean("account")){
+					double amount = rs.getDouble("amount");
+					amount -= (double) Math.round((decrase * 10 ))/10;;
+					if(amount >= 0){
+						stmt.executeUpdate("update "+Config.DataBaseAndTable()+" set amount=\""+amount+"\" where user=\""+p.getName()+"\"");
+						int major = (int) decrase;
+						int minor = (int) ((double) Math.round(((decrase - major)*10)*10)/10);
+						ItemStack majorStack = new ItemStack(Config.getMajorID(), major);
+						ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);
+						if(minor > 0)
+							p.getInventory().addItem(minorStack);
+						p.getInventory().addItem(majorStack);
+						return true;
+					}
+					else{
+						RubinBank.log.info("Player "+p.getName()+" PayOut Error...(amount < 0)");
+						p.sendMessage(ChatColor.YELLOW + "Du hast nicht genug Geld!");
+						return false;
+					}
 				}
 				else{
-					RubinBank.log.info("Player "+p.getName()+" PayOut Error...(amount < 0)");
-					p.sendMessage(ChatColor.YELLOW + "Du hast nicht genug Geld!");
+					RubinBank.log.info("Player "+p.getName()+" PayOut Error... has no account");
 					return false;
 				}
-			}
-			else{
-				RubinBank.log.info("Player "+p.getName()+" PayOut Error... has no account");
+			} catch(SQLException e){
+				RubinBank.log.info("SQLEception: "+e.toString());
 				return false;
 			}
-		} catch(SQLException e){
-			RubinBank.log.info("SQLEception: "+e.toString());
-			return false;
+		}
+		else{
+			return true;
 		}
 	}
 }

@@ -19,45 +19,65 @@ public class TimeShiftBankomat {
 	}
 	public static void ChatEvent(AsyncPlayerChatEvent evt){
 		Player p = evt.getPlayer();
+		String msg = evt.getMessage();
+		boolean okay = false;
 		if(type.containsKey(p)){
 			if(shiftedBankomats.contains(p)){
 				if(type.get(p).equals(BankomatType.IN) || type.get(p).equals(BankomatType.OUT)){
 					double amount;
 					try{
-						amount = Double.parseDouble(evt.getMessage());
+						amount = Double.parseDouble(msg);
 					} catch(NumberFormatException e){
 						p.sendMessage("Du musst eine Zahl eingeben. Keine Komma, einen Punkt: 10.1 statt 10,1");
 						return;
 					}
 					continueBankomat(p, amount);
 					evt.setCancelled(true);
+					okay = true;
 				}
-				if(type.get(p).equals(BankomatType.CHOOSING)){
-					String msg = evt.getMessage();
-					if(msg.toLowerCase().equals("abheben")){
-						removeShiftedNoMsg(p);
-						
-						addShiftedBankomat(p, BankomatType.OUT);
-						evt.setCancelled(true);
-					}
-					if(msg.toLowerCase().equals("einzahlen")){
-						removeShiftedNoMsg(p);
-						addShiftedBankomat(p, BankomatType.IN);
-						p.sendMessage("Einzahlen");
-						evt.setCancelled(true);
-					}
-					if(msg.toLowerCase().equals("kontostand")){
-						removeShiftedNoMsg(p);
-						double amount = account.getAccountAmount(p);
-						p.sendMessage(ChatColor.DARK_AQUA + "Kontostand: " + amount);
-						evt.setCancelled(true);
-					}
-					if(msg.toLowerCase().equals("konto erstellen") || msg.toLowerCase().equals("erstellen")){
-						removeShiftedNoMsg(p);
-						account.createAccount(p);
-						evt.setCancelled(true);
+				if(type.containsKey(p)){
+					if(type.get(p).equals(BankomatType.CHOOSING)){
+						if(msg.toLowerCase().equals("abheben") || msg.toLowerCase().equals("auszahlen")){
+							removeShiftedNoMsg(p);
+							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Bitte gib den Betrag den du auszahlen möchtest in den Chat ein.(aber 10.7 statt 10,7)\n" +
+									"Dein Chat ist deaktiviert bis du einen Betrag eingegeben hast.");
+							addShiftedBankomat(p, BankomatType.OUT);
+							evt.setCancelled(true);
+							okay = true;
+						}
+						if(msg.toLowerCase().equals("einzahlen")){
+							removeShiftedNoMsg(p);
+							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Bitte gib den Betrag den du einzahlen möchtest in den Chat ein.(aber 10.7 statt 10,7)\n" +
+									"Dein Chat ist deaktiviert bis du einen Betrag eingegeben hast.");
+							evt.setCancelled(true);
+							okay = true;
+							addShiftedBankomat(p, BankomatType.IN);
+						}
+						if(msg.toLowerCase().equals("kontostand")){
+							removeShiftedNoMsg(p);
+							double amount = account.getAccountAmount(p);
+							p.sendMessage(ChatColor.DARK_AQUA + "Kontostand: " + amount);
+							evt.setCancelled(true);
+							okay = true;
+						}
+						if(msg.toLowerCase().equals("konto erstellen") || msg.toLowerCase().equals("erstellen")){
+							removeShiftedNoMsg(p);
+							account.createAccount(p);
+							evt.setCancelled(true);
+							okay = true;
+						}
 					}
 				}
+				if(msg.toLowerCase().equals("ende")){
+					removeShifted(p);
+					evt.setCancelled(true);
+					okay = true;
+				}
+				if(!okay){
+					p.sendMessage(ChatColor.YELLOW + "Unbekannte Aktion, bitte wiederholen. Ende mit \"ende\"");
+				evt.setCancelled(true);
+				}
+				
 			}
 		}
 	}
@@ -86,5 +106,9 @@ public class TimeShiftBankomat {
 			shiftedBankomats.remove(p);
 			type.remove(p);
 		}
+	}
+	public static void reset(){
+		shiftedBankomats = new ArrayList<Player>();
+		type = new HashMap<Player, BankomatType>();
 	}
 }

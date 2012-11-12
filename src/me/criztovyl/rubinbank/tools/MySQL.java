@@ -77,14 +77,14 @@ public class MySQL{
 		}
 		return false;
 	}
-	public static void insertBankomat(Location loc, String type, String pos){
+	public static void insertBankomat(Location loc, String pos){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("Insert into " + Config.DataBaseAndTable2() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type + "\", \"" + pos + "\")");
+			stmt.executeUpdate("Insert into " + Config.DataBaseAndTable2() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\")");
 		} catch(SQLException e){
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.DataBaseAndTable2() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type + "\", \"" + pos +"\")");
+					"Insert into " + Config.DataBaseAndTable2() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos +"\")");
 		}
 		RubinBank.updateBankomatLocs();
 	}

@@ -59,26 +59,15 @@ public class listeners implements Listener{
 	public static void onSignChange(SignChangeEvent evt){
 		Player player = evt.getPlayer();
 		String[] lines = evt.getLines();
-		if(lines[0].equals("[RubinBank]") || lines[0].equals("[RB]")){			
-			if(lines[1].equals("Bankomat")){
-				if(lines[3].toLowerCase().equals("up") || lines[3].toLowerCase().equals("down") || lines[3].toLowerCase().equals("2x2d") || lines[3].toLowerCase().equals("2x2u")){
-					if(lines[2].equals("Auszahlen")){
-						MySQL.insertBankomat(evt.getBlock().getLocation(), "Auszahlen", lines[3]);
-					}
-					if(lines[2].equals("Einzahlen")){
-						MySQL.insertBankomat(evt.getBlock().getLocation(), "Einzahlen", lines[3]);
-					}
-					if(lines[2].equals("Kontostand")){
-						MySQL.insertBankomat(evt.getBlock().getLocation(), "Amount", lines[3]);
-					}
-					if(lines[2].equals("Erstellen")){
-						MySQL.insertBankomat(evt.getBlock().getLocation(), "Create", lines[3]);
-					}
+		if(lines[0].equals("[RubinBank]") || lines[0].equals("[RB]")){
+			if(lines[1].toLowerCase().equals("bankomat")){
+				if(lines[2].toLowerCase().equals("up") || lines[2].toLowerCase().equals("down") || lines[2].toLowerCase().equals("2x2d") || lines[2].toLowerCase().equals("2x2u")){
+					MySQL.insertBankomat(evt.getBlock().getLocation(), lines[2].toLowerCase());
 					evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
 					player.sendMessage(ChatColor.DARK_AQUA + "Added Bankomat");
 				}
 				else{
-					player.sendMessage("Zeile vier ist ungültig.");
+					player.sendMessage("Zeile drei ist ungültig.");
 				}
 			}
 			evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");

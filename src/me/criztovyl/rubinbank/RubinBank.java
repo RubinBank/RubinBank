@@ -69,7 +69,7 @@ public class RubinBank extends JavaPlugin{
 				Statement stmt = con.createStatement();
 				
 				stmt.executeUpdate("create table if not exists " + Config.DataBaseAndTable() + " (id int not null auto_increment primary key, user varchar(50) not null, amount double, account boolean default 0, lastlogin date)");
-				stmt.executeUpdate("create table if not exists " + Config.DataBaseAndTable2() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Type varchar(20), Pos varchar(8))");
+				stmt.executeUpdate("create table if not exists " + Config.DataBaseAndTable2() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Pos varchar(8))");
 				stmt.executeUpdate("create table if not exists " + Config.DataBaseAndTable3() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Type varchar(20))");
 			} catch(SQLException e){
 				log.severe("MySQL Exception:\n"+e.toString());
@@ -105,6 +105,7 @@ public class RubinBank extends JavaPlugin{
 
 	}
 	public void onDisable(){
+		TimeShiftBankomat.reset();
 		date2 = new Date();
 		String Time;
 		long time = date2.getTime() - date1.getTime();
@@ -585,7 +586,7 @@ public class RubinBank extends JavaPlugin{
 			if(!BankomatTriggers.sameBankomat(locFrom, locTo)){
 				if(!triggers.isEmpty()){
 					if(RubinBank.isInBankomatTriggers(locTo)){
-						evt.getPlayer().sendMessage("Möchtest du Abheben, Einzahlen, Kontostand oder Konto erstellen?");
+						evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Möchtest du Abheben, Einzahlen, Kontostand oder Konto erstellen?");
 						TimeShiftBankomat.addShiftedBankomat(evt.getPlayer(), BankomatType.CHOOSING);
 					}
 				}
