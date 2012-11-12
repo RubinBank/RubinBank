@@ -18,17 +18,47 @@ public class TimeShiftBankomat {
 		type.put(p, t);
 	}
 	public static void ChatEvent(AsyncPlayerChatEvent evt){
-		if(shiftedBankomats.contains(evt.getPlayer())){
-			double amount;
-			try{
-				amount = Double.parseDouble(evt.getMessage());
-			} catch(NumberFormatException e){
-				evt.getPlayer().sendMessage("Du musst eine Zahl eingeben. Keine Komma, einen Punkt: 10.1 statt 10,1");
-				return;
+		Player p = evt.getPlayer();
+		if(type.containsKey(p)){
+			if(shiftedBankomats.contains(p)){
+				if(type.get(p).equals(BankomatType.IN) || type.get(p).equals(BankomatType.OUT)){
+					double amount;
+					try{
+						amount = Double.parseDouble(evt.getMessage());
+					} catch(NumberFormatException e){
+						p.sendMessage("Du musst eine Zahl eingeben. Keine Komma, einen Punkt: 10.1 statt 10,1");
+						return;
+					}
+					continueBankomat(p, amount);
+					evt.setCancelled(true);
+				}
+				if(type.get(p).equals(BankomatType.CHOOSING)){
+					String msg = evt.getMessage();
+					if(msg.toLowerCase().equals("abheben")){
+						removeShiftedNoMsg(p);
+						
+						addShiftedBankomat(p, BankomatType.OUT);
+						evt.setCancelled(true);
+					}
+					if(msg.toLowerCase().equals("einzahlen")){
+						removeShiftedNoMsg(p);
+						addShiftedBankomat(p, BankomatType.IN);
+						p.sendMessage("Einzahlen");
+						evt.setCancelled(true);
+					}
+					if(msg.toLowerCase().equals("kontostand")){
+						removeShiftedNoMsg(p);
+						double amount = account.getAccountAmount(p);
+						p.sendMessage(ChatColor.DARK_AQUA + "Kontostand: " + amount);
+						evt.setCancelled(true);
+					}
+					if(msg.toLowerCase().equals("konto erstellen") || msg.toLowerCase().equals("erstellen")){
+						removeShiftedNoMsg(p);
+						account.createAccount(p);
+						evt.setCancelled(true);
+					}
+				}
 			}
-			evt.setCancelled(true);
-			continueBankomat(evt.getPlayer(), amount);
-			
 		}
 	}
 	public static void continueBankomat(Player p, double amount){
@@ -39,8 +69,7 @@ public class TimeShiftBankomat {
 		if(t.equals(BankomatType.IN)){
 			account.payinToAccount(p, amount);
 		}
-		type.remove(p);
-		shiftedBankomats.remove(p);
+		removeShifted(p);
 	}
 	public static boolean isShifted(Player p){
 		return shiftedBankomats.contains(p);
@@ -50,6 +79,12 @@ public class TimeShiftBankomat {
 			shiftedBankomats.remove(p);
 			type.remove(p);
 			p.sendMessage(ChatColor.YELLOW + "Chat reaktiviert.");
+		}
+	}
+	public static void removeShiftedNoMsg(Player p){
+		if(isShifted(p)){
+			shiftedBankomats.remove(p);
+			type.remove(p);
 		}
 	}
 }

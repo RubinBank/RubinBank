@@ -49,13 +49,7 @@ public class listeners implements Listener{
 						}
 					}
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.CREATE)){
-						boolean done = account.createAccount(evt.getPlayer());
-						if(done){
-							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Konto erstellt.");
-						}
-						else{
-							evt.getPlayer().sendMessage(ChatColor.YELLOW + "Du hast schon ein Konto.");
-						}
+						account.createAccount(evt.getPlayer());
 					}
 				}
 			}

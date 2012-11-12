@@ -275,14 +275,8 @@ public class RubinBank extends JavaPlugin{
 					if(args[0].equals("create")){
 						if(Config.limitedToRegion().equals("create") || Config.limitedToRegion().equals("all")){
 							if(inWorldGuardRegion(player)){
-								if(account.createAccount(player)){
-									player.sendMessage("Konto eröffnet.");
-									return true;
-								}
-								else{
-									player.sendMessage("Du hast bereits ein Konto.");
-									return true;
-								}
+								account.createAccount(player);
+								return true;
 							}
 							else{
 								player.sendMessage("Du kannst ein Konto nur in einer Bankfiliale eröffnen.");
@@ -290,14 +284,8 @@ public class RubinBank extends JavaPlugin{
 							}
 						}
 						else{
-							if(account.createAccount(player)){
-								player.sendMessage("Konto eröffnet.");
-								return true;
-							}
-							else{
-								player.sendMessage("Du hast bereits ein Konto.");
-								return true;
-							}
+							account.createAccount(player);
+							return true;
 						}
 					}
 					if(args[0].equals("amount")){
@@ -590,7 +578,6 @@ public class RubinBank extends JavaPlugin{
 		Location locFrom = new Location(evt.getFrom().getWorld(), evt.getFrom().getBlockX(), evt.getFrom().getBlockY(), evt.getFrom().getBlockZ());
 		if(!(locTo.equals(locFrom))){
 			if(TimeShiftBankomat.isShifted(evt.getPlayer())){
-				evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "You are shifted :D");
 				if(BankomatTriggers.isTrigger(locFrom)){
 					TimeShiftBankomat.removeShifted(evt.getPlayer());
 				}
@@ -598,54 +585,8 @@ public class RubinBank extends JavaPlugin{
 			if(!BankomatTriggers.sameBankomat(locFrom, locTo)){
 				if(!triggers.isEmpty()){
 					if(RubinBank.isInBankomatTriggers(locTo)){
-						try{					
-							Statement stmt = getConnection().createStatement();
-							
-							Location bmat = BankomatTriggers.bankomatOfTrigger(locTo);
-							
-							ResultSet rs = stmt.executeQuery("Select Type from " + Config.DataBaseAndTable2() +
-									" where LocationX=" + bmat.getBlockX() + " AND LocationY=" + bmat.getBlockY() +
-									" AND LocationZ=" + bmat.getBlockZ() + " AND LocationWorld='" + bmat.getWorld().getName() + "'");
-							
-							rs.first();
-							String type = rs.getString("Type");
-							if(type.toLowerCase().equals("einzahlen")){
-								evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Bitte gib den Betrag den du einzahlen möchtest in den Chat ein.(aber 10.7 statt 10,7)\n" +
-										"Dein Chat ist deaktiviert bis du einen Betrag eingegeben hast.");
-								TimeShiftBankomat.addShiftedBankomat(evt.getPlayer(), BankomatType.IN);
-							}
-							if(type.toLowerCase().equals("auszahlen")){
-								evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Bitte gib den Betrag den du einzahlen möchtest in den Chat ein.(aber 10.7 statt 10,7)\n" +
-										"Dein Chat ist deaktiviert bis du einen Betrag eingegeben hast.");
-								
-								TimeShiftBankomat.addShiftedBankomat(evt.getPlayer(), BankomatType.OUT);
-							}
-							if(type.toLowerCase().equals("amount")){
-								double i = account.getAccountAmount(evt.getPlayer());
-								if(i >= 0)
-									evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Dein Kontostand: " + i);
-								else
-									evt.getPlayer().sendMessage(ChatColor.YELLOW + "Du hast kein Konto.");
-							}
-							if(type.toLowerCase().equals("create")){
-								if(!account.hasAccount(evt.getPlayer())){
-									if(account.createAccount(evt.getPlayer()))
-										evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Konto erstellt.");
-									else{
-										evt.getPlayer().sendMessage("Interner Fehler.");
-										log.severe("Error at RubinBank.bankomatPlayerMove konto.erstellen");
-									}
-										
-								}
-								else{
-									evt.getPlayer().sendMessage(ChatColor.YELLOW + "Du hast schon ein Konto");
-								}
-							}
-						} catch(SQLException e){
-							log.severe("MySQL Exception RubinBank.bankomatPlayerMove:\n"+e.toString());
-							log.severe("LocTo: " + locTo.getBlockX() + ", " + locTo.getBlockY() + ", " + locTo.getBlockZ());
-							evt.getPlayer().sendMessage("Interner Fehler.");
-						}
+						evt.getPlayer().sendMessage("Möchtest du Abheben, Einzahlen, Kontostand oder Konto erstellen?");
+						TimeShiftBankomat.addShiftedBankomat(evt.getPlayer(), BankomatType.CHOOSING);
 					}
 				}
 			}

@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 
 public class account {
-	public static boolean createAccount(Player p){
+	public static void createAccount(Player p){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
@@ -22,16 +22,17 @@ public class account {
 			
 			rs.first();
 			
-			boolean hasaccount = rs.getBoolean("account");
 			
-			if(hasaccount)
-				return false;
+			if(hasAccount(p)){
+				p.sendMessage(ChatColor.YELLOW + "Du hast schon ein Konto.");
+			}
+			
 			
 			stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount=0, account=true where user='" + p.getName() + "'");
-			return true;
+			p.sendMessage(ChatColor.DARK_AQUA + "Konto erstellt.");
 		} catch(SQLException e){
+			p.sendMessage("Interner Fehler.");
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString());
-			return false;
 		}
 	}
 	public static boolean hasAccount(Player p){
