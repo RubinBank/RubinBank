@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.criztovyl.rubinbank.account.account;
+import me.criztovyl.rubinbank.account.Account;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -55,14 +55,14 @@ public class TimeShiftBankomat {
 						}
 						if(msg.toLowerCase().equals("kontostand")){
 							removeShiftedNoMsg(p);
-							double amount = account.getAccountAmount(p);
-							p.sendMessage(ChatColor.DARK_AQUA + "Kontostand: " + amount);
+							double amount = Account.getAccountAmount(p);
+							p.sendMessage(ChatColor.DARK_AQUA + "Kontostand: " + Double.toString(amount));
 							evt.setCancelled(true);
 							okay = true;
 						}
 						if(msg.toLowerCase().equals("konto erstellen") || msg.toLowerCase().equals("erstellen")){
 							removeShiftedNoMsg(p);
-							account.createAccount(p);
+							Account.createAccount(p);
 							evt.setCancelled(true);
 							okay = true;
 						}
@@ -84,10 +84,10 @@ public class TimeShiftBankomat {
 	public static void continueBankomat(Player p, double amount){
 		BankomatType t = type.get(p);
 		if(t.equals(BankomatType.OUT)){
-			account.payoutFromAccount(p, amount);
+			Account.payoutFromAccount(p, amount);
 		}
 		if(t.equals(BankomatType.IN)){
-			account.payinToAccount(p, amount);
+			Account.payinToAccount(p, amount);
 		}
 		removeShifted(p);
 	}

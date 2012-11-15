@@ -13,12 +13,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 
-public class account {
+public class Account {
 	public static void createAccount(Player p){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("select amount, account from " + Config.DataBaseAndTable() + " where user='" + p.getName() + "'");
+			ResultSet rs = stmt.executeQuery("select amount, account from " + Config.UsersTable() + " where user='" + p.getName() + "'");
 			
 			rs.first();
 			
@@ -28,7 +28,7 @@ public class account {
 			}
 			
 			
-			stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount=0, account=true where user='" + p.getName() + "'");
+			stmt.executeUpdate("Update "+Config.UsersTable()+" set amount=0, account=true where user='" + p.getName() + "'");
 			p.sendMessage(ChatColor.DARK_AQUA + "Konto erstellt.");
 		} catch(SQLException e){
 			p.sendMessage("Interner Fehler.");
@@ -39,7 +39,7 @@ public class account {
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("select amount, account from " + Config.DataBaseAndTable() + " where user='" + p.getName() + "'");
+			ResultSet rs = stmt.executeQuery("select amount, account from " + Config.UsersTable() + " where user='" + p.getName() + "'");
 			
 			rs.first();
 			
@@ -54,12 +54,15 @@ public class account {
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("Select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
+			ResultSet rs = stmt.executeQuery("Select amount, account from "+Config.UsersTable()+" where user='"+p.getName()+"'");
 			
 			rs.first();
 			
-			if(rs.getBoolean("account"))
-				return (double) Math.round(rs.getDouble("amount")*10)/10;
+			if(rs.getBoolean("account")){
+				double amount = (Math.round(rs.getDouble("amount") * 100 )/100);
+				return amount;
+			}
+
 			else
 				return -1;
 		} catch(SQLException e){
@@ -67,10 +70,30 @@ public class account {
 			return -1;
 		}
 	}
-	public static boolean payinToAccount(Player p, double incrase){
-		incrase = (double) Math.round((incrase * 10 ))/10;
-		int major = (int) incrase;
-		int minor = (int) ((double) Math.round(((incrase - major)*10)*10)/10);
+	public static void amountMsg(Player p){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			ResultSet rs = stmt.executeQuery("Select amount, account from "+Config.UsersTable()+" where user='"+p.getName()+"'");
+			
+			rs.first();
+			
+			if(rs.getBoolean("account")){
+				double amount = (Math.round(rs.getDouble("amount") * 100 )/100);
+				p.sendMessage(ChatColor.DARK_AQUA + "Dein Kontostand beträgt " + amount);
+			}
+
+			else
+				p.sendMessage(ChatColor.YELLOW + "Du hast kein Konto");
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Exception:\n"+e.toString());
+			p.sendMessage(ChatColor.RED + "Interner Fehler.");
+		}
+	}
+	public static boolean payinToAccount(Player p, double increase){
+		increase = (double) Math.round((increase * 100 ))/100;
+		int major = (int) increase;
+		int minor = (int) ((double) Math.round(((increase - major)*10)*10)/10);
 		boolean hasmajor = p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major);
 		boolean hasminor = p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor);
 		boolean ignoreminor;
@@ -94,7 +117,7 @@ public class account {
 			try{
 				Statement stmt = RubinBank.getConnection().createStatement();
 				
-				ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user='"+p.getName()+"'");
+				ResultSet rs = stmt.executeQuery("select amount, account from "+Config.UsersTable()+" where user='"+p.getName()+"'");
 				
 				rs.first();
 				
@@ -103,11 +126,11 @@ public class account {
 				if(!rs.getBoolean("account"))
 					return false;
 				
-				amount += (double) (Math.round(incrase * 10) /10);
+				amount += (double) (Math.round(increase * 100) /100);
 				
-				p.sendMessage(ChatColor.DARK_AQUA + "neuer Kontostand: " + (Math.round(amount * 100)/100));
+				p.sendMessage(ChatColor.DARK_AQUA + "neuer Kontostand: " + Double.toString(amount));
 				
-				stmt.executeUpdate("Update "+Config.DataBaseAndTable()+" set amount="+amount+" where user='"+p.getName()+"'");
+				stmt.executeUpdate("Update "+Config.UsersTable()+" set amount="+amount+" where user='"+p.getName()+"'");
 				return true;
 			} catch(SQLException e){
 				RubinBank.log.severe("MySQL Exception:\n"+e.toString());
@@ -126,15 +149,15 @@ public class account {
 				
 				Statement stmt = RubinBank.getConnection().createStatement();
 				
-				ResultSet rs = stmt.executeQuery("select amount, account from "+Config.DataBaseAndTable()+" where user=\""+p.getName()+"\"");
+				ResultSet rs = stmt.executeQuery("select amount, account from "+Config.UsersTable()+" where user=\""+p.getName()+"\"");
 				
 				rs.first();
 				
 				if(rs.getBoolean("account")){
 					double amount = rs.getDouble("amount");
-					amount -= (double) Math.round((decrase * 10 ))/10;;
+					amount -= (double) Math.round((decrase * 100 )/100);
 					if(amount >= 0){
-						stmt.executeUpdate("update "+Config.DataBaseAndTable()+" set amount=\""+amount+"\" where user=\""+p.getName()+"\"");
+						stmt.executeUpdate("update "+Config.UsersTable()+" set amount=\""+amount+"\" where user=\""+p.getName()+"\"");
 						int major = (int) decrase;
 						int minor = (int) ((double) Math.round(((decrase - major)*10)*10)/10);
 						ItemStack majorStack = new ItemStack(Config.getMajorID(), major);
@@ -142,6 +165,7 @@ public class account {
 						if(minor > 0)
 							p.getInventory().addItem(minorStack);
 						p.getInventory().addItem(majorStack);
+						p.sendMessage(ChatColor.DARK_AQUA + "neuer Kontostand: " + Double.toString((Math.round(amount * 100)/100)));
 						return true;
 					}
 					else{
@@ -161,6 +185,16 @@ public class account {
 		}
 		else{
 			return true;
+		}
+	}
+	public static void transfer(double transfer, Player from, Player to){
+		if(getAccountAmount(from) >= transfer){
+			if(hasAccount(to)){
+				
+			}
+			else{
+				from.sendMessage(ChatColor.YELLOW + to.getName() + " hat kein Konto!");
+			}
 		}
 	}
 }

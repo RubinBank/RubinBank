@@ -2,7 +2,7 @@ package me.criztovyl.rubinbank.listeners;
 
 
 import me.criztovyl.rubinbank.RubinBank;
-import me.criztovyl.rubinbank.account.account;
+import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.tools.MySQL;
 import me.criztovyl.rubinbank.tools.TimeShiftBankomat;
 import me.criztovyl.rubinbank.tools.TriggerButton;
@@ -26,7 +26,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 
 
-public class listeners implements Listener{
+public class Listeners implements Listener{
 	@EventHandler
 	public static void onPlayerClick(PlayerInteractEvent evt){
 		if(evt.getAction() == Action.RIGHT_CLICK_BLOCK){
@@ -41,15 +41,15 @@ public class listeners implements Listener{
 			if(evt.getClickedBlock().getType().equals(Material.STONE_BUTTON) || evt.getClickedBlock().equals(Material.WOOD_BUTTON)){
 				if(TriggerButton.isTriggerButton(evt.getClickedBlock().getLocation())){
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.AMOUNT)){
-						if(account.hasAccount(evt.getPlayer())){
-							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Dein Kontostand beträgt: " + account.getAccountAmount(evt.getPlayer()));
+						if(Account.hasAccount(evt.getPlayer())){
+							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Dein Kontostand beträgt: " + Account.getAccountAmount(evt.getPlayer()));
 						}
 						else{
 							evt.getPlayer().sendMessage(ChatColor.YELLOW + "Du hast kein Konto");
 						}
 					}
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.CREATE)){
-						account.createAccount(evt.getPlayer());
+						Account.createAccount(evt.getPlayer());
 					}
 				}
 			}

@@ -55,17 +55,21 @@ public class Config {
 	public static String HostTable(){
 		return conf.getString("MySQL.Host.Table");
 	}
-	public static String DataBaseAndTable(){
+	public static String UsersTable(){
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Users");
 	}
-	public static String DataBaseAndTable2(){
+	public static String BankomatsTable(){
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Bankomats");
 	}
-	public static String DataBaseAndTable3(){
+	public static String ButtonsTable(){
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_TriggerButtons");
+	}
+	public static String ActionsTable(){
+		return conf.getString("MySQL.Host.Database") + "."
+				+ conf.getString("MySQL.Host.Table_AccountStatements");
 	}
 	public static boolean useWorldGuard(){
 		return conf.getBoolean("enabled.WorldGuard");

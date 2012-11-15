@@ -10,9 +10,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import me.criztovyl.rubinbank.account.account;
+import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.config.Config;
-import me.criztovyl.rubinbank.listeners.listeners;
+import me.criztovyl.rubinbank.listeners.Listeners;
 import me.criztovyl.rubinbank.tools.BankomatTriggers;
 import me.criztovyl.rubinbank.tools.BankomatType;
 import me.criztovyl.rubinbank.tools.MySQL;
@@ -52,7 +52,7 @@ public class RubinBank extends JavaPlugin{
 			log = Bukkit.getPluginManager().getPlugin("RubinBank").getLogger();
 			console = Bukkit.getServer().getLogger();
 			log.info("RubinBank enabeling...");
-			Bukkit.getServer().getPluginManager().registerEvents(new listeners(), this);
+			Bukkit.getServer().getPluginManager().registerEvents(new Listeners(), this);
 			date1 = new Date();
 			triggers = new ArrayList<Location>();
 			this.saveDefaultConfig();
@@ -68,9 +68,10 @@ public class RubinBank extends JavaPlugin{
 				
 				Statement stmt = con.createStatement();
 				
-				stmt.executeUpdate("create table if not exists " + Config.DataBaseAndTable() + " (id int not null auto_increment primary key, user varchar(50) not null, amount double, account boolean default 0, lastlogin date)");
-				stmt.executeUpdate("create table if not exists " + Config.DataBaseAndTable2() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Pos varchar(8))");
-				stmt.executeUpdate("create table if not exists " + Config.DataBaseAndTable3() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Type varchar(20))");
+				stmt.executeUpdate("create table if not exists " + Config.UsersTable() + " (id int not null auto_increment primary key, user varchar(50) not null, amount double, account boolean default 0, lastlogin date)");
+				stmt.executeUpdate("create table if not exists " + Config.BankomatsTable() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Pos varchar(8))");
+				stmt.executeUpdate("create table if not exists " + Config.ButtonsTable() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Type varchar(20))");
+				stmt.executeUpdate("create table if not exists " + Config.ActionsTable() + " (id int not null auto_increment primary key, user varchar(50) not null, Action varchar(20) not null, user2 varchar(50), ActionAmount double");
 			} catch(SQLException e){
 				log.severe("MySQL Exception:\n"+e.toString());
 			}
@@ -216,7 +217,7 @@ public class RubinBank extends JavaPlugin{
 					ResultSet resultset;
 					
 					if(args.length == 0){
-						resultset = stmt.executeQuery("describe " + Config.DataBaseAndTable());
+						resultset = stmt.executeQuery("describe " + Config.UsersTable());
 					}
 					else{
 						if(args.length > 2){
@@ -266,8 +267,8 @@ public class RubinBank extends JavaPlugin{
 		}
 			if(cmd.getName().equalsIgnoreCase("account")){
 				if(args.length == 0){
-					if(account.hasAccount(player))
-						player.sendMessage("Dein Kontostand beträgt" + Double.toString(account.getAccountAmount(player)));
+					if(Account.hasAccount(player))
+						player.sendMessage("Dein Kontostand beträgt" + Double.toString(Account.getAccountAmount(player)));
 					else
 						player.sendMessage("Du hast kein Konto.");
 					return true;
@@ -276,7 +277,7 @@ public class RubinBank extends JavaPlugin{
 					if(args[0].equals("create")){
 						if(Config.limitedToRegion().equals("create") || Config.limitedToRegion().equals("all")){
 							if(inWorldGuardRegion(player)){
-								account.createAccount(player);
+								Account.createAccount(player);
 								return true;
 							}
 							else{
@@ -285,16 +286,16 @@ public class RubinBank extends JavaPlugin{
 							}
 						}
 						else{
-							account.createAccount(player);
+							Account.createAccount(player);
 							return true;
 						}
 					}
 					if(args[0].equals("amount")){
 						if(Config.limitedToRegion().equals("amount") || Config.limitedToRegion().equals("all")){
 							if(inWorldGuardRegion(player)){
-								double amount = account.getAccountAmount(player);
+								double amount = Account.getAccountAmount(player);
 								if(amount >= 0){
-									player.sendMessage("Dein Kontostand betr\u00E4gt " + account.getAccountAmount(player) + ".");
+									player.sendMessage("Dein Kontostand betr\u00E4gt " + Account.getAccountAmount(player) + ".");
 								}
 								else{
 									player.sendMessage("Du hast noch kein Konto.");
@@ -307,9 +308,9 @@ public class RubinBank extends JavaPlugin{
 							}
 						}
 						else{
-							double amount = account.getAccountAmount(player);
+							double amount = Account.getAccountAmount(player);
 							if(amount >= 0){
-								player.sendMessage("Dein Kontostand betr\u00E4gt " + account.getAccountAmount(player) + ".");
+								player.sendMessage("Dein Kontostand betr\u00E4gt " + Account.getAccountAmount(player) + ".");
 							}
 							else{
 								player.sendMessage("Du hast noch kein Konto.");
@@ -329,7 +330,7 @@ public class RubinBank extends JavaPlugin{
 										player.sendMessage("/account payin amount");
 										return true;
 									}
-									if(account.payinToAccount(player, i))
+									if(Account.payinToAccount(player, i))
 										player.sendMessage(ChatColor.DARK_AQUA + "Zahlung erfolgt.");
 									else
 										player.sendMessage(ChatColor.RED + "Zahlung nicht erfolgreich :/");
@@ -348,7 +349,7 @@ public class RubinBank extends JavaPlugin{
 									player.sendMessage("/account payin amount");
 									return true;
 								}
-								if(account.payinToAccount(player, i))
+								if(Account.payinToAccount(player, i))
 									player.sendMessage(ChatColor.DARK_AQUA + "Zahlung erfolgt.");
 								else
 									player.sendMessage(ChatColor.RED + "Zahlung nicht erfolgreich :/");
@@ -366,7 +367,7 @@ public class RubinBank extends JavaPlugin{
 										player.sendMessage("/account payout amount");
 										return true;
 									}
-									if(account.payoutFromAccount(player, i)){
+									if(Account.payoutFromAccount(player, i)){
 										player.sendMessage("PayOut " + i + "...");
 										player.sendMessage(ChatColor.DARK_AQUA + "Auszahlung erfolg.");
 										return true;
@@ -389,7 +390,7 @@ public class RubinBank extends JavaPlugin{
 									player.sendMessage("/account payout amount");
 									return true;
 								}
-								if(account.payoutFromAccount(player, i)){
+								if(Account.payoutFromAccount(player, i)){
 									player.sendMessage("PayOut " + i + "...");
 									int major = (int) i;
 									int minor = (int) ((i - major) * 10);
@@ -463,7 +464,7 @@ public class RubinBank extends JavaPlugin{
 					ResultSet resultset;
 					
 					if(args.length == 0){
-						resultset = stmt.executeQuery("describe " + Config.DataBaseAndTable());
+						resultset = stmt.executeQuery("describe " + Config.UsersTable());
 					}
 					else{
 						if(args.length > 2){

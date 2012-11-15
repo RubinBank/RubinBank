@@ -23,25 +23,25 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("insert into "+Config.DataBaseAndTable()+" values(default, '"+p.getName()+"', default, default, now())");
+			stmt.executeUpdate("insert into "+Config.UsersTable()+" values(default, '"+p.getName()+"', default, default, now())");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Insert into "+Config.DataBaseAndTable()+" values(default, '"+p.getName()+"', default, default, now())");
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Insert into "+Config.UsersTable()+" values(default, '"+p.getName()+"', default, default, now())");
 		}
 	}
 	public static void updateLastLogin(Player p){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("update "+Config.DataBaseAndTable()+" set lastlogin=now() where user='"+p.getName()+"'");
+			stmt.executeUpdate("update "+Config.UsersTable()+" set lastlogin=now() where user='"+p.getName()+"'");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Update "+Config.DataBaseAndTable()+" set lastlogin=now() where user='"+p.getName()+"'");
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Update "+Config.UsersTable()+" set lastlogin=now() where user='"+p.getName()+"'");
 		}
 	}
 	public static String[] getLastLogins(){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("select user, lastlogin from "+Config.DataBaseAndTable());
+			ResultSet rs = stmt.executeQuery("select user, lastlogin from "+Config.UsersTable());
 			
 			ArrayList<String> logs = new ArrayList<String>();
 			
@@ -56,7 +56,7 @@ public class MySQL{
 			}
 			return logsO;
 		} catch(SQLException e){
-			RubinBank.log.severe("SQL Exception:\n" + e.toString() + "Query: Select user, lastlogin from "+Config.DataBaseAndTable());
+			RubinBank.log.severe("SQL Exception:\n" + e.toString() + "Query: Select user, lastlogin from "+Config.UsersTable());
 			return null;
 		}
 	}
@@ -64,7 +64,7 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("select * from "+Config.DataBaseAndTable());
+			ResultSet rs = stmt.executeQuery("select * from "+Config.UsersTable());
 			
 			while(rs.next()){
 				if(rs.getString("user").equals(p.getName())){
@@ -72,7 +72,7 @@ public class MySQL{
 				}
 			}
 		} catch (SQLException e) {
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Select * from " + Config.DataBaseAndTable());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Select * from " + Config.UsersTable());
 			return true;
 		}
 		return false;
@@ -81,10 +81,10 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("Insert into " + Config.DataBaseAndTable2() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\")");
+			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\")");
 		} catch(SQLException e){
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.DataBaseAndTable2() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos +"\")");
+					"Insert into " + Config.BankomatsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos +"\")");
 		}
 		RubinBank.updateBankomatLocs();
 	}
@@ -92,7 +92,7 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("Select * from " + Config.DataBaseAndTable2());
+			ResultSet rs = stmt.executeQuery("Select * from " + Config.BankomatsTable());
 			
 			ArrayList<Location> triggerLocs = new ArrayList<Location>();
 			Map<Location, Location> bankomatOfTrigger = new HashMap<Location, Location>();
@@ -144,7 +144,7 @@ public class MySQL{
 			return true;
 			
 		} catch (SQLException e) {
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Select * from " + Config.DataBaseAndTable2());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Select * from " + Config.BankomatsTable());
 			return false;
 		}
 	}
@@ -152,12 +152,12 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("Delete from " + Config.DataBaseAndTable2() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
+			stmt.executeUpdate("Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
 			
 			RubinBank.updateBankomatLocs();
 			return true;
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: Delete from " + Config.DataBaseAndTable2() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
 			return false;
 		}
 	}
@@ -165,9 +165,9 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("Insert into " +  Config.DataBaseAndTable3() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
+			stmt.executeUpdate("Insert into " +  Config.ButtonsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Error: Insert into " +  Config.DataBaseAndTable3() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld() + "\", \"" + type +"\")");
+			RubinBank.log.severe("MySQL Error: Insert into " +  Config.ButtonsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld() + "\", \"" + type +"\")");
 			RubinBank.log.severe(e.toString());
 		}
 	}
@@ -175,7 +175,7 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("Select * from " +  Config.DataBaseAndTable3());
+			ResultSet rs = stmt.executeQuery("Select * from " +  Config.ButtonsTable());
 			
 			ArrayList<Location> triggerButtons = new ArrayList<Location>();
 			Map<Location, TriggerButtonType> triggerButtonType = new HashMap<Location, TriggerButtonType>();
@@ -191,7 +191,7 @@ public class MySQL{
 			}
 			TriggerButton.updateTriggerButtons(triggerButtons, triggerButtonType);
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Error: Select * from " +  Config.DataBaseAndTable3());
+			RubinBank.log.severe("MySQL Error: Select * from " +  Config.ButtonsTable());
 			RubinBank.log.severe(e.toString());
 		}
 	}
@@ -199,13 +199,79 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("Delete from " + Config.DataBaseAndTable3() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
+			stmt.executeUpdate("Delete from " + Config.ButtonsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
 			
 			updateTriggerButtons();
 			return true;
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: Delete from " + Config.DataBaseAndTable3() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "\nQuery: Delete from " + Config.ButtonsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
 			return false;
+		}
+	}
+	public static void accountAction(Player p, Player p2, AccountAction action, double amount){
+		boolean p2_is_there = false;
+		if(p2 != null){
+			p2_is_there = true;
+		}
+		if(action.equals(AccountAction.IN)){
+			try{
+				RubinBank.getConnection().createStatement().executeQuery("Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
+				insertAccountStatement(p, null, action, amount);
+			} catch (SQLException e) {
+				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
+			}
+		}
+		if(action.equals(AccountAction.OUT)){
+			try{
+				RubinBank.getConnection().createStatement().executeQuery("Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p.getName() + "\"");
+				insertAccountStatement(p, null, action, amount);
+			} catch (SQLException e) {
+				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p.getName() + "\"");
+			}
+		}
+		if(action.equals(AccountAction.TRANSFER_IN) || p2_is_there){
+			boolean error_is_1 = true;
+			try{
+				Statement stmt = RubinBank.getConnection().createStatement();
+				
+				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
+				error_is_1 = false;
+				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p2.getName() + "\"");
+				
+				insertAccountStatement(p, p2, action, amount);
+				insertAccountStatement(p2, p, action.opposite(action), amount);
+			} catch (SQLException e) {
+				if(error_is_1)
+					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
+				else
+					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p2.getName() + "\"");
+			}
+		}
+		if(action.equals(AccountAction.TRANSFER_OUT) || p2_is_there){
+			boolean error_is_1 = true;
+			try{
+				Statement stmt = RubinBank.getConnection().createStatement();
+				
+				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p.getName() + "\"");
+				error_is_1 = false;
+				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p2.getName() + "\"");
+				
+				insertAccountStatement(p, p2, action, amount);
+				insertAccountStatement(p2, p, action.opposite(action), amount);
+			} catch (SQLException e) {
+				if(error_is_1)
+					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
+				else
+					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p2.getName() + "\"");
+			}
+		}
+	}
+	public static void insertAccountStatement(Player p, Player p2, AccountAction action, double amount){
+		try{
+			RubinBank.getConnection().createStatement().executeUpdate("Insert into " + Config.ActionsTable() + " values(default, \"" + p.getName() + "\", \"" + action.toString() + "\", \"" + p2.getName() + "\", " + amount + ")");
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString());
+			return;
 		}
 	}
 }

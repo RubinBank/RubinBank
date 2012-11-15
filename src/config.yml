@@ -10,6 +10,7 @@ MySQL:
         Table_Users: RubinBank
         Table_Bankomats: Bankomats
         Table_TriggerButtons: Buttons
+        Table_AccountStatements: Actions
 Currency:
     Name:
         Major:
