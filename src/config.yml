@@ -7,23 +7,24 @@ MySQL:
         User: user
         Password: password
         Database: RubinBank
-        Table_Users: RubinBank
+        Table_Users: Users
+        Table_Accounts: Accounts
         Table_Bankomats: Bankomats
         Table_TriggerButtons: Buttons
-        Table_AccountStatements: Actions
+        Table_AccountStatements: Statements
 Currency:
     Name:
         Major:
             Singular: Rubin
-            Plural: Rubins
+            Plural: Rubine
         Minor:
-            Singular: Gold
-            usePlural: true
-            Plural: of Gold
+            Singular: Goldbarren
+            usePlural: false
+            Plural: Goldbarren
     Major:
-        ItemID: 388
+        ItemID: 388 # Emerald
     Minor:
-        ItemID: 266
+        ItemID: 266 # Gold Ingot
 WorldGuardOptions:
     limitToRegionWithParent: RubinBankAgency
     commandsLimitedToRegion: [create, payin, payout] #options: "create" (an account), "payin", "payout", "amount", "all"

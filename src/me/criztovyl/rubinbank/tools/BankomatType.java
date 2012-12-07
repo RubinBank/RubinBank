@@ -5,5 +5,8 @@ public enum BankomatType {
 	IN,
 	OUT,
 	AMOUNT,
+	TRANSFER_AMOUNT,
+	TRANSFER_PLAYERII,
+	UCP_PASS,
 	CREATE;
 }

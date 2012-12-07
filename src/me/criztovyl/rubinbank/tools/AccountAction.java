@@ -1,8 +1,10 @@
 package me.criztovyl.rubinbank.tools;
 
 public enum AccountAction {
+	CREATE,
 	IN,
 	OUT,
+	TRANSFER,
 	TRANSFER_IN,
 	TRANSFER_OUT;
 	AccountAction opposite(AccountAction action){

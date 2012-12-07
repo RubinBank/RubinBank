@@ -71,6 +71,10 @@ public class Config {
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_AccountStatements");
 	}
+	public static String AccountsTable(){
+		return conf.getString("MySQL.Host.Database") + "."
+				+ conf.getString("MySQL.Host.Table_Accounts");
+	}
 	public static boolean useWorldGuard(){
 		return conf.getBoolean("enabled.WorldGuard");
 	}
