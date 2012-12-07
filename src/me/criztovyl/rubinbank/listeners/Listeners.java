@@ -41,15 +41,10 @@ public class Listeners implements Listener{
 			if(evt.getClickedBlock().getType().equals(Material.STONE_BUTTON) || evt.getClickedBlock().equals(Material.WOOD_BUTTON)){
 				if(TriggerButton.isTriggerButton(evt.getClickedBlock().getLocation())){
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.AMOUNT)){
-						if(Account.hasAccount(evt.getPlayer())){
-							evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Dein Kontostand beträgt: " + Account.getAccountAmount(evt.getPlayer()));
-						}
-						else{
-							evt.getPlayer().sendMessage(ChatColor.YELLOW + "Du hast kein Konto");
-						}
+						Account.amountMsg(evt.getPlayer().getName());
 					}
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.CREATE)){
-						Account.createAccount(evt.getPlayer());
+						Account.createAccount(evt.getPlayer().getName());
 					}
 				}
 			}
@@ -93,13 +88,13 @@ public class Listeners implements Listener{
 	@EventHandler
 	public static void onPlayerLogin(PlayerLoginEvent evt){
 		RubinBank.log.info("RubinBank PlayerLoginEvent: "+evt.getPlayer().getName());
-		if(!RubinBank.isinDB(evt.getPlayer())){
+		if(!MySQL.isInDB(evt.getPlayer().getName())){
 			RubinBank.log.info("Not in DB");
-			MySQL.addPlayer(evt.getPlayer());
+			MySQL.addPlayer(evt.getPlayer().getName());
 		}
 		else{
 			RubinBank.log.info("Updated Last Login");
-			MySQL.updateLastLogin(evt.getPlayer());
+			MySQL.updateLastLogin(evt.getPlayer().getName());
 		}
 	}
 	@EventHandler

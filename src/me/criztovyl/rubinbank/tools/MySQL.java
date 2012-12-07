@@ -9,32 +9,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.config.Config;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 
 
 public class MySQL{
-	public static void addPlayer(Player p){
+	public static void addPlayer(String p_n){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("insert into "+Config.UsersTable()+" values(default, '"+p.getName()+"', default, default, now())");
+			stmt.executeUpdate("Insert into "+Config.UsersTable()+" (user, lastlogin) values('"+ p_n +"', now())");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Insert into "+Config.UsersTable()+" values(default, '"+p.getName()+"', default, default, now())");
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Insert into "+Config.UsersTable()+" (user, lastlogin) values('"+ p_n +"', now())");
 		}
 	}
-	public static void updateLastLogin(Player p){
+	public static void updateLastLogin(String p_n){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("update "+Config.UsersTable()+" set lastlogin=now() where user='"+p.getName()+"'");
+			stmt.executeUpdate("update "+Config.UsersTable()+" set lastlogin=now() where user='"+p_n+"'");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Update "+Config.UsersTable()+" set lastlogin=now() where user='"+p.getName()+"'");
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: Update "+Config.UsersTable()+" set lastlogin=now() where user='"+p_n+"'");
 		}
 	}
 	public static String[] getLastLogins(){
@@ -60,14 +61,14 @@ public class MySQL{
 			return null;
 		}
 	}
-	public static boolean isInDB(Player p){
+	public static boolean isInDB(String p_n){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
 			ResultSet rs = stmt.executeQuery("select * from "+Config.UsersTable());
 			
 			while(rs.next()){
-				if(rs.getString("user").equals(p.getName())){
+				if(rs.getString("user").equals(p_n)){
 					return true;
 				}
 			}
@@ -81,10 +82,10 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\")");
+			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\")");
 		} catch(SQLException e){
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.BankomatsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos +"\")");
+					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\")");
 		}
 		RubinBank.updateBankomatLocs();
 	}
@@ -165,9 +166,9 @@ public class MySQL{
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			stmt.executeUpdate("Insert into " +  Config.ButtonsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
+			stmt.executeUpdate("Insert into " +  Config.ButtonsTable() + " (LocationX, LocationY, LocationZ, Location World, Type) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Error: Insert into " +  Config.ButtonsTable() + " values(default, " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld() + "\", \"" + type +"\")");
+			RubinBank.log.severe("MySQL Error: Insert into " +  Config.ButtonsTable() + " (LocationX, LocationY, LocationZ, Location World, Type) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
 			RubinBank.log.severe(e.toString());
 		}
 	}
@@ -208,70 +209,75 @@ public class MySQL{
 			return false;
 		}
 	}
-	public static void accountAction(Player p, Player p2, AccountAction action, double amount){
+	public static void accountAction(String p_n, String p_n2, AccountAction action, double amount){
 		boolean p2_is_there = false;
-		if(p2 != null){
+		if(p_n2 != null){
 			p2_is_there = true;
 		}
 		if(action.equals(AccountAction.IN)){
 			try{
-				RubinBank.getConnection().createStatement().executeQuery("Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
-				insertAccountStatement(p, null, action, amount);
+				RubinBank.getConnection().createStatement().executeUpdate("Update " + Config.UsersTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n + "\"");
+				insertAccountStatement(p_n, null, action, amount);
 			} catch (SQLException e) {
-				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
+				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n + "\"");
 			}
 		}
 		if(action.equals(AccountAction.OUT)){
 			try{
-				RubinBank.getConnection().createStatement().executeQuery("Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p.getName() + "\"");
-				insertAccountStatement(p, null, action, amount);
+				RubinBank.getConnection().createStatement().executeUpdate("Update " + Config.UsersTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n + "\"");
+				insertAccountStatement(p_n, null, action, amount);
 			} catch (SQLException e) {
-				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p.getName() + "\"");
+				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n + "\"");
 			}
 		}
-		if(action.equals(AccountAction.TRANSFER_IN) || p2_is_there){
-			boolean error_is_1 = true;
-			try{
-				Statement stmt = RubinBank.getConnection().createStatement();
-				
-				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
-				error_is_1 = false;
-				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p2.getName() + "\"");
-				
-				insertAccountStatement(p, p2, action, amount);
-				insertAccountStatement(p2, p, action.opposite(action), amount);
-			} catch (SQLException e) {
-				if(error_is_1)
-					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
-				else
-					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p2.getName() + "\"");
+		if(action.equals(AccountAction.TRANSFER) || p2_is_there){
+			if(Account.hasEnughMoney(p_n, amount)){
+				boolean error_is_1 = true;
+				try{
+					Statement stmt = RubinBank.getConnection().createStatement();
+					
+					stmt.executeUpdate("Update " + Config.UsersTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n + "\"");
+					error_is_1 = false;
+					stmt.executeUpdate("Update " + Config.UsersTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n2 + "\"");
+					
+					insertAccountStatement(p_n, p_n2, AccountAction.TRANSFER_OUT, amount);
+					insertAccountStatement(p_n2, p_n, AccountAction.TRANSFER_IN, amount);
+				} catch (SQLException e) {
+					if(error_is_1)
+						RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n + "\"");
+					else
+						RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n2 + "\"");
+				}
+			}
+			else{
+				Tools.msg(p_n, ChatColor.YELLOW + "Du hast nicht genug Geld!");
 			}
 		}
-		if(action.equals(AccountAction.TRANSFER_OUT) || p2_is_there){
-			boolean error_is_1 = true;
+		if(action.equals(AccountAction.CREATE)){
 			try{
-				Statement stmt = RubinBank.getConnection().createStatement();
-				
-				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p.getName() + "\"");
-				error_is_1 = false;
-				stmt.executeQuery("Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p2.getName() + "\"");
-				
-				insertAccountStatement(p, p2, action, amount);
-				insertAccountStatement(p2, p, action.opposite(action), amount);
+				RubinBank.getConnection().createStatement().executeUpdate("Update " + Config.UsersTable() + " set account=1, amount=0 where user=\"" + p_n + "\"");
 			} catch (SQLException e) {
-				if(error_is_1)
-					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount+" + amount + " where user=\"" + p.getName() + "\"");
-				else
-					RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set amount=amount-" + amount + " where user=\"" + p2.getName() + "\"");
+				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set account=1, amount=0 where user=\"" + p_n + "\"");
 			}
 		}
 	}
-	public static void insertAccountStatement(Player p, Player p2, AccountAction action, double amount){
+	public static void insertAccountStatement(String p_n, String p_n2, AccountAction action, double amount){
+		if(p_n2 == null)
+			p_n2 = "NONE";
+		double newamount = Account.getAccountAmount(p_n);
 		try{
-			RubinBank.getConnection().createStatement().executeUpdate("Insert into " + Config.ActionsTable() + " values(default, \"" + p.getName() + "\", \"" + action.toString() + "\", \"" + p2.getName() + "\", " + amount + ")");
+			RubinBank.getConnection().createStatement().executeUpdate("Insert into " + Config.ActionsTable() + " (user, Action, user2, ActionAmount, newamount, Date) values(\"" + p_n + "\", \"" + action.toString() + "\", \"" + p_n2 + "\", " + Double.toString(amount) + ", " + Double.toString(newamount) + ", NOW())");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Insert into " + Config.ActionsTable() + " (user, Action, user2, ActionAmount, newamount, Date) values(\"" + p_n + "\", \"" + action.toString() + "\", \"" + p_n2 + "\", " + Double.toString(amount) + ", " + Double.toString(newamount) + ", NOW())");
 			return;
+		}
+	}
+	public static void setPassword(String p_n, String pw){
+		try{
+			RubinBank.getConnection().createStatement().executeUpdate("Update " + Config.UsersTable() + " set password=sha1(\"" + pw +"\") where user=\"" + p_n + "\"");
+			Tools.msg(p_n, ChatColor.DARK_AQUA + "Passwort gesetzt.");
+		} catch (SQLException e) {
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.UsersTable() + " set password=sha1(\"******\") where user=\"" + p_n + "\"");
 		}
 	}
 }

@@ -1,12 +1,12 @@
 name: RubinBank
 main: me.criztovyl.rubinbank.RubinBank
-version:  2012-11-14Prerelease5.1
+version:  2012-12-02Prerelease6.1
 prefix: RubinBank
 commands:
     rubinbank:
         description: RubinBank Command
         usage: /rubinbank
-        permission: RubinBank
+        permission: RubinBank.cmd
         permission-message: Du brauchst die Berechtigung fuer "RubinBank".
         aliases: rb
     error:
@@ -23,6 +23,6 @@ commands:
         permission-message: Du brauchst die Berechtigung fuer "RubinBank.account".
         aliases: konto
     lastlog:
-       description: Letztes Login eines oder alles Spieler.
+       description: Letztes Login eines oder aller Spieler.
        permission: RubinBank.lastlog
        permission-message: Du brauchst die Berechtigung fuer "RubinBank.lastlog".
