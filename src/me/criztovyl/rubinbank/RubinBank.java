@@ -13,7 +13,7 @@ import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.rubinbank.listeners.Listeners;
 import me.criztovyl.rubinbank.tools.MySQL;
-import me.criztovyl.rubinbank.tools.TimeShift;
+import me.criztovyl.clicklesssigns.TimeShift;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
 

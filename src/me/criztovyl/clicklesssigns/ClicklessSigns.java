@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.tools.MySQL;
-import me.criztovyl.rubinbank.tools.TimeShift;
+import me.criztovyl.clicklesssigns.TimeShift;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
