@@ -25,13 +25,18 @@ public class Account {
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("select amount, account from " + Config.UsersTable() + " where user='" + p_n + "'");
+			ResultSet rs = stmt.executeQuery("select account from " + Config.AccountsTable() + " where user='" + p_n + "'");
 			
-			rs.first();
+			if(rs.next()){
+				rs.first();
+				return rs.getBoolean("account");
+			}
+			else
+				return false;
 			
-			return rs.getBoolean("account");
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: select account from " + Config.AccountsTable() + " where user='" + p_n + "'");
+			e.printStackTrace();
 			return false;
 		}
 
@@ -43,67 +48,80 @@ public class Account {
 			return false;
 	}
 	public static double getAccountAmount(String p_n){
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			ResultSet rs = stmt.executeQuery("Select account, amount from " + Config.UsersTable() + " where user='" + p_n + "'");
-			
-			rs.first();
-			
-			if(rs.getBoolean("account")){
-				double amount = (double) (Math.round(rs.getDouble("amount") * 100.0 )/100.0);
-				return amount;
-			}
+		if(hasAccount(p_n)){
+			try{
+				Statement stmt = RubinBank.getConnection().createStatement();
+				
+				ResultSet rs = stmt.executeQuery("Select account, amount from " + Config.AccountsTable() + " where user='" + p_n + "'");
+				
+				rs.first();
+				
+				if(rs.getBoolean("account")){
+					double amount = (double) (Math.round(rs.getDouble("amount") * 100.0 )/100.0);
+					return amount;
+				}
 
-			else
+				else
+					return -1;
+			} catch(SQLException e){
+				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Select account, amount from " + Config.AccountsTable() + " where user='" + p_n + "'");
 				return -1;
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Select account, amount from " + Config.UsersTable() + " where user='" + p_n + "'");
-			return -1;
+			}
 		}
+		else
+			return -1.0;
 	}
 	public static void amountMsg(String p_n){
+		if(hasAccount(p_n))
 		msg(p_n, ChatColor.DARK_AQUA + "Dein Kontostand beträgt: " + getAccountAmount(p_n));
+		else
+			msg(p_n, ChatColor.DARK_AQUA + "Du hast noch kein Konto erstellt.");
 	}
 	public static boolean payinToAccount(String p_n, double increase){
-		Player p = Bukkit.getServer().getPlayer(p_n);
-		int major = (int) increase;
-		int minor = (int) ((double) Math.round((increase - major)*10));
-		boolean hasmajor = p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major);
-		boolean hasminor = p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor);
-		boolean ignoreminor;
-		if(minor <= 0){
-			hasminor = true;
-			ignoreminor = true;
-		}
-		else{
-			ignoreminor = false;
-		}
-		if(hasmajor && hasminor){
-			try{
-				p.getInventory().removeItem(new ItemStack(Config.getMajorID(), major));
-				if(!ignoreminor)
-					p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));
-			} catch(Exception e){
-			 RubinBank.log.severe(e.toString());
-			 return false;
+		if(hasAccount(p_n)){
+			Player p = Bukkit.getServer().getPlayer(p_n);
+			int major = (int) increase;
+			int minor = (int) ((double) Math.round((increase - major)*10));
+			boolean hasmajor = p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major);
+			boolean hasminor = p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor);
+			boolean ignoreminor;
+			if(minor <= 0){
+				hasminor = true;
+				ignoreminor = true;
 			}
-			MySQL.accountAction(p_n, null, AccountAction.IN, increase);
-			msg(p_n, ChatColor.DARK_AQUA + "Neuer Kontostand: " + getAccountAmount(p_n));
-			return true;
+			else{
+				ignoreminor = false;
+			}
+			if(hasmajor && hasminor){
+				try{
+					p.getInventory().removeItem(new ItemStack(Config.getMajorID(), major));
+					if(!ignoreminor){
+						p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));
+					}
+				} catch(Exception e){
+				 RubinBank.log.severe(e.toString());
+				 return false;
+				}
+				MySQL.accountAction(p_n, null, AccountAction.IN, increase);
+				msg(p_n, ChatColor.DARK_AQUA + "Neuer Kontostand: " + getAccountAmount(p_n));
+				return true;
+			}
+			else{
+				msg(p_n, ChatColor.YELLOW + "Du hast nicht genug Items in deinem Inventar!");
+				return false;
+			}
 		}
 		else{
-			msg(p_n, ChatColor.YELLOW + "Du hast nicht genug Items in deinem Inventar!");
+			msg(p_n, "Du hast kein Konto!");
 			return false;
 		}
-
 	}
 	public static boolean payoutFromAccount(String p_n, double decrase){
 		Player p = Bukkit.getServer().getPlayer(p_n);
 		if(decrase > 0){
 			if(hasEnughMoney(p_n, decrase)){
 				int major = (int) decrase;
-				int minor = (int) ((double) Math.round((decrase - major) * 10));
+				int minor = ((int) ((decrase - major) * 10))/10;
 				ItemStack majorStack = new ItemStack(Config.getMajorID(), major);
 				ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);
 				if(minor > 0)
@@ -124,12 +142,20 @@ public class Account {
 		}
 	}
 	public static void transfer(double transfer, String from, String to){
-		if(getAccountAmount(from) >= transfer){
-			if(hasAccount(to)){
-				MySQL.accountAction(from, to, AccountAction.TRANSFER, transfer);
+		if(transfer <= 0){
+			msg(from, ChatColor.RED + "Überweisungen sollten Positiv sein!");
+		}
+		else{
+			if(hasEnughMoney(from, transfer)){
+				if(hasAccount(to)){
+					MySQL.accountAction(from, to, AccountAction.TRANSFER, transfer);
+				}
+				else{
+					msg(from, ChatColor.YELLOW + to + " hat kein Konto!");
+				}
 			}
 			else{
-				msg(from, ChatColor.YELLOW + to + " hat kein Konto!");
+				msg(from, ChatColor.RED + "Du hast nicht genug Geld!");
 			}
 		}
 	}

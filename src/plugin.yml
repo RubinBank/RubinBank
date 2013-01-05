@@ -1,6 +1,6 @@
 name: RubinBank
 main: me.criztovyl.rubinbank.RubinBank
-version:  2012-12-02Prerelease6.1
+version:  2013-01-05-Prerelease8.2
 prefix: RubinBank
 commands:
     rubinbank:
@@ -13,16 +13,8 @@ commands:
         description: Error Command
     tools:
         description: Wichtige Werkzeuge.
-    mysql:
-        description: Command fuer MySQL Datenbank
-        permission: RubinBank.MySQL
-        permission-message: Du brauchst die Berechtigung fuer "RubinBank.MySQL".
     account:
         description: Alles für dein RubinBank Konto.
         permission: RubinBank.account
         permission-message: Du brauchst die Berechtigung fuer "RubinBank.account".
         aliases: konto
-    lastlog:
-       description: Letztes Login eines oder aller Spieler.
-       permission: RubinBank.lastlog
-       permission-message: Du brauchst die Berechtigung fuer "RubinBank.lastlog".

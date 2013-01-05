@@ -55,21 +55,20 @@ public class Config {
 	public static String HostTable(){
 		return conf.getString("MySQL.Host.Table");
 	}
-	public static String UsersTable(){
-		return conf.getString("MySQL.Host.Database") + "."
-				+ conf.getString("MySQL.Host.Table_Users");
-	}
 	public static String BankomatsTable(){
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Bankomats");
 	}
 	public static String ButtonsTable(){
 		return conf.getString("MySQL.Host.Database") + "."
-				+ conf.getString("MySQL.Host.Table_TriggerButtons");
+				+ conf.getString("MySQL.Host.Table_Buttons");
 	}
 	public static String ActionsTable(){
 		return conf.getString("MySQL.Host.Database") + "."
-				+ conf.getString("MySQL.Host.Table_AccountStatements");
+				+ conf.getString("MySQL.Host.Table_Statements");
+	}
+	public static String AccountsTable() {
+		return HostDatabase() + "." + conf.get("MySQL.Host.Table_Accounts");
 	}
 	public static boolean useWorldGuard(){
 		return conf.getBoolean("enabled.WorldGuard");
@@ -82,5 +81,8 @@ public class Config {
 	}
 	public static List<String> limitedToRegion(){
 		return conf.getStringList("WorldGuardOptions.commandsLimitedToRegion");
+	}
+	public static boolean isSet(String path){
+		return conf.isSet(path);
 	}
 }

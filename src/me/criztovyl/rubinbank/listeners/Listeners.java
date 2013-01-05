@@ -1,10 +1,12 @@
 package me.criztovyl.rubinbank.listeners;
 
 
+import me.criztovyl.clicklesssigns.ClicklessSignType;
+import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.tools.MySQL;
-import me.criztovyl.rubinbank.tools.TimeShiftBankomat;
+import me.criztovyl.rubinbank.tools.TimeShift;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
 
@@ -21,7 +23,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 
@@ -56,8 +57,18 @@ public class Listeners implements Listener{
 		String[] lines = evt.getLines();
 		if(lines[0].equals("[RubinBank]") || lines[0].equals("[RB]")){
 			if(lines[1].toLowerCase().equals("bankomat")){
-				if(lines[2].toLowerCase().equals("up") || lines[2].toLowerCase().equals("down") || lines[2].toLowerCase().equals("2x2d") || lines[2].toLowerCase().equals("2x2u")){
-					MySQL.insertBankomat(evt.getBlock().getLocation(), lines[2].toLowerCase());
+				if(lines[2].toLowerCase().equals("up") || lines[2].toLowerCase().equals("down") || lines[2].toLowerCase().equals("2x2d")
+						|| lines[2].toLowerCase().equals("2x2u")){
+					if(!lines[3].equals("")){
+						if(lines[3].toLowerCase().equals("einzahlen") || lines[3].toLowerCase().equals("auszahlen") || lines[3].toLowerCase().equals("kontostand")
+								|| lines[3].toLowerCase().equals("überweisen") || lines[3].toLowerCase().equals("erstellen")){
+							MySQL.insertnoMultiBankomat(evt.getBlock().getLocation(), lines[2], ClicklessSignType.getType(lines[3].toLowerCase()), "");
+						}
+					}
+					else{
+						MySQL.insertBankomat(evt.getBlock().getLocation(), lines[2].toLowerCase(), "");
+					}
+					
 					evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
 					player.sendMessage(ChatColor.DARK_AQUA + "Added Bankomat");
 				}
@@ -86,18 +97,6 @@ public class Listeners implements Listener{
 		}
 	}
 	@EventHandler
-	public static void onPlayerLogin(PlayerLoginEvent evt){
-		RubinBank.log.info("RubinBank PlayerLoginEvent: "+evt.getPlayer().getName());
-		if(!MySQL.isInDB(evt.getPlayer().getName())){
-			RubinBank.log.info("Not in DB");
-			MySQL.addPlayer(evt.getPlayer().getName());
-		}
-		else{
-			RubinBank.log.info("Updated Last Login");
-			MySQL.updateLastLogin(evt.getPlayer().getName());
-		}
-	}
-	@EventHandler
 	public static void onPluginLoad(PluginEnableEvent evt){
 		if(evt.getPlugin().getName().equals("WorldGuard")){
 			RubinBank.setUseWorldGuard();
@@ -106,10 +105,11 @@ public class Listeners implements Listener{
 	}
 	@EventHandler
 	public static void onPlayerMove(PlayerMoveEvent evt){
-		RubinBank.bankomatPlayerMove(evt);
+		//evt.getPlayer().sendMessage("move...");
+		ClicklessSigns.clicklessSignsPlayerMove(evt);
 	}
 	@EventHandler
 	public static void ChatEvent(AsyncPlayerChatEvent evt){
-		TimeShiftBankomat.ChatEvent(evt);
+		TimeShift.ChatEvent(evt);
 	}
 }
