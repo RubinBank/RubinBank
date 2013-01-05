@@ -6,6 +6,8 @@ import java.util.Map;
 
 import me.criztovyl.clicklesssigns.ClicklessSignType;
 import me.criztovyl.rubinbank.account.Account;
+import me.criztovyl.rubinbank.tools.ClicklessSignArg;
+import me.criztovyl.rubinbank.tools.MySQL;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,31 +17,34 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 public class TimeShift {
 	private static Map<String, ClicklessSignType> type = new HashMap<String, ClicklessSignType>();
 	private static Map<String, Double> amounts = new HashMap<String, Double>();
+	private static HashMap<String, HashMap<ClicklessSignArg, String>> args = new HashMap<String, HashMap<ClicklessSignArg,String>>();
 	private static ArrayList<String> shifted = new ArrayList<String>();
 	private static ArrayList<String> loopPlayers = new ArrayList<String>();
 	private static boolean noendalert;
 	public static void addShiftedBankomat(String p_n, ClicklessSignType t){
 		shifted.add(p_n);
 		type.put(p_n, t);
-		if(t.equals(ClicklessSignType.TRANSFER_PLAYERII))
+		msg(p_n, ChatColor.DARK_AQUA + "Chat deaktiviert.");
+		switch(t){
+		case TRANSFER_PLAYERII:
 			msg(p_n, ChatColor.DARK_AQUA + "An wen möchtest du überweisen?");
-		if(t.equals(ClicklessSignType.UCP_PASS))
-			msg(p_n, ChatColor.DARK_AQUA + "Bitte gebe jetzt dein Passwort für das Webinterface ein:");
-		if(t.equals(ClicklessSignType.AMOUNT)){
-			Account.amountMsg(p_n);
+			break;
+		case BANKOMAT_LOC:
+			msg(p_n, ChatColor.DARK_AQUA + "Wo steht dieses Schild? e.g. \"Bahnhof Spawn\"");
+			break;
 		}
 	}
 	public static String typeMsg(ClicklessSignType t){
-		if(t.equals(ClicklessSignType.IN)){
+		switch(t){
+		case IN:
 			return ChatColor.DARK_AQUA + "Wie viel möchtest du einzahlen? (10,7 -> 10.7!)";
-		}
-		if(t.equals(ClicklessSignType.OUT)){
+		case OUT:
 			return ChatColor.DARK_AQUA + "Wie viel möchtest du auszahlen? (10,7 -> 10.7!)";
-		}
-		if(t.equals(ClicklessSignType.TRANSFER)){
+		case TRANSFER:
 			return ChatColor.DARK_AQUA + "Wie viel möchtest du überweisen? (10,7 -> 10.7!)";
+		default:
+			return "";
 		}
-		return "";
 	}
 	public static void ChatEvent(AsyncPlayerChatEvent evt){
 		Player p = evt.getPlayer();
@@ -188,7 +193,7 @@ public class TimeShift {
 				}
 				if(msg.toLowerCase().equals("loop")){
 					if(!loopPlayers.contains(p.getName())){
-						p.sendMessage(ChatColor.DARK_AQUA + "Loop aktiviert, Bankomat ist solange aktiviert bis du abbrichst oder den Bankomat verlässt.");
+						p.sendMessage(ChatColor.DARK_AQUA + "Loop aktiviert, das Schild ist solange aktiviert bis du abbrichst oder das Schild verlässt.");
 					loopPlayers.add(p.getName());
 					okay = true;
 					}
@@ -198,6 +203,18 @@ public class TimeShift {
 					break;
 				}
 				break;
+			case BANKOMAT_LOC:
+				addArg(p_n, ClicklessSignArg.LOCATION, msg);
+				removeShifted(p_n);
+				okay = true;
+				HashMap<ClicklessSignArg, String> args = getArgs(p_n);
+				if(args.get(ClicklessSignArg.MULTI).equals("1")){
+					MySQL.insertBankomat(args.get(ClicklessSignArg.LOCX), args.get(ClicklessSignArg.LOCY), args.get(ClicklessSignArg.LOCZ), args.get(ClicklessSignArg.LOCWORLD),
+							args.get(ClicklessSignArg.POS), args.get(ClicklessSignArg.LOCATION));
+				}
+				else{
+					
+				}
 			}
 			if(msg.toLowerCase().equals("ende")){
 				removeShifted(p_n);
@@ -214,7 +231,7 @@ public class TimeShift {
 				okay = true;
 			}
 			if(!okay){
-				p.sendMessage(ChatColor.YELLOW + "Unbekannte Aktion, bitte wiederholen. Ende mit \"ende\"");
+				p.sendMessage(ChatColor.YELLOW + "Unbekannte Aktion. Ende mit \"ende\"");
 			}
 			evt.setCancelled(true);
 		}
@@ -242,13 +259,6 @@ public class TimeShift {
 			}
 		}
 	}
-	/*private static void continueBankomatLoc(String p_n, String location){
-		String[] bla = bankomatLocation.get(p_n);
-		MySQL.insertBankomat(loc, pos, location);
-	}
-	public static void addBankomatLocArray(String p_n, String[] bla){
-		bankomatLocation.put(p_n, bla);
-	}*/
 	public static boolean isShifted(String p_n){
 		return shifted.contains(p_n);
 	}
@@ -272,5 +282,16 @@ public class TimeShift {
 		shifted = new ArrayList<String>();
 		type = new HashMap<String, ClicklessSignType>();
 		loopPlayers = new ArrayList<String>();
+	}
+	public static void storeArgs(String p_n, HashMap<ClicklessSignArg, String> storeArgs){
+		args.put(p_n, storeArgs);
+	}
+	public static HashMap<ClicklessSignArg, String> getArgs(String p_n){
+		return args.get(p_n);
+	}
+	public static void addArg(String p_n, ClicklessSignArg arg_k, String arg_v){
+		HashMap<ClicklessSignArg, String> args = getArgs(p_n);
+		args.put(arg_k, arg_v);
+		storeArgs(p_n, args);
 	}
 }

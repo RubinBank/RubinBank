@@ -34,6 +34,18 @@ public class MySQL{
 		}
 		ClicklessSigns.updateClicklessSignsTriggers();
 	}
+	public static void insertBankomat(String locX, String locY, String locZ, String locWorld, String pos, String location){
+		RubinBank.log.info("Inserted Bankomat");
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + location + "\")");
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
+					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + locX+ ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + location + "\")");
+		}
+		ClicklessSigns.updateClicklessSignsTriggers();
+	}
 	public static void insertnoMultiBankomat(Location loc, String pos, ClicklessSignType type, String location){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
@@ -42,6 +54,17 @@ public class MySQL{
 		} catch(SQLException e){
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
 					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\", \"" + type.toString() +"\", 0, \"" + location + "\")");
+		}
+		ClicklessSigns.updateClicklessSignsTriggers();
+	}
+	public static void insertnoMultiBankomat(String locX, String locY, String locZ, String locWorld, String pos, String type, String location){
+		try{
+			Statement stmt = RubinBank.getConnection().createStatement();
+			
+			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + type +"\", 0, \"" + location + "\")");
+		} catch(SQLException e){
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
+					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + type +"\", 0, \"" + location + "\")");
 		}
 		ClicklessSigns.updateClicklessSignsTriggers();
 	}
