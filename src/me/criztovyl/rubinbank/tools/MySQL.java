@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.criztovyl.clicklesssigns.ClicklessSignTriggers;
-import me.criztovyl.clicklesssigns.ClicklessSignType;
-import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.config.Config;
@@ -32,21 +29,9 @@ public class MySQL{
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
 					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\", \"" + location + "\")");
 		}
-		ClicklessSigns.updateClicklessSignsTriggers();
+		RubinBank.updateBankomatLocs();
 	}
-	public static void insertBankomat(String locX, String locY, String locZ, String locWorld, String pos, String location){
-		RubinBank.log.info("Inserted Bankomat");
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + location + "\")");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + locX+ ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + location + "\")");
-		}
-		ClicklessSigns.updateClicklessSignsTriggers();
-	}
-	public static void insertnoMultiBankomat(Location loc, String pos, ClicklessSignType type, String location){
+	public static void insertnoMultiBankomat(Location loc, String pos, BankomatType type, String location){
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
 			
@@ -55,18 +40,7 @@ public class MySQL{
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
 					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\", \"" + type.toString() +"\", 0, \"" + location + "\")");
 		}
-		ClicklessSigns.updateClicklessSignsTriggers();
-	}
-	public static void insertnoMultiBankomat(String locX, String locY, String locZ, String locWorld, String pos, String type, String location){
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + type +"\", 0, \"" + location + "\")");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + type +"\", 0, \"" + location + "\")");
-		}
-		ClicklessSigns.updateClicklessSignsTriggers();
+		RubinBank.updateBankomatLocs();
 	}
 	public static boolean updateTriggers(){
 		try{
@@ -77,7 +51,7 @@ public class MySQL{
 			ArrayList<Location> triggerLocs = new ArrayList<Location>();
 			ArrayList<Location> nonMultiTriggerLocs = new ArrayList<Location>();
 			Map<Location, Location> bankomatOfTrigger = new HashMap<Location, Location>();
-			Map<Location, ClicklessSignType> nonMultiType = new HashMap<Location, ClicklessSignType>();
+			Map<Location, BankomatType> nonMultiType = new HashMap<Location, BankomatType>();
 			while(rs.next()){
 				int locX = rs.getInt("LocationX");
 				int locY = rs.getInt("LocationY");
@@ -89,7 +63,7 @@ public class MySQL{
 					triggerLocs.add(trigger);
 					if(nonMulti){
 						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+						nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 					}
 					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 				}
@@ -98,7 +72,7 @@ public class MySQL{
 					triggerLocs.add(trigger);
 					if(nonMulti){
 						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+						nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 					}
 					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 				}
@@ -107,28 +81,28 @@ public class MySQL{
 						triggerLocs.add(trigger);
 						if(nonMulti){
 							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+							nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 						}
 						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 						trigger = new Location(world, locX+1, locY-1, locZ);
 						triggerLocs.add(trigger);
 						if(nonMulti){
 							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+							nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 						}
 						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 						trigger = new Location(world, locX, locY-1, locZ+1);
 						triggerLocs.add(trigger);
 						if(nonMulti){
 							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+							nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 						}
 						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 						trigger = new Location(world, locX+1, locY-1, locZ+1);
 						triggerLocs.add(trigger);
 						if(nonMulti){
 							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+							nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 						}
 						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 				}
@@ -137,33 +111,33 @@ public class MySQL{
 					triggerLocs.add(trigger);
 					if(nonMulti){
 						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+						nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 					}
 					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 					trigger = new Location(world, locX+1, locY+2, locZ);
 					triggerLocs.add(trigger);
 					if(nonMulti){
 						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+						nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 					}
 					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 					trigger = new Location(world, locX, locY+2, locZ+1);
 					triggerLocs.add(trigger);
 					if(nonMulti){
 						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+						nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 					}
 					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 					trigger = new Location(world, locX+1, locY+2, locZ+1);
 					triggerLocs.add(trigger);
 					if(nonMulti){
 						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, ClicklessSignType.valueOf(rs.getString("Type")));
+						nonMultiType.put(trigger, BankomatType.valueOf(rs.getString("Type")));
 					}
 					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
 			}
 			}
-			ClicklessSignTriggers.update(triggerLocs, nonMultiTriggerLocs, bankomatOfTrigger, nonMultiType);
+			BankomatTriggers.update(triggerLocs, nonMultiTriggerLocs, bankomatOfTrigger, nonMultiType);
 			return true;
 			
 		} catch (SQLException e) {
@@ -177,7 +151,7 @@ public class MySQL{
 			
 			stmt.executeUpdate("Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
 			
-			ClicklessSigns.updateClicklessSignsTriggers();
+			RubinBank.updateBankomatLocs();
 			return true;
 		} catch(SQLException e){
 			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
@@ -232,7 +206,7 @@ public class MySQL{
 		}
 	}
 	public static void accountAction(String p_n, String p_n2, AccountAction action, double amount){
-		amount = ((int)(amount * 10.0)) / 10.0;
+		amount = ((int) amount * 10.0)/10.0;
 		boolean p2_is_there = false;
 		if(p_n2 != null){
 			p2_is_there = true;

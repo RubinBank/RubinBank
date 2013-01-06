@@ -4,16 +4,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.rubinbank.listeners.Listeners;
+import me.criztovyl.rubinbank.tools.BankomatTriggers;
+import me.criztovyl.rubinbank.tools.BankomatType;
 import me.criztovyl.rubinbank.tools.MySQL;
-import me.criztovyl.clicklesssigns.TimeShift;
+import me.criztovyl.rubinbank.tools.TimeShift;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
 
@@ -21,10 +23,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -41,6 +45,7 @@ public class RubinBank extends JavaPlugin{
 	private Date date_start;
 	private Date date_stop;
 	private static Connection con;
+	private static ArrayList<Location> triggers;
 	public void onEnable(){
 		if(Config.enable()){
 			log = Bukkit.getPluginManager().getPlugin("RubinBank").getLogger();
@@ -48,6 +53,7 @@ public class RubinBank extends JavaPlugin{
 			log.info("RubinBank enabeling...");
 			Bukkit.getServer().getPluginManager().registerEvents(new Listeners(), this);
 			date_start = new Date();
+			triggers = new ArrayList<Location>();
 			this.saveDefaultConfig();
 			url = "jdbc:mysql://" + Config.HostAddress() + "/" + Config.HostDatabase() + "?user=" + Config.HostUser() + "&password=" + Config.HostPassword();
 			try{
@@ -74,7 +80,7 @@ public class RubinBank extends JavaPlugin{
 			} catch(SQLException e){
 				log.severe("MySQL Exception:\n" + e.toString() + "\nAt: RubinBank create MySQL Tables");
 			}
-			ClicklessSigns.updateClicklessSignsTriggers();
+			updateBankomatLocs();
 			MySQL.updateTriggerButtons();
 			if(Config.useWorldGuard()){
 				if(Bukkit.getPluginManager().getPlugin("WorldGuard") == null){
@@ -176,9 +182,6 @@ public class RubinBank extends JavaPlugin{
 						if(args[0].equals("ut")){
 							MySQL.updateTriggers();
 							return true;
-						}
-						if(args[0].toLowerCase().equals("haveaccount")){
-							player.sendMessage(": " + Account.hasAccount(player.getName()));
 						}
 					}
 				}//RubinBank CMD Permission END
@@ -335,7 +338,14 @@ public class RubinBank extends JavaPlugin{
 		else{
 			if(cmd.getName().equalsIgnoreCase("rubinbank")){
 				log.info("oO you have found it...");
-				//if(args.length > 0)
+				if(args.length > 0)
+				if(args[0].equals("triggers")){
+					console.info("Triggers: BlockX, BlockY, BlockZ");
+					for(int i = 0; i < triggers.size(); i++){
+						console.info(triggers.get(i).getBlockX() + ", " + triggers.get(i).getBlockY() + ", " + triggers.get(i).getBlockZ());
+					}
+					return true;
+				}
 				return true;
 			}
 			if(cmd.getName().equalsIgnoreCase("error")){
@@ -377,6 +387,82 @@ public class RubinBank extends JavaPlugin{
 		}
 		else{
 			return false;
+		}
+	}
+	public static void updateBankomatLocs(){
+		MySQL.updateTriggers();
+		triggers = BankomatTriggers.getTriggers();
+		log.info("Updatet BankomatTriggers ArrayList");
+	}
+	public static ArrayList<Location> getBankomatTriggers(){
+		return triggers;
+	}
+	public static boolean isInBankomatTriggers(Location loc){
+		for(int i = 0; i < triggers.size(); i++){
+			Location loc2 = triggers.get(i);
+			int bmatX = loc2.getBlockX();
+			int bmatY = loc2.getBlockY();
+			int bmatZ = loc2.getBlockZ();
+			World bmatW = loc2.getWorld(); 
+			loc2 = loc;
+			int locX = loc2.getBlockX();
+			int locY = loc2.getBlockY();
+			int locZ = loc2.getBlockZ();
+			World locW = loc2.getWorld();
+			if(bmatX == locX && bmatY == locY && bmatZ == locZ && bmatW == locW)
+				return true;
+		}
+		return false;
+	}
+
+	public static void bankomatPlayerMove(PlayerMoveEvent evt){
+		Location locTo = new Location(evt.getTo().getWorld(), evt.getTo().getBlockX(), evt.getTo().getBlockY(), evt.getTo().getBlockZ());
+		Location locFrom = new Location(evt.getFrom().getWorld(), evt.getFrom().getBlockX(), evt.getFrom().getBlockY(), evt.getFrom().getBlockZ());
+		if(!(locTo.equals(locFrom))){
+			if(TimeShift.isShifted(evt.getPlayer().getName())){
+				if(BankomatTriggers.isTrigger(locFrom)){
+					TimeShift.removeShifted(evt.getPlayer().getName());
+				}
+			}
+			if(!BankomatTriggers.sameBankomat(locFrom, locTo)){
+				if(!triggers.isEmpty()){
+					if(RubinBank.isInBankomatTriggers(locTo)){
+						if(BankomatTriggers.isNonMulti(locTo)){
+							BankomatType t = BankomatTriggers.getNonMultiType(locTo);
+							if(t.equals(BankomatType.CREATE)){
+								if(!Account.hasAccount(evt.getPlayer().getName())){
+									Account.createAccount(evt.getPlayer().getName());
+								}
+								else{
+									evt.getPlayer().sendMessage(ChatColor.RED + "Du hast schon ein Konto.");
+								}
+							}
+							else{
+								if(Account.hasAccount(evt.getPlayer().getName())){
+									TimeShift.addShiftedBankomat(evt.getPlayer().getName(), t);
+									evt.getPlayer().sendMessage(TimeShift.typeMsg(t));
+								}
+								else{
+									evt.getPlayer().sendMessage(ChatColor.RED + "Du hast noch kein Konto!");
+								}
+							}
+						}
+						else{
+							if(Account.hasAccount(evt.getPlayer().getName())){
+								evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Möchtest du " + ChatColor.UNDERLINE + "A" + ChatColor.RESET + ChatColor.DARK_AQUA + "bheben, " +
+										 ChatColor.UNDERLINE + "E" + ChatColor.RESET + ChatColor.DARK_AQUA + "inzahlen, " +
+										 ChatColor.UNDERLINE + 		"Ü" + ChatColor.RESET + ChatColor.DARK_AQUA + "berweisen oder " +
+										 "deinen " + ChatColor.UNDERLINE + 	"K" + ChatColor.RESET + ChatColor.DARK_AQUA + "ontostand abrufen?");
+								TimeShift.addShiftedBankomat(evt.getPlayer().getName(), BankomatType.CHOOSING);
+							}
+							else{
+								evt.getPlayer().sendMessage(ChatColor.DARK_AQUA + "Du hast noch kein Konto, möchtest du eins erstellen? (Ja/Nein)");
+								TimeShift.addShiftedBankomat(evt.getPlayer().getName(), BankomatType.CREATE);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

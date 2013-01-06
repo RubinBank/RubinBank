@@ -78,43 +78,37 @@ public class Account {
 			msg(p_n, ChatColor.DARK_AQUA + "Du hast noch kein Konto erstellt.");
 	}
 	public static boolean payinToAccount(String p_n, double increase){
-		if(hasAccount(p_n)){
-			Player p = Bukkit.getServer().getPlayer(p_n);
-			int major = (int) increase;
-			int minor = (int) ((double) Math.round((increase - major)*10));
-			boolean hasmajor = p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major);
-			boolean hasminor = p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor);
-			boolean ignoreminor;
-			if(minor <= 0){
-				hasminor = true;
-				ignoreminor = true;
-			}
-			else{
-				ignoreminor = false;
-			}
-			if(hasmajor && hasminor){
-				try{
-					p.getInventory().removeItem(new ItemStack(Config.getMajorID(), major));
-					if(!ignoreminor){
-						p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));
-					}
-				} catch(Exception e){
-				 RubinBank.log.severe(e.toString());
-				 return false;
-				}
-				MySQL.accountAction(p_n, null, AccountAction.IN, increase);
-				msg(p_n, ChatColor.DARK_AQUA + "Neuer Kontostand: " + getAccountAmount(p_n));
-				return true;
-			}
-			else{
-				msg(p_n, ChatColor.YELLOW + "Du hast nicht genug Items in deinem Inventar!");
-				return false;
-			}
+		Player p = Bukkit.getServer().getPlayer(p_n);
+		int major = (int) increase;
+		int minor = (int) ((double) Math.round((increase - major)*10));
+		boolean hasmajor = p.getInventory().contains(Material.getMaterial(Config.getMajorID()), major);
+		boolean hasminor = p.getInventory().contains(Material.getMaterial(Config.getMinorID()), minor);
+		boolean ignoreminor;
+		if(minor <= 0){
+			hasminor = true;
+			ignoreminor = true;
 		}
 		else{
-			msg(p_n, "Du hast kein Konto!");
+			ignoreminor = false;
+		}
+		if(hasmajor && hasminor){
+			try{
+				p.getInventory().removeItem(new ItemStack(Config.getMajorID(), major));
+				if(!ignoreminor)
+					p.getInventory().removeItem(new ItemStack(Config.getMinorID(), minor));
+			} catch(Exception e){
+			 RubinBank.log.severe(e.toString());
+			 return false;
+			}
+			MySQL.accountAction(p_n, null, AccountAction.IN, increase);
+			msg(p_n, ChatColor.DARK_AQUA + "Neuer Kontostand: " + getAccountAmount(p_n));
+			return true;
+		}
+		else{
+			msg(p_n, ChatColor.YELLOW + "Du hast nicht genug Items in deinem Inventar!");
 			return false;
 		}
+
 	}
 	public static boolean payoutFromAccount(String p_n, double decrase){
 		Player p = Bukkit.getServer().getPlayer(p_n);
@@ -142,20 +136,12 @@ public class Account {
 		}
 	}
 	public static void transfer(double transfer, String from, String to){
-		if(transfer <= 0){
-			msg(from, ChatColor.RED + "Überweisungen sollten Positiv sein!");
-		}
-		else{
-			if(hasEnughMoney(from, transfer)){
-				if(hasAccount(to)){
-					MySQL.accountAction(from, to, AccountAction.TRANSFER, transfer);
-				}
-				else{
-					msg(from, ChatColor.YELLOW + to + " hat kein Konto!");
-				}
+		if(getAccountAmount(from) >= transfer){
+			if(hasAccount(to)){
+				MySQL.accountAction(from, to, AccountAction.TRANSFER, transfer);
 			}
 			else{
-				msg(from, ChatColor.RED + "Du hast nicht genug Geld!");
+				msg(from, ChatColor.YELLOW + to + " hat kein Konto!");
 			}
 		}
 	}
