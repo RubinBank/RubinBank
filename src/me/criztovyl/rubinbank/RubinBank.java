@@ -55,6 +55,7 @@ public class RubinBank extends JavaPlugin{
 				
 				Statement stmt = con.createStatement();
 				
+<<<<<<< HEAD
 				if(Config.isSet("MySQL.Host.Table_Accounts"))
 				stmt.executeUpdate("create table if not exists " + Config.AccountsTable() + " (id int not null auto_increment primary key, user varchar(50) not null, account boolean default 0, amount double)");
 				else
@@ -64,6 +65,11 @@ public class RubinBank extends JavaPlugin{
 				else
 					log.warning("Bankomats Table is not set in the config");
 				if(Config.isSet("MySQL.Host.Table_Buttons"))
+=======
+				stmt.executeUpdate("create table if not exists " + Config.UsersTable() + " (id int not null auto_increment primary key, user varchar(50) not null, lastlogin date)");
+				stmt.executeUpdate("create table if not exists " + Config.AccountsTable() + " (id int not null auto_increment primary key, user varchar(50) not null, amount double, account boolean default 0");
+				stmt.executeUpdate("create table if not exists " + Config.BankomatsTable() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Pos varchar(8))");
+>>>>>>> 2c67403b57ba29d56da65d1adfeb18d7da2bb49f
 				stmt.executeUpdate("create table if not exists " + Config.ButtonsTable() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, LocationWorld varchar(50), Type varchar(20))");
 				else
 					log.warning("(Trigger-)Buttons Table is not set in the config");

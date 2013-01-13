@@ -70,6 +70,10 @@ public class Config {
 	public static String AccountsTable() {
 		return HostDatabase() + "." + conf.get("MySQL.Host.Table_Accounts");
 	}
+	public static String AccountsTable(){
+		return conf.getString("MySQL.Host.Database") + "."
+				+ conf.getString("MySQL.Host.Table_Accounts");
+	}
 	public static boolean useWorldGuard(){
 		return conf.getBoolean("enabled.WorldGuard");
 	}
