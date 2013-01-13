@@ -1,6 +1,6 @@
 name: RubinBank
 main: me.criztovyl.rubinbank.RubinBank
-version:  2013-01-02-Prerelease8.1
+version:  2013-01-07-Dev8.3
 prefix: RubinBank
 commands:
     rubinbank:

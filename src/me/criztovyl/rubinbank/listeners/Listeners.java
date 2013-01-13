@@ -1,16 +1,21 @@
 package me.criztovyl.rubinbank.listeners;
 
 
+import java.util.HashMap;
+
+import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
-import me.criztovyl.rubinbank.tools.BankomatType;
+import me.criztovyl.rubinbank.tools.SignArg;
 import me.criztovyl.rubinbank.tools.MySQL;
+import me.criztovyl.rubinbank.tools.SignType;
 import me.criztovyl.rubinbank.tools.TimeShift;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -53,7 +58,9 @@ public class Listeners implements Listener{
 	@EventHandler
 	public static void onSignChange(SignChangeEvent evt){
 		Player player = evt.getPlayer();
+		String p_n = evt.getPlayer().getName();
 		String[] lines = evt.getLines();
+		String line2 = "";
 		if(lines[0].equals("[RubinBank]") || lines[0].equals("[RB]")){
 			if(lines[1].toLowerCase().equals("bankomat")){
 				if(lines[2].toLowerCase().equals("up") || lines[2].toLowerCase().equals("down") || lines[2].toLowerCase().equals("2x2d")
@@ -61,21 +68,42 @@ public class Listeners implements Listener{
 					if(!lines[3].equals("")){
 						if(lines[3].toLowerCase().equals("einzahlen") || lines[3].toLowerCase().equals("auszahlen") || lines[3].toLowerCase().equals("kontostand")
 								|| lines[3].toLowerCase().equals("überweisen") || lines[3].toLowerCase().equals("erstellen")){
-							MySQL.insertnoMultiBankomat(evt.getBlock().getLocation(), lines[2], BankomatType.getType(lines[3].toLowerCase()), "");
+							HashMap<SignArg, String> args = new HashMap<SignArg, String>();
+							args.put(SignArg.LOCX, Double.toString(evt.getBlock().getLocation().getBlockX()));
+							args.put(SignArg.LOCY, Double.toString(evt.getBlock().getLocation().getBlockY()));
+							args.put(SignArg.LOCZ, Double.toString(evt.getBlock().getLocation().getBlockZ()));
+							args.put(SignArg.LOCWORLD, evt.getBlock().getLocation().getWorld().getName());
+							args.put(SignArg.POS, lines[2].toLowerCase());
+							args.put(SignArg.TYPE, SignType.getType(lines[3].toLowerCase()).toString());
+							args.put(SignArg.MULTI, "0");
+							TimeShift.storeArgs(p_n, args);
+							TimeShift.addShifted(p_n, SignType.BANKOMAT_LOC);
+							line2 = SignType.getType(lines[3].toLowerCase()).toString();
 						}
 					}
 					else{
-						MySQL.insertBankomat(evt.getBlock().getLocation(), lines[2].toLowerCase(), "");
+						HashMap<SignArg, String> args = new HashMap<SignArg, String>();
+						args.put(SignArg.LOCX, Double.toString(evt.getBlock().getLocation().getBlockX()));
+						args.put(SignArg.LOCY, Double.toString(evt.getBlock().getLocation().getBlockY()));
+						args.put(SignArg.LOCZ, Double.toString(evt.getBlock().getLocation().getBlockZ()));
+						args.put(SignArg.LOCWORLD, evt.getBlock().getLocation().getWorld().getName());
+						args.put(SignArg.POS, lines[2].toLowerCase());
+						args.put(SignArg.MULTI, "1");
+						TimeShift.storeArgs(p_n, args);
+						TimeShift.addShifted(p_n, SignType.BANKOMAT_LOC);
+						line2 = "";
 					}
 					
 					evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
-					player.sendMessage(ChatColor.DARK_AQUA + "Added Bankomat");
 				}
 				else{
 					player.sendMessage("Zeile drei ist ungültig.");
 				}
 			}
 			evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
+			evt.setLine(1, ChatColor.DARK_AQUA + "Bankomat");
+			evt.setLine(2, line2);
+			evt.setLine(3, "");
 		}
 	}
 	@EventHandler
@@ -103,12 +131,20 @@ public class Listeners implements Listener{
 		}
 	}
 	@EventHandler
-	public static void onPlayerMove(PlayerMoveEvent evt){
-		//evt.getPlayer().sendMessage("move...");
-		RubinBank.bankomatPlayerMove(evt);
-	}
-	@EventHandler
 	public static void ChatEvent(AsyncPlayerChatEvent evt){
 		TimeShift.ChatEvent(evt);
+	}
+	@EventHandler
+	public static void PlayerMoveEvent(PlayerMoveEvent evt){
+		Location locTo = new Location(evt.getTo().getWorld(), evt.getTo().getBlockX(), evt.getTo().getBlockY(), evt.getTo().getBlockZ());
+		Location locFrom = new Location(evt.getFrom().getWorld(), evt.getFrom().getBlockX(), evt.getFrom().getBlockY(), evt.getFrom().getBlockZ());
+		String p_n = evt.getPlayer().getName();
+		if(!(locTo.equals(locFrom))){
+			if(TimeShift.isShifted(p_n)){
+				if(ClicklessSigns.isClicklessSignTrigger(locFrom)){
+					TimeShift.removeShifted(p_n);
+				}
+			}
+		}
 	}
 }
