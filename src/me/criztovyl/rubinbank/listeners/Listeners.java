@@ -112,8 +112,8 @@ public class Listeners implements Listener{
 				|| evt.getBlock().getType().equals(Material.WALL_SIGN)){
 			Sign sign = (Sign) evt.getBlock().getState();
 			if(sign.getLine(0).equals(ChatColor.DARK_AQUA + "[RubinBank]") || sign.getLine(0).equals("[RB]")){
-				if(sign.getLine(1).equals("Bankomat")){
-					MySQL.removeBankomat(evt.getBlock().getLocation());
+				if(sign.getLine(1).equals(ChatColor.DARK_AQUA + "Bankomat")){
+					evt.getPlayer().sendMessage(Boolean.toString(MySQL.removeBankomat(evt.getBlock().getLocation())));
 				}
 			}
 		}

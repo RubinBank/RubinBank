@@ -7,18 +7,10 @@ MySQL:
         User: user
         Password: password
         Database: RubinBank
-<<<<<<< HEAD
         Table_Accouts:
         Table_Bankomats:
         Table_Buttons:
         Table_Statements:
-=======
-        Table_Users: Users
-        Table_Accounts: Accounts
-        Table_Bankomats: Bankomats
-        Table_TriggerButtons: Buttons
-        Table_AccountStatements: Statements
->>>>>>> 2c67403b57ba29d56da65d1adfeb18d7da2bb49f
 Currency:
     Name:
         Major:

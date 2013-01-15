@@ -67,9 +67,6 @@ public class Config {
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Statements");
 	}
-	public static String AccountsTable() {
-		return HostDatabase() + "." + conf.get("MySQL.Host.Table_Accounts");
-	}
 	public static String AccountsTable(){
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Accounts");

@@ -169,33 +169,20 @@ public class MySQL{
 		}
 	}
 	public static boolean removeBankomat(Location loc){
+		String query = "";
 		try{
 			Statement stmt = RubinBank.getConnection().createStatement();
+
+			query = "Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY=" + loc.getBlockY() +
+					" AND LocationZ=" + loc.getBlockZ() + " AND LocationWorld=\"" + loc.getWorld().getName() + "\"";
+			stmt.executeUpdate(query);
 			
-			ResultSet rs = stmt.executeQuery("Select from " + Config.BankomatsTable() + "where LocationX=" + loc.getBlockX() + " AND LocationY=" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ() +
-					" AND LocationWorld=" + loc.getWorld().getName());
-			SignPos t;
-			if(rs.first()){
-				t = SignPos.valueOf("Pos");
-			}
-			else{
-				return false;
-			}
-			Location trigger = null;
-			switch(t){
-			case DOWN:
-				trigger = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()-1, loc.getBlockZ());
-				break;
-			case UP:
-				trigger = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
-			}
-			stmt.executeUpdate("Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
-			
-			ClicklessSigns.removeSign(trigger);
+			ClicklessSigns.removeSign(loc);
 			updateTriggers();
 			return true;
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: " + query);
+					
 			return false;
 		}
 	}
