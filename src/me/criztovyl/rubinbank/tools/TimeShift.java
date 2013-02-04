@@ -76,7 +76,7 @@ public class TimeShift {
 				Account.amountMsg(p_n);
 			}
 			else{
-				msg(p_n, ChatColor.RED + "Du hast schon ein Konto!");
+				msg(p_n, ChatColor.RED + "Du hast kein Konto!");
 			}
 			break;
 		}
@@ -131,7 +131,8 @@ public class TimeShift {
 						break;
 					}
 					amounts.put(p_n, amount);
-					type.put(p_n, SignType.TRANSFER_PLAYERII);
+					removeShiftedNoMsg(p_n);
+					addShifted(p_n, SignType.TRANSFER_PLAYERII);
 					break;
 				} catch(NumberFormatException e){
 					if(msg.toLowerCase().equals("ende")){
@@ -167,20 +168,20 @@ public class TimeShift {
 				break;
 			case CHOOSING:
 				if(msg.toLowerCase().equals("abheben") || msg.toLowerCase().equals("auszahlen") || msg.toLowerCase().equals("a")){
-					msg(p_n, ChatColor.DARK_AQUA + "Wie viel möchtest du auszahlen? (10,7 -> 10.7!)");
-					type.put(p_n, SignType.OUT);
+					removeShiftedNoMsg(p_n);
+					addShifted(p_n, SignType.OUT);
 					break;
 				}
 				if(msg.toLowerCase().equals("einzahlen") || msg.toLowerCase().equals("e")){
-					msg(p_n, ChatColor.DARK_AQUA + "Wie viel möchtest du einzahlen? (10,7 -> 10.7!)");
-					type.put(p_n, SignType.IN);
+					removeShiftedNoMsg(p_n);
+					addShifted(p_n, SignType.IN);
 					break;
 				}
 				if(msg.toLowerCase().equals("kontostand") || msg.toLowerCase().equals("k")){
 					Account.amountMsg(p_n);
 					if(loopPlayers.contains(p_n)){
-						msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
-						type.put(p_n, SignType.CHOOSING);
+						removeShiftedNoMsg(p_n);
+						addShifted(p_n, SignType.AMOUNT);
 					}
 					else{
 						removeShifted(p_n);
@@ -190,8 +191,8 @@ public class TimeShift {
 				if(msg.toLowerCase().equals("konto erstellen") || msg.toLowerCase().equals("erstellen") || msg.toLowerCase().equals("c")){
 					Account.createAccount(p_n);
 					if(loopPlayers.contains(p_n)){
-						msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
-						type.put(p_n, SignType.CHOOSING);
+						removeShiftedNoMsg(p_n);
+						addShifted(p_n, SignType.CREATE);
 					}
 					else{
 						removeShifted(p_n);
@@ -199,9 +200,8 @@ public class TimeShift {
 					break;
 				}
 				if(msg.toLowerCase().equals("überweisen") || msg.toLowerCase().equals("ü")){
-					Account.amountMsg(p_n);
-					msg(p_n, ChatColor.DARK_AQUA + "Wie viel möchtest du überweisen?");
-					type.put(p_n, SignType.TRANSFER_AMOUNT);
+					removeShiftedNoMsg(p_n);
+					addShifted(p_n, SignType.TRANSFER);
 					break;
 				}
 				if(msg.toLowerCase().equals("loop")){

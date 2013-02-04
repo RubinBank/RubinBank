@@ -15,22 +15,6 @@ public class Signs {
 				public void action(String arg0) {
 					me.criztovyl.rubinbank.tools.TimeShift.addShifted(arg0, me.criztovyl.rubinbank.tools.SignType.AMOUNT);
 				}
-
-				@Override
-				public Location getLocation() {
-					return loc;
-				}
-
-				@Override
-				public Location getTrigger() {
-					switch(pos){
-					case DOWN:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()-1, loc.getBlockZ());
-					case UP:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
-					}
-					return null;
-				}
 			});
 			break;
 		case CHOOSING:
@@ -38,22 +22,6 @@ public class Signs {
 				@Override
 				public void action(String arg0) {
 					me.criztovyl.rubinbank.tools.TimeShift.addShifted(arg0, me.criztovyl.rubinbank.tools.SignType.CHOOSING);
-				}
-
-				@Override
-				public Location getLocation() {
-					return loc;
-				}
-
-				@Override
-				public Location getTrigger() {
-					switch(pos){
-					case DOWN:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()-1, loc.getBlockZ());
-					case UP:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
-					}
-					return null;
 				}
 			});
 			break;
@@ -63,22 +31,6 @@ public class Signs {
 				public void action(String arg0) {
 					me.criztovyl.rubinbank.tools.TimeShift.addShifted(arg0, me.criztovyl.rubinbank.tools.SignType.CREATE);
 				}
-
-				@Override
-				public Location getLocation() {
-					return loc;
-				}
-
-				@Override
-				public Location getTrigger() {
-					switch(pos){
-					case DOWN:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()-1, loc.getBlockZ());
-					case UP:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
-					}
-					return null;
-				}
 			});
 			break;
 		case IN:
@@ -87,22 +39,6 @@ public class Signs {
 				public void action(String arg0) {
 					me.criztovyl.rubinbank.tools.TimeShift.addShifted(arg0, me.criztovyl.rubinbank.tools.SignType.IN);
 				}
-
-				@Override
-				public Location getLocation() {
-					return loc;
-				}
-
-				@Override
-				public Location getTrigger() {
-					switch(pos){
-					case DOWN:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()-1, loc.getBlockZ());
-					case UP:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
-					}
-					return null;
-				}
 			});
 			break;
 		case OUT:
@@ -110,22 +46,6 @@ public class Signs {
 				@Override
 				public void action(String arg0) {
 					me.criztovyl.rubinbank.tools.TimeShift.addShifted(arg0, me.criztovyl.rubinbank.tools.SignType.OUT);
-				}
-
-				@Override
-				public Location getLocation() {
-					return loc;
-				}
-
-				@Override
-				public Location getTrigger() {
-					switch(pos){
-					case DOWN:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()-1, loc.getBlockZ());
-					case UP:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
-					}
-					return null;
 				}
 			});
 			break;
@@ -136,22 +56,6 @@ public class Signs {
 				public void action(String arg0) {
 					me.criztovyl.rubinbank.tools.TimeShift.addShifted(arg0, me.criztovyl.rubinbank.tools.SignType.TRANSFER);
 					
-				}
-
-				@Override
-				public Location getLocation() {
-					return loc;
-				}
-
-				@Override
-				public Location getTrigger() {
-					switch(pos){
-					case DOWN:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()-1, loc.getBlockZ());
-					case UP:
-						return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
-					}
-					return null;
 				}
 			});
 			break;

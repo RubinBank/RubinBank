@@ -2,12 +2,12 @@ package me.criztovyl.rubinbank.account;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.rubinbank.tools.MySQL;
+import me.criztovyl.rubinbank.tools.MySQL_;
 import me.criztovyl.rubinbank.tools.Tools;
 
 import org.bukkit.Bukkit;
@@ -22,20 +22,17 @@ public class Account {
 		MySQL.accountAction(p_n, null, AccountAction.CREATE, 0);
 	}
 	public static boolean hasAccount(String p_n){
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			ResultSet rs = stmt.executeQuery("select account from " + Config.AccountsTable() + " where user='" + p_n + "'");
-			
+		MySQL_ mysql = RubinBank.getMySQL_();
+		ResultSet rs = mysql.executeQuery("select account from " + Config.AccountsTable() + " where user='" + p_n + "'");
+		try {
 			if(rs.first()){
 				return rs.getBoolean("account");
 			}
-			else
+			else{
 				return false;
-			
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: select account from " + Config.AccountsTable() + " where user='" + p_n + "'");
-			e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			RubinBank.log.severe("MySQL ResultSet Exception:\n" + e.toString());
 			return false;
 		}
 
@@ -47,23 +44,19 @@ public class Account {
 			return false;
 	}
 	public static double getAccountAmount(String p_n){
+		ResultSet rs = RubinBank.getMySQL_().executeQuery("Select account, amount from " + Config.AccountsTable() + " where user='" + p_n + "'");
 		if(hasAccount(p_n)){
 			try{
-				Statement stmt = RubinBank.getConnection().createStatement();
-				
-				ResultSet rs = stmt.executeQuery("Select account, amount from " + Config.AccountsTable() + " where user='" + p_n + "'");
-				
 				rs.first();
 				
 				if(rs.getBoolean("account")){
 					double amount = (double) (Math.round(rs.getDouble("amount") * 100.0 )/100.0);
 					return amount;
 				}
-
 				else
 					return -1;
 			} catch(SQLException e){
-				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Select account, amount from " + Config.AccountsTable() + " where user='" + p_n + "'");
+				RubinBank.log.severe("MySQL resultSet Exception:\n" + e.toString());
 				return -1;
 			}
 		}
@@ -119,9 +112,6 @@ public class Account {
 		Player p = Bukkit.getServer().getPlayer(p_n);
 		if(decrease > 0){
 			if(hasEnughMoney(p_n, decrease)){
-				
-				msg(p_n, Double.toString(decrease));
-				msg(p_n, Double.toString((int) (decrease * 10.0 - decrease * 10.0)));
 				int minor = (int)((Math.round((decrease - (int) decrease)*10.0)/10.0)*10.0);
 				ItemStack majorStack = new ItemStack(Config.getMajorID(), (int) decrease);
 				ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);

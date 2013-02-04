@@ -6,8 +6,8 @@ import java.util.HashMap;
 import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
-import me.criztovyl.rubinbank.tools.SignArg;
 import me.criztovyl.rubinbank.tools.MySQL;
+import me.criztovyl.rubinbank.tools.SignArg;
 import me.criztovyl.rubinbank.tools.SignType;
 import me.criztovyl.rubinbank.tools.TimeShift;
 import me.criztovyl.rubinbank.tools.TriggerButton;
@@ -113,7 +113,12 @@ public class Listeners implements Listener{
 			Sign sign = (Sign) evt.getBlock().getState();
 			if(sign.getLine(0).equals(ChatColor.DARK_AQUA + "[RubinBank]") || sign.getLine(0).equals("[RB]")){
 				if(sign.getLine(1).equals(ChatColor.DARK_AQUA + "Bankomat")){
-					evt.getPlayer().sendMessage(Boolean.toString(MySQL.removeBankomat(evt.getBlock().getLocation())));
+					if(MySQL.removeBankomat(evt.getBlock().getLocation())){
+						evt.getPlayer().sendMessage("Schild entfernt.");
+					}
+					else{
+						evt.getPlayer().sendMessage(ChatColor.RED + "Es ist ein Fehler aufgetreten!");
+					}
 				}
 			}
 		}

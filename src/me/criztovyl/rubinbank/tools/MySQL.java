@@ -2,12 +2,10 @@ package me.criztovyl.rubinbank.tools;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.clicklesssigns.ClicklessSigns.SignPos;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
@@ -24,55 +22,35 @@ import org.bukkit.World;
 public class MySQL{
 	public static void insertBankomat(Location loc, String pos, String location){
 		RubinBank.log.info("Inserted Bankomat");
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\", \"" + location + "\")");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\", \"" + location + "\")");
-		}
+		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(%d, %d, %d, '%s', '%s', '%s')",
+				Config.BankomatsTable(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), pos.toString(), location);
+		RubinBank.getMySQL_().executeUpdate(query);
 		updateTriggers();
 	}
 	public static void insertBankomat(String locX, String locY, String locZ, String locWorld, String pos, String location){
 		RubinBank.log.info("Inserted Bankomat");
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + location + "\")");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(" + locX+ ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + location + "\")");
-		}
+		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(%d, %d, %d, '%s', '%s', '%s')",
+				Config.BankomatsTable(), locX, locY, locZ,  locWorld, pos.toString(), location);
+		RubinBank.getMySQL_().executeUpdate(query);
 		updateTriggers();
 	}
 	public static void insertnoMultiBankomat(Location loc, String pos, SignType type, String location){
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\", \"" + type.toString() +"\", 0, \"" + location + "\")");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + pos + "\", \"" + type.toString() +"\", 0, \"" + location + "\")");
-		}
+		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location, Type, Multi) values(%d, %d, %d, '%s', '%s', '%s', '%s', 0)",
+				Config.BankomatsTable(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), pos.toString(), location, type.toString());
+		RubinBank.getMySQL_().executeUpdate(query);
 		updateTriggers();
 	}
 	public static void insertnoMultiBankomat(String locX, String locY, String locZ, String locWorld, String pos, String type, String location){
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + type +"\", 0, \"" + location + "\")");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "Query: " +
-					"Insert into " + Config.BankomatsTable() + " (LocationX, LocationY, LocationZ, LocationWorld, Pos, Type, Multi, Location) values(" + locX + ", " + locY + ", " + locZ + ", \"" + locWorld + "\", \"" + pos + "\", \"" + type +"\", 0, \"" + location + "\")");
-		}
+		RubinBank.log.info("Inserted Bankomat");
+		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location, Type, Multi) values(%d, %d, %d, '%s', '%s', '%s', '%s', 0)",
+				Config.BankomatsTable(), locX, locY, locZ,  locWorld, pos.toString(), location, type.toString());
+		RubinBank.getMySQL_().executeUpdate(query);
 		updateTriggers();
 	}
 	public static boolean updateTriggers(){
+		String query = String.format("SELECT * from %s", Config.BankomatsTable());
 		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			ResultSet rs = stmt.executeQuery("Select * from " + Config.BankomatsTable());
+			ResultSet rs = RubinBank.getMySQL_().executeQuery(query);
 			
 			while(rs.next()){
 				int locX = rs.getInt("LocationX");
@@ -164,43 +142,27 @@ public class MySQL{
 			return true;
 			
 		} catch (SQLException e) {
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Select * from " + Config.BankomatsTable());
+			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: " + query);
 			return false;
 		}
 	}
 	public static boolean removeBankomat(Location loc){
-		String query = "";
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-
-			query = "Delete from " + Config.BankomatsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY=" + loc.getBlockY() +
-					" AND LocationZ=" + loc.getBlockZ() + " AND LocationWorld=\"" + loc.getWorld().getName() + "\"";
-			stmt.executeUpdate(query);
-			
-			ClicklessSigns.removeSign(loc);
-			updateTriggers();
-			return true;
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "Query: " + query);
-					
-			return false;
-		}
+		String query = String.format("Delete from %s where LocationX=%d AND LocationY=%d AND LocationZ=%d AND LocationWorld='%s'", Config.BankomatsTable(),
+				loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
+		RubinBank.getMySQL_().executeUpdate(query);
+		return RubinBank.getMySQL_().wasSuccess();
+		
 	}
 	public static void addTriggerButton(Location loc, String type){
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Insert into " +  Config.ButtonsTable() + " (LocationX, LocationY, LocationZ, Location World, Type) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Error: Insert into " +  Config.ButtonsTable() + " (LocationX, LocationY, LocationZ, Location World, Type) values(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ", \"" + loc.getWorld().getName() + "\", \"" + type +"\")");
-			RubinBank.log.severe(e.toString());
-		}
+		String query = String.format("Insert into %s (LocationX, LocationY, LocationZ, LocationWorld, Type) values(%d, %d, %d, '%s', '%s')", Config.ButtonsTable(),
+				loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), type.toString());
+		RubinBank.getMySQL_().executeUpdate(query);
 	}
 	public static void updateTriggerButtons(){
+		String query = String.format("Select * from %s", Config.ButtonsTable());
 		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
 			
-			ResultSet rs = stmt.executeQuery("Select * from " +  Config.ButtonsTable());
+			ResultSet rs = RubinBank.getMySQL_().executeQuery(query);
 			
 			ArrayList<Location> triggerButtons = new ArrayList<Location>();
 			Map<Location, TriggerButtonType> triggerButtonType = new HashMap<Location, TriggerButtonType>();
@@ -221,17 +183,10 @@ public class MySQL{
 		}
 	}
 	public static boolean removeTriggerButton(Location loc){
-		try{
-			Statement stmt = RubinBank.getConnection().createStatement();
-			
-			stmt.executeUpdate("Delete from " + Config.ButtonsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
-			
-			updateTriggerButtons();
-			return true;
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString()+ "\nQuery: Delete from " + Config.ButtonsTable() + " where LocationX=" + loc.getBlockX() + " AND LocationY =" + loc.getBlockY() + " AND LocationZ=" + loc.getBlockZ());
-			return false;
-		}
+			String query = String.format("Delete from %s where LocationX=%d AND LocationY=%d AND LocationZ=%d AND LocationWorld='$s'", Config.BankomatsTable(),
+					loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
+			RubinBank.getMySQL_().executeUpdate(query);
+			return RubinBank.getMySQL_().wasSuccess();
 	}
 	public static void accountAction(String p_n, String p_n2, AccountAction action, double amount){
 		amount = ((int)(amount * 10.0)) / 10.0;
@@ -239,62 +194,42 @@ public class MySQL{
 		if(p_n2 != null){
 			p2_is_there = true;
 		}
+		String query;
 		if(action.equals(AccountAction.IN)){
-			try{
-				RubinBank.getConnection().createStatement().executeUpdate("Update " + Config.AccountsTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n + "\"");
-				insertAccountStatement(p_n, null, action, amount);
-			} catch (SQLException e) {
-				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.AccountsTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n + "\"");
-			}
+			query = String.format("Update %s set amount=amount+%d where user='%s'", Config.AccountsTable(), amount, p_n);
+			RubinBank.getMySQL_().executeUpdate(query);
+			insertAccountStatement(p_n, null, action, amount);
 		}
 		if(action.equals(AccountAction.OUT)){
-			try{
-				RubinBank.getConnection().createStatement().executeUpdate("Update " + Config.AccountsTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n + "\"");
-				insertAccountStatement(p_n, null, action, amount);
-			} catch (SQLException e) {
-				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.AccountsTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n + "\"");
-			}
+			query = String.format("Update %s set amount=amount-%d where user='%s'", Config.AccountsTable(), amount, p_n);
+			RubinBank.getMySQL_().executeUpdate(query);
+			insertAccountStatement(p_n, null, action, amount);
 		}
 		if(action.equals(AccountAction.TRANSFER) || p2_is_there){
 			if(Account.hasEnughMoney(p_n, amount)){
-				boolean error_is_1 = true;
-				try{
-					Statement stmt = RubinBank.getConnection().createStatement();
-					
-					stmt.executeUpdate("Update " + Config.AccountsTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n + "\"");
-					error_is_1 = false;
-					stmt.executeUpdate("Update " + Config.AccountsTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n2 + "\"");
-					
-					insertAccountStatement(p_n, p_n2, AccountAction.TRANSFER_OUT, amount);
-					insertAccountStatement(p_n2, p_n, AccountAction.TRANSFER_IN, amount);
-				} catch (SQLException e) {
-					if(error_is_1)
-						RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.AccountsTable() + " set amount=amount+" + Double.toString(amount) + " where user=\"" + p_n + "\"");
-					else
-						RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Update " + Config.AccountsTable() + " set amount=amount-" + Double.toString(amount) + " where user=\"" + p_n2 + "\"");
-				}
+				query = String.format("Update %s set amount=amount-%d where user='%s'", Config.AccountsTable(), amount, p_n);
+				RubinBank.getMySQL_().executeUpdate(query);
+				query = String.format("Update %s set amount=amount+%d where user='%s'", Config.AccountsTable(), amount, p_n);
+				RubinBank.getMySQL_().executeUpdate(query);
+				insertAccountStatement(p_n, p_n2, AccountAction.TRANSFER_OUT, amount);
+				insertAccountStatement(p_n2, p_n, AccountAction.TRANSFER_IN, amount);
 			}
 			else{
 				Tools.msg(p_n, ChatColor.YELLOW + "Du hast nicht genug Geld!");
 			}
 		}
 		if(action.equals(AccountAction.CREATE)){
-			try{
-				RubinBank.getConnection().createStatement().executeUpdate("Insert into " + Config.AccountsTable() + " (user, account, amount) values(\"" + p_n + "\", 1, 0) ");
-			} catch (SQLException e) {
-				RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Insert into " + Config.AccountsTable() + " (user, account, amount) values(\"" + p_n + "\", 1, 0) ");
-			}
+			query = String.format("Insert Into %s (user, account, amount) values('%s', 1, 0)", Config.AccountsTable(), amount, p_n);
+			RubinBank.getMySQL_().executeUpdate(query);
+			insertAccountStatement(p_n, null, action, amount);
 		}
 	}
 	public static void insertAccountStatement(String p_n, String p_n2, AccountAction action, double amount){
 		if(p_n2 == null)
 			p_n2 = "NONE";
 		double newamount = Account.getAccountAmount(p_n);
-		try{
-			RubinBank.getConnection().createStatement().executeUpdate("Insert into " + Config.ActionsTable() + " (user, Action, user2, ActionAmount, newamount, Date) values(\"" + p_n + "\", \"" + action.toString() + "\", \"" + p_n2 + "\", " + Double.toString(amount) + ", " + Double.toString(newamount) + ", NOW())");
-		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: Insert into " + Config.ActionsTable() + " (user, Action, user2, ActionAmount, newamount, Date) values(\"" + p_n + "\", \"" + action.toString() + "\", \"" + p_n2 + "\", " + Double.toString(amount) + ", " + Double.toString(newamount) + ", NOW())");
-			return;
-		}
+		String query = String.format("Insert into %s (user, Action, user2, ActionAmount, newamount, Date) value('%s', '%s', '%s', %d, %d, NOW())",
+				Config.ActionsTable(), p_n, action.toString(), p_n2, amount, newamount);
+		RubinBank.getMySQL_().executeUpdate(query);
 	}
 }
