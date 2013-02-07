@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import me.criztovyl.rubinbank.account.Account;
+import me.criztovyl.rubinbank.bank.Bank;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.rubinbank.listeners.Listeners;
 import me.criztovyl.rubinbank.tools.MySQL;
@@ -37,13 +37,15 @@ public class RubinBank extends JavaPlugin{
 	private Date date_start;
 	private Date date_stop;
 	private static MySQL_ mysql;
+	private static Bank bank;
 	public void onEnable(){
 		if(Config.enable()){
 			//Get the Plugin Logger ("[RubinBank]...")
 			log = Bukkit.getPluginManager().getPlugin("RubinBank").getLogger();
 			//Get Bukkit Server Logger
 			console = Bukkit.getServer().getLogger();
-			
+			//Set up the MySQL Object
+			mysql = new MySQL_(Config.HostAddress(), Config.HostUser(), Config.HostPassword());
 			log.info("RubinBank enabeling...");
 			//Register Listeners
 			Bukkit.getServer().getPluginManager().registerEvents(new Listeners(), this);
@@ -75,6 +77,8 @@ public class RubinBank extends JavaPlugin{
 						"user2 varchar(50), ActionAmount double, newAmount double, Date date)");
 			else
 				log.warning("Statements Table is not set in the config.yml");
+			//TODO Load Bank/Accounts from Database
+			bank = new Bank();
 			//Load the Bankomat Signs to ClicklessSigns
 			MySQL.updateTriggers();
 			//Load the Trigger Buttons
@@ -162,7 +166,7 @@ public class RubinBank extends JavaPlugin{
 							return true;
 						}
 						if(args[0].toLowerCase().equals("haveaccount")){
-							msg(p_n, ": " + Account.hasAccount(player.getName()));
+							msg(p_n, ": " + bank.hasAccount(player.getName()));
 						}
 					}
 				}//RubinBank CMD Permission END
@@ -213,8 +217,8 @@ public class RubinBank extends JavaPlugin{
 			}
 			if(cmd.getName().equalsIgnoreCase("account")){
 				if(args.length == 0){
-					if(Account.hasAccount(p_n))
-						Account.amountMsg(p_n);
+					if(bank.hasAccount(p_n))
+						bank.getAccount(p_n).sendBalanceMessage();
 					else
 						msg(p_n, "Du hast kein Konto.");
 					return true;
@@ -223,7 +227,7 @@ public class RubinBank extends JavaPlugin{
 					if(args[0].equals("create")){
 						if(Config.limitedToRegion().contains("create") || Config.limitedToRegion().contains("all")){
 							if(inWorldGuardRegion(player)){
-								Account.createAccount(player.getName());
+								bank.createAccount(p_n);
 								return true;
 							}
 							else{
@@ -232,14 +236,16 @@ public class RubinBank extends JavaPlugin{
 							}
 						}
 						else{
-							Account.createAccount(player.getName());
+							bank.createAccount(p_n);
 							return true;
 						}
 					}
 					if(args[0].equals("amount")){
 						if(Config.limitedToRegion().contains("amount") || Config.limitedToRegion().contains("all")){
 							if(inWorldGuardRegion(player)){
-								Account.amountMsg(player.getName());
+								if(bank.hasAccount(p_n)){
+									bank.getAccount(p_n).sendBalanceMessage();
+								}
 								return true;
 							}
 							else{
@@ -248,8 +254,9 @@ public class RubinBank extends JavaPlugin{
 							}
 						}
 						else{
-							Account.amountMsg(player.getName());
-							return true;
+							if(bank.hasAccount(p_n)){
+								bank.getAccount(p_n).sendBalanceMessage();
+							}
 						}
 					}
 					if(args.length >= 2){
@@ -257,7 +264,9 @@ public class RubinBank extends JavaPlugin{
 							if(Config.limitedToRegion().contains("payin") || Config.limitedToRegion().contains("all")){
 								if(inWorldGuardRegion(player)){
 									try{
-										Account.payinToAccount(p_n, Double.parseDouble(args[1]));
+										if(bank.hasAccount(p_n)){
+											bank.getAccount(p_n).payInViaInv(Double.parseDouble(args[1]));
+										}
 									} catch(NumberFormatException e){
 										Tools.msg(p_n, ChatColor.RED + "[amount] sollte eine Zahl sein! (10,1 => 10.1)");
 									}
@@ -268,7 +277,9 @@ public class RubinBank extends JavaPlugin{
 							}
 							else{
 								try{
-									Account.payinToAccount(p_n, Double.parseDouble(args[1]));
+									if(bank.hasAccount(p_n)){
+										bank.getAccount(p_n).payInViaInv(Double.parseDouble(args[1]));
+									}
 								} catch(NumberFormatException e){
 									Tools.msg(p_n, ChatColor.RED + "[amount] sollte eine Zahl sein! (10,1 => 10.1)");
 								}
@@ -278,7 +289,9 @@ public class RubinBank extends JavaPlugin{
 							if(Config.limitedToRegion().contains("payout") || Config.limitedToRegion().contains("all")){
 								if(inWorldGuardRegion(player)){
 									try{
-										Account.payoutFromAccount(p_n, Double.parseDouble(args[1]));
+										if(bank.hasAccount(p_n)){
+											bank.getAccount(p_n).payOutViaInv(Double.parseDouble(args[1]));
+										}
 									} catch(NumberFormatException e){
 										Tools.msg(p_n, ChatColor.RED + "[amount] sollte eine Zahl sein! (10,1 => 10.1)");
 									}
@@ -289,7 +302,9 @@ public class RubinBank extends JavaPlugin{
 							}
 							else{
 								try{
-									Account.payoutFromAccount(p_n, Double.parseDouble(args[1]));
+									if(bank.hasAccount(p_n)){
+										bank.getAccount(p_n).payOutViaInv(Double.parseDouble(args[1]));
+									}
 								} catch(NumberFormatException e){
 									Tools.msg(p_n, ChatColor.RED + "[amount] sollte eine Zahl sein! (10,1 => 10.1)");
 								}
@@ -368,5 +383,8 @@ public class RubinBank extends JavaPlugin{
 	}
 	public static MySQL_ getMySQL_() {
 		return mysql;
+	}
+	public static Bank getBank(){
+		return bank;
 	}
 }

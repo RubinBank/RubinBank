@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.rubinbank.RubinBank;
-import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.tools.MySQL;
 import me.criztovyl.rubinbank.tools.SignArg;
 import me.criztovyl.rubinbank.tools.SignType;
@@ -34,6 +33,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 public class Listeners implements Listener{
 	@EventHandler
 	public static void onPlayerClick(PlayerInteractEvent evt){
+		String p_n = evt.getPlayer().getName();
 		if(evt.getAction() == Action.RIGHT_CLICK_BLOCK){
 			if(evt.getClickedBlock().getType().equals(Material.SIGN_POST) || evt.getClickedBlock().getType().equals(Material.SIGN)
 					|| evt.getClickedBlock().getType().equals(Material.WALL_SIGN)){
@@ -46,10 +46,14 @@ public class Listeners implements Listener{
 			if(evt.getClickedBlock().getType().equals(Material.STONE_BUTTON) || evt.getClickedBlock().equals(Material.WOOD_BUTTON)){
 				if(TriggerButton.isTriggerButton(evt.getClickedBlock().getLocation())){
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.AMOUNT)){
-						Account.amountMsg(evt.getPlayer().getName());
+						if(RubinBank.getBank().hasAccount(p_n)){
+							RubinBank.getBank().getAccount(p_n).sendBalanceMessage();
+						}
 					}
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.CREATE)){
-						Account.createAccount(evt.getPlayer().getName());
+						if(!RubinBank.getBank().hasAccount(p_n)){
+							RubinBank.getBank().createAccount(p_n);
+						}
 					}
 				}
 			}

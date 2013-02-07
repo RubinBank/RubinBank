@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.criztovyl.rubinbank.account.Account;
+import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.config.Config;
 
 import org.bukkit.Bukkit;
@@ -24,14 +24,19 @@ public class TimeShift {
 		switch(t){
 		case IN:
 			if(Bukkit.getPlayer(p_n).getItemInHand().getTypeId() == Config.getMinorID() || Bukkit.getPlayer(p_n).getItemInHand().getTypeId() == Config.getMajorID()){
-				Account.payinItemInHand(p_n);
+				if(RubinBank.getBank().hasAccount(p_n)){
+					RubinBank.getBank().getAccount(p_n).payinItemInHand();
+				}
+				else{
+					msg(p_n, ChatColor.RED + "Du hast kein Konto auf das du einzahlen kannst!");
+				}
 				break;
 			}
 			msg(p_n, ChatColor.DARK_AQUA + "Wie viel m\u00F6chtest du einzahlen?");
 			break;
 		case OUT:
-			if(Account.getAccountAmount(p_n) > 0){
-				Account.amountMsg(p_n);
+			if(RubinBank.getBank().getAccount(p_n).getBalance() > 0){
+				RubinBank.getBank().getAccount(p_n).sendBalanceMessage();
 				msg(p_n, ChatColor.DARK_AQUA + "Wie viel m\u00F6chtest du abheben?");
 			}
 			else{
@@ -46,8 +51,8 @@ public class TimeShift {
 			msg(p_n, ChatColor.DARK_AQUA + "Wo steht dieses Schild? e.g. \"Bahnhof Spawn\"");
 			break;
 		case TRANSFER:
-			if(Account.getAccountAmount(p_n) > 0){
-				Account.amountMsg(p_n);
+			if(RubinBank.getBank().getAccount(p_n).getBalance()  > 0){
+				RubinBank.getBank().getAccount(p_n).sendBalanceMessage();
 				msg(p_n, ChatColor.DARK_AQUA + "Wie viel möchtest du \u00FCberweisen?");
 				type.put(p_n, SignType.TRANSFER_AMOUNT);
 			}
@@ -57,12 +62,12 @@ public class TimeShift {
 			}
 			break;
 		case CREATE:
-			if(Account.hasAccount(p_n)){
+			if(RubinBank.getBank().hasAccount(p_n)){
 				msg(p_n, ChatColor.RED + "Du hast schon ein Konto!");
 				break;
 			}
 			else{
-				Account.createAccount(p_n);
+				RubinBank.getBank().createAccount(p_n);
 				msg(p_n, ChatColor.DARK_AQUA + "Konto erstellt.");
 				break;
 			}
@@ -72,8 +77,8 @@ public class TimeShift {
 					ChatColor.UNDERLINE + "K" + ChatColor.RESET + ChatColor.DARK_AQUA + "ontostand abrufen?");
 			break;
 		case AMOUNT:
-			if(Account.hasAccount(p_n)){
-				Account.amountMsg(p_n);
+			if(RubinBank.getBank().hasAccount(p_n)){
+				RubinBank.getBank().getAccount(p_n).sendBalanceMessage();
 			}
 			else{
 				msg(p_n, ChatColor.RED + "Du hast kein Konto!");
@@ -148,8 +153,8 @@ public class TimeShift {
 				if(amounts.containsKey(p_n)){
 					amount = amounts.get(p_n);
 					String p_n2 = msg;
-					if(Account.hasAccount(p_n2)){
-						Account.transfer(amount, p_n, p_n2);
+					if(RubinBank.getBank().hasAccount(p_n2)){
+						RubinBank.getBank().transfer(p_n, p_n2, amount);
 						if(loopPlayers.contains(p_n)){
 							msg(p_n, ChatColor.DARK_AQUA + "Done.");
 							msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
@@ -178,21 +183,10 @@ public class TimeShift {
 					break;
 				}
 				if(msg.toLowerCase().equals("kontostand") || msg.toLowerCase().equals("k")){
-					Account.amountMsg(p_n);
+					RubinBank.getBank().getAccount(p_n).sendBalanceMessage();
 					if(loopPlayers.contains(p_n)){
 						removeShiftedNoMsg(p_n);
 						addShifted(p_n, SignType.AMOUNT);
-					}
-					else{
-						removeShifted(p_n);
-					}
-					break;
-				}
-				if(msg.toLowerCase().equals("konto erstellen") || msg.toLowerCase().equals("erstellen") || msg.toLowerCase().equals("c")){
-					Account.createAccount(p_n);
-					if(loopPlayers.contains(p_n)){
-						removeShiftedNoMsg(p_n);
-						addShifted(p_n, SignType.CREATE);
 					}
 					else{
 						removeShifted(p_n);
@@ -248,7 +242,7 @@ public class TimeShift {
 	public static void continueBankomat(String p_n, double amount){
 		SignType t = type.get(p_n);
 		if(t.equals(SignType.OUT)){
-			Account.payoutFromAccount(p_n, amount);
+			RubinBank.getBank().getAccount(p_n).payOutViaInv(amount);
 			if(loopPlayers.contains(p_n)){
 				msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
 				addShifted(p_n, SignType.CHOOSING);
@@ -258,7 +252,7 @@ public class TimeShift {
 			}
 		}
 		if(t.equals(SignType.IN)){
-			Account.payinToAccount(p_n, amount);
+			RubinBank.getBank().getAccount(p_n).payInViaInv(amount);
 			if(loopPlayers.contains(p_n)){
 				msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
 				addShifted(p_n, SignType.CHOOSING);
