@@ -63,7 +63,16 @@ public class Config {
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Buttons");
 	}
+	@Deprecated
+	/**
+	 * use Statements table instead
+	 * @return
+	 */
 	public static String ActionsTable(){
+		return conf.getString("MySQL.Host.Database") + "."
+				+ conf.getString("MySQL.Host.Table_Statements");
+	}
+	public static String StatementsTable(){
 		return conf.getString("MySQL.Host.Database") + "."
 				+ conf.getString("MySQL.Host.Table_Statements");
 	}

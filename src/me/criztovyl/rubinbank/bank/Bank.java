@@ -1,21 +1,27 @@
 package me.criztovyl.rubinbank.bank;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
+import me.criztovyl.rubinbank.account.AccountDBSafe;
 
 /**
  * Represents several accounts
  * @author criztovyl
  */
 public class Bank {
-	private List<Account> accounts;
-	public Bank(){}
+	private ArrayList<Account> accounts;
+	public Bank(){
+		accounts = new ArrayList<Account>();
+	}
 	/**
-	 * Adds a account to this Bank
+	 * Adds a account to this Bank<br/>
+	 * Only to add a Account loaded from the Database
 	 * @param account The account
 	 */
-	public void addAccount(Account account){
+	private void addAccount(Account account){
 		accounts.add(account);
 	}
 	/**
@@ -71,5 +77,38 @@ public class Bank {
 	 */
 	public void createAccount(String owner){
 		accounts.add(new Account(owner));
+	}
+	/**
+	 * @return A List of accounts this Bank is holding
+	 */
+	public ArrayList<Account> getAccounts(){
+		return accounts;
+	}
+	/**
+	 * Save all Accounts of this Bank to the Database
+	 */
+	public void save(){
+		AccountDBSafe safe = new AccountDBSafe();
+		for(int i = 0; i < accounts.size(); i++){
+			accounts.get(i).saveStatements();
+			HashMap<String, String> save = new HashMap<String, String>();
+			save.put("owner", accounts.get(i).getOwner());
+			save.put("balance", Double.toString(accounts.get(i).getBalance()));
+			safe.saveToDatabase(save, RubinBank.getCon());
+		}
+	}
+	/**
+	 * Load all Accounts saved in the Database
+	 */
+	public void load(){
+		AccountDBSafe safe = new AccountDBSafe();
+		ArrayList<HashMap<String, String>> loads = safe.loadFromDatabase(RubinBank.getCon());
+		for(int i = 0; i < loads.size(); i++){
+			HashMap<String, String> load = loads.get(i);
+			addAccount(new Account(load.get("owner"), Double.parseDouble(load.get("balance"))));
+		}
+	}
+	public void payInToAccount(double amount, String owner){
+		getAccount(owner).payIn(amount);
 	}
 }
