@@ -39,7 +39,7 @@ public class Account{
 	 * Creates a new account with existing statements and amount
 	 * @param stmts The statements list
 	 * @param owner The account owner
-	 * @param amount The account amount
+	 * @param balance The account balance
 	 */
 	public Account(ArrayList<AccountStatement> stmts, String owner, double balance){
 		this.owner = owner;
@@ -53,7 +53,7 @@ public class Account{
 	 */
 	public Account(String owner, double balance){
 		this.owner = owner;
-		this.balance = Math.round(balance * 10)/10;
+		this.balance = Math.round(balance * 10.0)/10.0;
 		this.stmts = new ArrayList<AccountStatement>();
 	}
 	/**
@@ -61,7 +61,7 @@ public class Account{
 	 * @param amount  How much money should be payed in
 	 */
 	public void payIn(double amount){
-		this.balance += Math.round(amount * 10)/10;
+		this.balance += Math.round(amount * 10.0)/10.0;
 		addStatement(new AccountStatement(owner, AccountStatementType.IN, amount, getBalance()));
 	}
 	/**
@@ -71,7 +71,7 @@ public class Account{
 	 */
 	public boolean payOut(double amount){
 		if(hasEnoughMoney(amount)){
-			this.balance -= Math.round(amount * 10)/10;
+			this.balance -= Math.round(amount * 10.0)/10.0;
 			addStatement(new AccountStatement(owner, AccountStatementType.OUT, amount, getBalance()));
 			return true;
 		}
@@ -82,7 +82,7 @@ public class Account{
 	/**
 	 * Checks if enough money is present
 	 * @param amount  How much money should be present.
-	 * @return
+	 * @return If has enough money true, otherwise false
 	 */
 	public boolean hasEnoughMoney(double amount){
 		return this.balance >= Math.round(amount * 10.0)/10.0;
@@ -99,7 +99,7 @@ public class Account{
 	 * @return  The account amount
 	 */
 	public double getBalance(){
-		return Math.round(balance)/10.0;
+		return Math.round(balance*10.0)/10.0;
 	}
 	/**
 	 * Pay in money from the Inventory of the owner
@@ -183,8 +183,8 @@ public class Account{
 		stmts.add(stmt);
 	}
 	/**
-	 * Get a java.util.List of me.criztovyl.rubinbank.Statement 's
-	 * @return
+	 * Get {@link AccountStatement}'s
+	 * @return A {@link ArrayList} of {@link AccountStatement}
 	 */
 	public ArrayList<AccountStatement> getStatements(){
 		return stmts;
@@ -233,6 +233,13 @@ public class Account{
 		msg(getOwner(), getBalanceMessage());
 	}
 	/**
+	 * Sends the owner a coloured balance message
+	 * @param color - The {@link ChatColor} for the message
+	 */
+	public void sendBalanceMessage(ChatColor color){
+		msg(getOwner(), color + getBalanceMessage());
+	}
+	/**
 	 * Pay in the money the play hold in his hand
 	 */
 	public void payinItemInHand(){
@@ -246,7 +253,7 @@ public class Account{
 		if(id == Config.getMinorID()){
 			ItemStack stack = p.getItemInHand();
 			p.getInventory().remove(stack);
-			payIn(stack.getAmount());
+			payIn(stack.getAmount()/10.0);
 		}
 	}
 	public void removeStatements(){

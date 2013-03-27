@@ -72,9 +72,15 @@ public class TimeShift {
 				break;
 			}
 		case CHOOSING:
-			msg(p_n, ChatColor.DARK_AQUA + "Möchtest du " + ChatColor.UNDERLINE + "A" + ChatColor.RESET + ChatColor.DARK_AQUA + "bheben, " + ChatColor.UNDERLINE + "E" + ChatColor.RESET +
-					ChatColor.DARK_AQUA + "inzahlen, " + ChatColor.UNDERLINE + 		"Ü" + ChatColor.RESET + ChatColor.DARK_AQUA + "berweisen oder " + "deinen " + 
-					ChatColor.UNDERLINE + "K" + ChatColor.RESET + ChatColor.DARK_AQUA + "ontostand abrufen?");
+			if(RubinBank.getBank().hasAccount(p_n)){
+				msg(p_n, ChatColor.DARK_AQUA + "Möchtest du " + ChatColor.UNDERLINE + "A" + ChatColor.RESET + ChatColor.DARK_AQUA + "bheben, " + ChatColor.UNDERLINE + "E" + ChatColor.RESET +
+						ChatColor.DARK_AQUA + "inzahlen, " + ChatColor.UNDERLINE + 		"Ü" + ChatColor.RESET + ChatColor.DARK_AQUA + "berweisen oder " + "deinen " + 
+						ChatColor.UNDERLINE + "K" + ChatColor.RESET + ChatColor.DARK_AQUA + "ontostand abrufen?");
+			}
+			else{
+				msg(p_n, ChatColor.RED + "Du hast noch kein Konto.");
+				msg(p_n, ChatColor.DARK_AQUA + "Um ein Konto zu erstellen gebe jetzt ja in den Chat ein.");
+			}
 			break;
 		case AMOUNT:
 			if(RubinBank.getBank().hasAccount(p_n)){
@@ -155,15 +161,8 @@ public class TimeShift {
 					String p_n2 = msg;
 					if(RubinBank.getBank().hasAccount(p_n2)){
 						RubinBank.getBank().transfer(p_n, p_n2, amount);
-						if(loopPlayers.contains(p_n)){
-							msg(p_n, ChatColor.DARK_AQUA + "Done.");
-							msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
-							type.put(p_n, SignType.CHOOSING);
-						}
-						else{
-							msg(p_n, ChatColor.DARK_AQUA + "Done.");
-							removeShifted(p_n);
-						}
+						msg(p_n, ChatColor.DARK_AQUA + "Done.");
+						removeShifted(p_n);
 					}
 					else{
 						msg(p_n, ChatColor.YELLOW + p_n2 + " hat kein Konto.");
@@ -199,13 +198,7 @@ public class TimeShift {
 					break;
 				}
 				if(msg.toLowerCase().equals("loop")){
-					if(!loopPlayers.contains(p_n)){
-						msg(p_n, ChatColor.DARK_AQUA + "Loop aktiviert, das Schild ist solange aktiviert bis du abbrichst oder das Schild verlässt.");
-					loopPlayers.add(p_n);
-					}
-					else{
-						msg(p_n, ChatColor.RED + "Du bist bereits im Loop Modus.");
-					}
+					msg(p_n, ChatColor.DARK_AQUA + "Loop ist erzeit nicht verfügbar.");
 					break;
 				}
 				msg(p_n, ChatColor.YELLOW + "Unbekannte Aktion. Ende mit \"ende\"");

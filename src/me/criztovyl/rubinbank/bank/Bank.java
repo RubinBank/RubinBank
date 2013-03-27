@@ -3,9 +3,12 @@ package me.criztovyl.rubinbank.bank;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
+
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.account.AccountDBSafe;
+import me.criztovyl.rubinbank.tools.Tools;
 
 /**
  * Represents several accounts
@@ -29,20 +32,26 @@ public class Bank {
 	 * @param from
 	 * @param to
 	 * @param amount
-	 * @return
+	 * @return If the transfer was success true; otherwise false
 	 */
 	public boolean transfer(String from, String to, double amount){
-		if(hasAccount(to) && hasAccount(from)){
-			if(getAccount(from).hasEnoughMoney(amount)){
-				getAccount(from).transferOut(amount, to);
-				getAccount(to).transferIn(amount, from);
-				return true;
+		if(amount >= 0){
+			if(hasAccount(to) && hasAccount(from)){
+				if(getAccount(from).hasEnoughMoney(amount)){
+					getAccount(from).transferOut(amount, to);
+					getAccount(to).transferIn(amount, from);
+					return true;
+				}
+				else{
+					return false;
+				}
 			}
 			else{
 				return false;
 			}
 		}
 		else{
+			Tools.msg(from, ChatColor.RED + "Du kannst nichts negatives Überweisen!");
 			return false;
 		}
 	}
@@ -101,14 +110,12 @@ public class Bank {
 	 * Load all Accounts saved in the Database
 	 */
 	public void load(){
+		RubinBank.log.info("Load Accounts");
 		AccountDBSafe safe = new AccountDBSafe();
 		ArrayList<HashMap<String, String>> loads = safe.loadFromDatabase(RubinBank.getCon());
 		for(int i = 0; i < loads.size(); i++){
 			HashMap<String, String> load = loads.get(i);
 			addAccount(new Account(load.get("owner"), Double.parseDouble(load.get("balance"))));
 		}
-	}
-	public void payInToAccount(double amount, String owner){
-		getAccount(owner).payIn(amount);
 	}
 }

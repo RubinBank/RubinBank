@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.criztovyl.clicklesssigns.ClicklessSigns;
-import me.criztovyl.clicklesssigns.ClicklessSigns.SignPos;
+import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.account.Account.AccountStatement;
@@ -39,9 +38,9 @@ public class MySQL{
 		updateTriggers();
 	}
 	public static void insertBankomat(String locX, String locY, String locZ, String locWorld, String pos, String location){
-		RubinBank.log.info("Inserted Bankomat");
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(%s, %s, %s, '%s', '%s', '%s')",
 				Config.BankomatsTable(), locX, locY, locZ,  locWorld, pos.toString(), location);
+		con = RubinBank.getCon();
 		try{
 			con.createStatement().executeUpdate(query);
 			con.close();
@@ -50,6 +49,7 @@ public class MySQL{
 			RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 		}
 		updateTriggers();
+		RubinBank.log.info("Inserted Bankomat");
 	}
 	public static void insertnoMultiBankomat(Location loc, String pos, SignType type, String location){
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location, Type, Multi) values(%d, %d, %d, '%s', '%s', '%s', '%s', 0)",
@@ -186,7 +186,7 @@ public class MySQL{
 		try{
 			con.createStatement().executeUpdate(query);
 			con.close();
-			ClicklessSigns.removeSign(loc);
+			ClicklessPlugin.getClickless().removeClicklessSign(loc);
 			MySQL.updateTriggers();
 			return true;
 		}
@@ -247,50 +247,6 @@ public class MySQL{
 				return false;
 			}
 	}
-//	public static void accountAction(String p_n, String p_n2, AccountAction action, double amount){
-//		amount = ((int)(amount * 10.0)) / 10.0;
-//		boolean p2_is_there = false;
-//		if(p_n2 != null){
-//			p2_is_there = true;
-//		}
-//		String query;
-//		if(action.equals(AccountAction.IN)){
-//			query = String.format("Update %s set amount=amount+%d where user='%s'", Config.AccountsTable(), amount, p_n);
-//			RubinBank.getMySQL_().executeUpdate(query);
-//			insertAccountStatement(p_n, null, action, amount);
-//		}
-//		if(action.equals(AccountAction.OUT)){
-//			query = String.format("Update %s set amount=amount-%d where user='%s'", Config.AccountsTable(), amount, p_n);
-//			RubinBank.getMySQL_().executeUpdate(query);
-//			insertAccountStatement(p_n, null, action, amount);
-//		}
-//		if(action.equals(AccountAction.TRANSFER) || p2_is_there){
-//			if(Account.hasEnughMoney(p_n, amount)){
-//				query = String.format("Update %s set amount=amount-%d where user='%s'", Config.AccountsTable(), amount, p_n);
-//				RubinBank.getMySQL_().executeUpdate(query);
-//				query = String.format("Update %s set amount=amount+%d where user='%s'", Config.AccountsTable(), amount, p_n);
-//				RubinBank.getMySQL_().executeUpdate(query);
-//				insertAccountStatement(p_n, p_n2, AccountAction.TRANSFER_OUT, amount);
-//				insertAccountStatement(p_n2, p_n, AccountAction.TRANSFER_IN, amount);
-//			}
-//			else{
-//				Tools.msg(p_n, ChatColor.YELLOW + "Du hast nicht genug Geld!");
-//			}
-//		}
-//		if(action.equals(AccountAction.CREATE)){
-//			query = String.format("Insert Into %s (user, account, amount) values('%s', 1, 0)", Config.AccountsTable(), amount, p_n);
-//			RubinBank.getMySQL_().executeUpdate(query);
-//			insertAccountStatement(p_n, null, action, amount);
-//		}
-//	}
-//	public static void insertAccountStatement(String p_n, String p_n2, AccountAction action, double amount){
-//		if(p_n2 == null)
-//			p_n2 = "NONE";
-//		double newamount = Account.getAccountAmount(p_n);
-//		String query = String.format("Insert into %s (user, Action, user2, ActionAmount, newamount, Date) value('%s', '%s', '%s', %d, %d, NOW())",
-//				Config.ActionsTable(), p_n, action.toString(), p_n2, amount, newamount);
-//		RubinBank.getMySQL_().executeUpdate(query);
-//	}
 	public static void writeAccountToDB(String owner){
 		writeAccountToDB(RubinBank.getBank().getAccount(owner));
 	}

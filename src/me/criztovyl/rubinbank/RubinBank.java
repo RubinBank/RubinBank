@@ -146,9 +146,6 @@ public class RubinBank extends JavaPlugin{
 			//Save Bank, Accounts and AccountStatements
 			bank.save();
 		}
-		else{
-			log.warning("DB Failure!");
-		}
 		//Plugin stop date.
 		date_stop = new Date();
 		String Time;
@@ -172,7 +169,7 @@ public class RubinBank extends JavaPlugin{
 		if(sender instanceof Player){
 			//The Player who send the Command
 			Player player = (Player) sender;
-			// The Player name of him.
+			// The Player name of him/her
 			String p_n = sender.getName();
 			//The RubinBank native Command
 			if(cmd.getName().equalsIgnoreCase("rubinbank")){
@@ -205,7 +202,8 @@ public class RubinBank extends JavaPlugin{
 						if(args[0].toLowerCase().equals("accounts")){
 							ArrayList<Account> accs = bank.getAccounts();
 							for(int i = 0; i < accs.size(); i++){
-								msg(p_n, accs.get(i).getOwner() + ": " + accs.get(i).getBalance());
+								msg(p_n, ChatColor.ITALIC + accs.get(i).getOwner() + ": "
+										+ accs.get(i).getBalance());
 							}
 						}
 					}
@@ -369,8 +367,16 @@ public class RubinBank extends JavaPlugin{
 		}//PLAYER END
 		else{
 			if(cmd.getName().equalsIgnoreCase("rubinbank")){
+				if(args.length >= 1){
+					if(args[0].toLowerCase().equals("accounts")){
+						ArrayList<Account> accs = bank.getAccounts();
+						for(int i = 0; i < accs.size(); i++){
+							log.info(accs.get(i).getOwner() + ": "
+									+ accs.get(i).getBalance());
+						}
+					}
+				}
 				log.info("oO you have found it...");
-				//if(args.length > 0)
 				return true;
 			}
 			if(cmd.getName().equalsIgnoreCase("error")){
@@ -424,7 +430,7 @@ public class RubinBank extends JavaPlugin{
 	public static Connection getCon() {
 		try {
 			if(con.isClosed()){
-				con = DriverManager.getConnection("jdbc:mysql://" + Config.HostAddress(), Config.HostUser(), Config.HostPassword());
+				reopenCon();
 			}
 			conSuccess = true;
 			return con;
@@ -441,6 +447,9 @@ public class RubinBank extends JavaPlugin{
 		try {
 			if(con.isClosed()){
 				con = DriverManager.getConnection("jdbc:mysql://" + Config.HostAddress(), Config.HostUser(), Config.HostPassword());
+			}
+			else{
+				log.info("Connection is not closed.");
 			}
 			conSuccess = true;
 		} catch (SQLException e) {

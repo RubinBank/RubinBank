@@ -3,7 +3,6 @@ package me.criztovyl.rubinbank.listeners;
 
 import java.util.HashMap;
 
-import me.criztovyl.clicklesssigns.ClicklessSigns;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.tools.MySQL;
 import me.criztovyl.rubinbank.tools.SignArg;
@@ -14,7 +13,6 @@ import me.criztovyl.rubinbank.tools.TriggerButtonType;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -26,7 +24,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 
 
@@ -142,18 +139,5 @@ public class Listeners implements Listener{
 	@EventHandler
 	public static void ChatEvent(AsyncPlayerChatEvent evt){
 		TimeShift.ChatEvent(evt);
-	}
-	@EventHandler
-	public static void PlayerMoveEvent(PlayerMoveEvent evt){
-		Location locTo = new Location(evt.getTo().getWorld(), evt.getTo().getBlockX(), evt.getTo().getBlockY(), evt.getTo().getBlockZ());
-		Location locFrom = new Location(evt.getFrom().getWorld(), evt.getFrom().getBlockX(), evt.getFrom().getBlockY(), evt.getFrom().getBlockZ());
-		String p_n = evt.getPlayer().getName();
-		if(!(locTo.equals(locFrom))){
-			if(TimeShift.isShifted(p_n)){
-				if(ClicklessSigns.isClicklessSignTrigger(locFrom)){
-					TimeShift.removeShifted(p_n);
-				}
-			}
-		}
 	}
 }
