@@ -260,8 +260,10 @@ public class Account{
 		stmts.clear();
 	}
 	public void saveStatements(){
+		RubinBank.log.info("Saving Statements...");
 		for(int i = 0; i < stmts.size(); i++){
 			stmts.get(i).save();
+			RubinBank.log.info("Statement " + i);
 		}
 		stmts.clear();
 	}
@@ -401,8 +403,9 @@ public class Account{
 				query = String.format("create table if not exists %s (id int not null auto_increment primary key, owner varchar(20) not null, action varchar(20) not null," +
 						" participant varchar(50), actionAmount double, newBalance double, date varchar(12))", Config.StatementsTable());
 				stmt.executeUpdate(query);
-				query = String.format("Insert into %s (owner, action, participant, actionAmount, newBalance, date) value('%s', %s, '%s', %s, %s, %s)", 
-						Config.StatementsTable(), save.get("owner"), save.get("action"), save.get("participant"), save.get("actionamount"), save.get("newbalance"), save.get("date"));
+				query = String.format("Insert into %s (owner, action, participant, actionAmount, newBalance, date) value('%s', '%s', '%s', '%s', '%s', '%s')", 
+						Config.StatementsTable(), save.get("owner"), save.get("action"), save.get("participant"), save.get("actionAmount"), save.get("newBalance"), save.get("date"));
+				stmt.executeUpdate(query);
 				con.close();
 			} catch(SQLException e){
 				RubinBank.log.severe("Failed to save AccountStatement to the Database! Error:\n" + e.toString() + "\n@ Query \"" + query +"\"");

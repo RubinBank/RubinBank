@@ -29,7 +29,7 @@ public class AccountDBSafe implements DBSafe {
 			while(rs.next()){
 				if(rs.getString("owner").equals(save.get("owner"))){
 					query = String.format("Update %s set balance=%s where owner='%s'", Config.AccountsTable(), save.get("balance"), save.get("owner"));
-					RubinBank.log.info("[AccDBSafe]Saving \"" + query + "\"");
+					RubinBank.log.info("[AccDBSafe] Saving \"" + query + "\"");
 					stmt.executeUpdate(query);
 					return;
 				}

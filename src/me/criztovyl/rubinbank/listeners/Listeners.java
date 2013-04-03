@@ -22,7 +22,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 
@@ -133,11 +132,7 @@ public class Listeners implements Listener{
 	public static void onPluginLoad(PluginEnableEvent evt){
 		if(evt.getPlugin().getName().equals("WorldGuard")){
 			RubinBank.setUseWorldGuard();
-			Bukkit.getPluginManager().getPlugin("RubinBank").getLogger().info("WorldGuard found :)");
+			Bukkit.getPluginManager().getPlugin("RubinBank").getLogger().info("WorldGuard found and Support enabled :)");
 		}
-	}
-	@EventHandler
-	public static void ChatEvent(AsyncPlayerChatEvent evt){
-		TimeShift.ChatEvent(evt);
 	}
 }

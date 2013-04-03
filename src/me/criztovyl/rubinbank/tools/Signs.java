@@ -38,7 +38,10 @@ public class Signs {
 				
 				@Override
 				public void action(String p_n) {
-					me.criztovyl.rubinbank.RubinBank.getBank().getAccount(p_n).sendBalanceMessage();
+					if(RubinBank.getBank().hasAccount(p_n))
+						RubinBank.getBank().getAccount(p_n).sendBalanceMessage(ChatColor.BLUE);
+					else
+						Tools.msg(p_n, ChatColor.RED + "Du hast kein Konto!");
 				}
 
 				@Override

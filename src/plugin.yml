@@ -1,9 +1,10 @@
 name: RubinBank
 main: me.criztovyl.rubinbank.RubinBank
-version:  2013-03-27
+version:  2013-04-03
 prefix: RubinBank
 author: criztovyl
-website: http://chsc.de
+website: http://github.com/RubinBank/RubinBank
+depend: [Clickless]
 commands:
     rubinbank:
         description: RubinBank native command
