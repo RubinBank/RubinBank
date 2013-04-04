@@ -16,6 +16,9 @@ import me.criztovyl.rubinbank.tools.Tools;
  */
 public class Bank {
 	private ArrayList<Account> accounts;
+	/**
+	 * Init the Bank
+	 */
 	public Bank(){
 		accounts = new ArrayList<Account>();
 	}
@@ -29,12 +32,13 @@ public class Bank {
 	}
 	/**
 	 * Transfer money between accounts
-	 * @param from
-	 * @param to
-	 * @param amount
+	 * @param from The source account
+	 * @param to The target account
+	 * @param amount The amount
+	 * @param location The location
 	 * @return If the transfer was success true; otherwise false
 	 */
-	public boolean transfer(String from, String to, double amount){
+	public boolean transfer(String from, String to, double amount, String location){
 		if(amount >= 0){
 			if(hasAccount(to) && hasAccount(from)){
 				if(getAccount(from).hasEnoughMoney(amount)){
@@ -54,6 +58,16 @@ public class Bank {
 			Tools.msg(from, ChatColor.RED + "Du kannst nichts negatives Überweisen!");
 			return false;
 		}
+	}
+	/**
+	 * Transfer money between accounts
+	 * @param from The source account
+	 * @param to The target account
+	 * @param amount The amount
+	 * @return If the transfer was success true; otherwise false
+	 */
+	public boolean transfer(String from, String to, double amount){
+		return transfer(from, to, amount, Account.RAINBOW);
 	}
 	/**
 	 * Checks if there is an account with the given owner
@@ -110,7 +124,7 @@ public class Bank {
 	 * Load all Accounts saved in the Database
 	 */
 	public void load(){
-		RubinBank.log.info("Load Accounts");
+		RubinBank.getHelper().info("Load Accounts");
 		AccountDBSafe safe = new AccountDBSafe();
 		ArrayList<HashMap<String, String>> loads = safe.loadFromDatabase(RubinBank.getCon());
 		for(int i = 0; i < loads.size(); i++){

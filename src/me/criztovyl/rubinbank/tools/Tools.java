@@ -17,4 +17,29 @@ public class Tools{
 		return p.getItemInHand().getTypeId() == Config.getMajorID() ||
 				p.getItemInHand().getTypeId() == Config.getMinorID();
 	}
+	public static String getTypeLine(SignType type){
+		switch(type){
+		case AMOUNT:
+			return "Kontostand";
+		case BANKOMAT_LOC:
+			break;
+		case CHOOSING:
+			return "";
+		case CREATE:
+			return "Kontoeröffnung";
+		case IN:
+			return "Einzahlen";
+		case OUT:
+			return "Auszahlen";
+		case TRANSFER:
+			return "Überweisung";
+		case TRANSFER_AMOUNT:
+			break;
+		case TRANSFER_PLAYERII:
+			break;
+		case UCP_PASS:
+			break;
+		}
+		return "";
+	}
 }

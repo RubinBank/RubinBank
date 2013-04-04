@@ -24,7 +24,7 @@ import org.bukkit.World;
 public class MySQL{
 	private static Connection con;
 	public static void insertBankomat(Location loc, String pos, String location){
-		RubinBank.log.info("Inserted Bankomat");
+		RubinBank.getHelper().info("Inserted Bankomat");
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(%d, %d, %d, '%s', '%s', '%s')",
 				Config.BankomatsTable(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), pos.toString(), location);
 		con = RubinBank.getCon();
@@ -33,7 +33,7 @@ public class MySQL{
 			con.close();
 		}
 		catch(SQLException e){
-			RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
+			RubinBank.getHelper().severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 		}
 		updateTriggers();
 	}
@@ -46,10 +46,10 @@ public class MySQL{
 			con.close();
 		}
 		catch(SQLException e){
-			RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
+			RubinBank.getHelper().severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 		}
 		updateTriggers();
-		RubinBank.log.info("Inserted Bankomat");
+		RubinBank.getHelper().info("Inserted Bankomat");
 	}
 	public static void insertnoMultiBankomat(Location loc, String pos, SignType type, String location){
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location, Type, Multi) values(%d, %d, %d, '%s', '%s', '%s', '%s', 0)",
@@ -60,12 +60,12 @@ public class MySQL{
 			con.close();
 		}
 		catch(SQLException e){
-			RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
+			RubinBank.getHelper().severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 		}
 		updateTriggers();
 	}
 	public static void insertnoMultiBankomat(String locX, String locY, String locZ, String locWorld, String pos, String type, String location){
-		RubinBank.log.info("Inserted Bankomat");
+		RubinBank.getHelper().info("Inserted Bankomat");
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location, Type, Multi) values(%s, %s, %S, '%s', '%s', '%s', '%s', 0)",
 				Config.BankomatsTable(), locX, locY, locZ,  locWorld, pos.toString(), location, type.toString());
 		con = RubinBank.getCon();
@@ -74,7 +74,7 @@ public class MySQL{
 			con.close();
 		}
 		catch(SQLException e){
-			RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
+			RubinBank.getHelper().severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 		}
 		updateTriggers();
 	}
@@ -175,7 +175,7 @@ public class MySQL{
 			return true;
 			
 		} catch (SQLException e) {
-			RubinBank.log.severe("MySQL Exception:\n" + e.toString() + "\nQuery: " + query);
+			RubinBank.getHelper().severe("MySQL Exception:\n" + e.toString() + "\nQuery: " + query);
 			return false;
 		}
 	}
@@ -191,7 +191,7 @@ public class MySQL{
 			return true;
 		}
 		catch(SQLException e){
-			RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
+			RubinBank.getHelper().severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 			return false;
 		}
 	}
@@ -204,7 +204,7 @@ public class MySQL{
 			con.close();
 		}
 		catch(SQLException e){
-			RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
+			RubinBank.getHelper().severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 		}
 	}
 	public static void updateTriggerButtons(){
@@ -229,8 +229,8 @@ public class MySQL{
 			TriggerButton.updateTriggerButtons(triggerButtons, triggerButtonType);
 			con.close();
 		} catch(SQLException e){
-			RubinBank.log.severe("MySQL Error: Select * from " +  Config.ButtonsTable());
-			RubinBank.log.severe(e.toString());
+			RubinBank.getHelper().severe("MySQL Error: Select * from " +  Config.ButtonsTable());
+			RubinBank.getHelper().severe(e.toString());
 		}
 	}
 	public static boolean removeTriggerButton(Location loc){
@@ -243,12 +243,12 @@ public class MySQL{
 				return true;
 			}
 			catch(SQLException e){
-				RubinBank.log.severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
+				RubinBank.getHelper().severe(e.toString() + "\n @ MySQL.class query\"" + query + "\"");
 				return false;
 			}
 	}
 	public static void writeAccountToDB(String owner){
-		writeAccountToDB(RubinBank.getBank().getAccount(owner));
+		writeAccountToDB(RubinBank.getHelper().getBank().getAccount(owner));
 	}
 	public static void writeAccountToDB(Account account){
 		ArrayList<AccountStatement> stmts = account.getStatements();
@@ -270,7 +270,7 @@ public class MySQL{
 			stmt.executeUpdate(String.format("Update %s set amount=%d where user='%s'", Config.AccountsTable(), balance, owner));
 			con.close();
 		} catch (SQLException e) {
-			RubinBank.log.severe("Accountc could not wrote to Database: " + e.toString());
+			RubinBank.getHelper().severe("Accountc could not wrote to Database: " + e.toString());
 		}
 	}
 	public static java.sql.Date StringToSQLDate(String s) {

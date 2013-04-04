@@ -38,8 +38,8 @@ public class Signs {
 				
 				@Override
 				public void action(String p_n) {
-					if(RubinBank.getBank().hasAccount(p_n))
-						RubinBank.getBank().getAccount(p_n).sendBalanceMessage(ChatColor.BLUE);
+					if(RubinBank.getHelper().getBank().hasAccount(p_n))
+						RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage(ChatColor.BLUE);
 					else
 						Tools.msg(p_n, ChatColor.RED + "Du hast kein Konto!");
 				}
@@ -64,7 +64,7 @@ public class Signs {
 					HashMap<String, String> transferArgs = new HashMap<String, String>();
 					@Override
 					public void preChatAction(String playername) {
-						if(me.criztovyl.rubinbank.RubinBank.getBank().hasAccount(playername)){
+						if(RubinBank.getHelper().getBank().hasAccount(playername)){
 							msg(playername, "Chat deaktiviert.");
 							msg(playername, ChatColor.AQUA + "Möchtest du auf dein Konto einzahlen(e), von deinem Konto " +
 									"auszahlen(a), deinen Kontostand abrufen(k) oder etwas Überweisen(ü)?");
@@ -90,7 +90,7 @@ public class Signs {
 								double amount = 0;
 								try{
 									amount = Double.parseDouble(msg);
-									me.criztovyl.rubinbank.RubinBank.getBank().getAccount(p_n)
+									RubinBank.getHelper().getBank().getAccount(p_n)
 									.payInViaInv(amount);
 									playerSuccess.put(p_n, true);
 									removePlayer(p_n);
@@ -105,7 +105,7 @@ public class Signs {
 								double amount = 0;
 								try{
 									amount = Double.parseDouble(msg);
-									me.criztovyl.rubinbank.RubinBank.getBank().getAccount(p_n)
+									RubinBank.getHelper().getBank().getAccount(p_n)
 									.payOutViaInv(amount);
 									playerSuccess.put(p_n, true);
 									removePlayer(p_n);
@@ -116,10 +116,10 @@ public class Signs {
 								}
 							}
 							if(playerDo.get(p_n).toUpperCase().equals("TRANSFER_PLAYERII")){
-								if(me.criztovyl.rubinbank.RubinBank.getBank().hasAccount(p_n)){
+								if(RubinBank.getHelper().getBank().hasAccount(p_n)){
 									transferArgs.put(p_n, msg);
 									playerDo.put(p_n, "TRANSFER_AMOUNT");
-									me.criztovyl.rubinbank.RubinBank.getBank().getAccount(p_n)
+									RubinBank.getHelper().getBank().getAccount(p_n)
 									.sendBalanceMessage();
 									msg(p_n, ChatColor.GREEN + "Wie viel möchtest du überweisen?");
 									return;
@@ -135,7 +135,7 @@ public class Signs {
 								msg = msg.replace(",", ".");
 								try{
 									amount = Double.parseDouble(msg);
-									me.criztovyl.rubinbank.RubinBank.getBank().transfer(p_n, 
+									RubinBank.getHelper().getBank().transfer(p_n, 
 											transferArgs.get(p_n), amount);
 									playerSuccess.put(p_n, true);
 									removePlayer(p_n);
@@ -148,7 +148,7 @@ public class Signs {
 							}
 							if(playerDo.get(p_n).toLowerCase().equals("create")){
 								if(msg.toLowerCase().equals("ja") || msg.toLowerCase().equals("j")){
-									me.criztovyl.rubinbank.RubinBank.getBank().createAccount(p_n);
+									RubinBank.getHelper().getBank().createAccount(p_n);
 									msg(p_n, ChatColor.GREEN + "Done :)");
 									removePlayer(p_n);
 									return;
@@ -165,8 +165,8 @@ public class Signs {
 							if(msg.toLowerCase().equals("einzahlen") || msg.toLowerCase().equals("e")){
 								if(evt.getPlayer().getItemInHand().getTypeId() == Config.getMajorID() ||
 										evt.getPlayer().getItemInHand().getTypeId() == Config.getMinorID()){
-									if(RubinBank.getBank().hasAccount(p_n)){
-										RubinBank.getBank().getAccount(p_n).payinItemInHand();
+									if(RubinBank.getHelper().getBank().hasAccount(p_n)){
+										RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand();
 										msg(p_n, ChatColor.DARK_AQUA + "Done :)");
 										removePlayer(p_n);
 										return;
@@ -180,14 +180,14 @@ public class Signs {
 							if(msg.toLowerCase().equals("auszahlen") || msg.toLowerCase().equals("a")){
 								playerDo.put(p_n, "OUT");
 								playerSuccess.put(p_n, false);
-								me.criztovyl.rubinbank.RubinBank.getBank().getAccount(p_n)
+								RubinBank.getHelper().getBank().getAccount(p_n)
 								.sendBalanceMessage();
 								msg(p_n, ChatColor.GREEN + "Wie viel möchtest du auszahlen?");
 								return;
 							}
 							if(msg.toLowerCase().equals("kontostand") || msg.toLowerCase().equals("k")){
 								playerSuccess.put(p_n, true);
-								me.criztovyl.rubinbank.RubinBank.getBank().getAccount(p_n)
+								RubinBank.getHelper().getBank().getAccount(p_n)
 								.sendBalanceMessage();
 								return;
 							}
@@ -274,7 +274,7 @@ public class Signs {
 				
 				@Override
 				public void action(String p_n) {
-					me.criztovyl.rubinbank.RubinBank.getBank().createAccount(p_n);
+					RubinBank.getHelper().getBank().createAccount(p_n);
 				}
 
 				@Override
@@ -300,9 +300,9 @@ public class Signs {
 					
 					@Override
 					public void preChatAction(String playername) {
-						if(RubinBank.getBank().hasAccount(playername)){
+						if(RubinBank.getHelper().getBank().hasAccount(playername)){
 							if(Tools.hasMajorOrMinorInHand(playername)){
-								RubinBank.getBank().getAccount(playername).payinItemInHand();
+								RubinBank.getHelper().getBank().getAccount(playername).payInItemInHand();
 								msg(playername, ChatColor.DARK_AQUA + "Done :)");
 								removePlayer(playername);
 								return;
@@ -326,7 +326,7 @@ public class Signs {
 							msg(evt.getPlayer().getName(), ChatColor.RED + "'" + msg + "' ist keine gültig Zahl!");
 							evt.setCancelled(true);
 						}
-						RubinBank.getBank().getAccount(evt.getPlayer().getName()).payInViaInv(amount);
+						RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payInViaInv(amount);
 						msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
 						evt.setCancelled(true);
 					}
@@ -366,8 +366,8 @@ public class Signs {
 				
 				@Override
 				public void action(String p_n) {
-					if(RubinBank.getBank().hasAccount(p_n))
-						RubinBank.getBank().getAccount(p_n).payinItemInHand();
+					if(RubinBank.getHelper().getBank().hasAccount(p_n))
+						RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand();
 				}
 
 				@Override
@@ -393,8 +393,8 @@ public class Signs {
 					
 					@Override
 					public void preChatAction(String playername) {
-						if(RubinBank.getBank().hasAccount(playername)){
-							RubinBank.getBank().getAccount(playername).sendBalanceMessage();
+						if(RubinBank.getHelper().getBank().hasAccount(playername)){
+							RubinBank.getHelper().getBank().getAccount(playername).sendBalanceMessage();
 							msg(playername, ChatColor.GREEN + "Wie viel möchtest du Abheben?");
 						}
 						else{
@@ -412,8 +412,8 @@ public class Signs {
 						} catch(NumberFormatException e){
 							msg(evt.getPlayer().getName(), ChatColor.RED + "'" + msg +"' ist keine gültige Zahl!");
 						}
-						if(RubinBank.getBank().hasAccount(evt.getPlayer().getName())){
-							RubinBank.getBank().getAccount(evt.getPlayer().getName()).payOutViaInv(amount);
+						if(RubinBank.getHelper().getBank().hasAccount(evt.getPlayer().getName())){
+							RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payOutViaInv(amount);
 							msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
 						}
 						else{
@@ -484,8 +484,8 @@ public class Signs {
 					
 					@Override
 					public void preChatAction(String playername) {
-						if(RubinBank.getBank().hasAccount(playername)){
-							RubinBank.getBank().getAccount(playername).sendBalanceMessage(ChatColor.BLUE);
+						if(RubinBank.getHelper().getBank().hasAccount(playername)){
+							RubinBank.getHelper().getBank().getAccount(playername).sendBalanceMessage(ChatColor.BLUE);
 							msg(playername, ChatColor.GREEN + "An wen möchtest du überweisen?");
 						}
 						else{
@@ -512,13 +512,13 @@ public class Signs {
 								msg(evt.getPlayer().getName(), ChatColor.GREEN + "Wie viel möchtest du überweisen?");
 								return;
 							}
-							RubinBank.getBank().transfer(evt.getPlayer().getName(), to.get(evt.getPlayer().getName()), amount);
+							RubinBank.getHelper().getBank().transfer(evt.getPlayer().getName(), to.get(evt.getPlayer().getName()), amount);
 							msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
 							removePlayer(evt.getPlayer().getName());
 						}
 						else{
 							String to_ = evt.getMessage();
-							if(RubinBank.getBank().hasAccount(to_)){
+							if(RubinBank.getHelper().getBank().hasAccount(to_)){
 								to.put(evt.getPlayer().getName(), to_);
 								msg(evt.getPlayer().getName(), ChatColor.GREEN + "Wie viel möchtest du an " +
 								to_ + " überweisen?");

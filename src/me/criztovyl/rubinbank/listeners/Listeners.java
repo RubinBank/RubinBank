@@ -1,15 +1,14 @@
 package me.criztovyl.rubinbank.listeners;
 
 
-import java.util.HashMap;
-
+import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.tools.MySQL;
-import me.criztovyl.rubinbank.tools.SignArg;
 import me.criztovyl.rubinbank.tools.SignType;
-import me.criztovyl.rubinbank.tools.TimeShift;
+import me.criztovyl.rubinbank.tools.Tools;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
+import me.criztovyl.timeshift.MicroShift;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 
@@ -42,13 +42,13 @@ public class Listeners implements Listener{
 			if(evt.getClickedBlock().getType().equals(Material.STONE_BUTTON) || evt.getClickedBlock().equals(Material.WOOD_BUTTON)){
 				if(TriggerButton.isTriggerButton(evt.getClickedBlock().getLocation())){
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.AMOUNT)){
-						if(RubinBank.getBank().hasAccount(p_n)){
-							RubinBank.getBank().getAccount(p_n).sendBalanceMessage();
+						if(RubinBank.getHelper().getBank().hasAccount(p_n)){
+							RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
 						}
 					}
 					if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.CREATE)){
-						if(!RubinBank.getBank().hasAccount(p_n)){
-							RubinBank.getBank().createAccount(p_n);
+						if(!RubinBank.getHelper().getBank().hasAccount(p_n)){
+							RubinBank.getHelper().getBank().createAccount(p_n);
 						}
 					}
 				}
@@ -56,9 +56,9 @@ public class Listeners implements Listener{
 		}
 	}
 	@EventHandler
-	public static void onSignChange(SignChangeEvent evt){
+	public static void onSignChange(final SignChangeEvent evt){
 		Player player = evt.getPlayer();
-		String p_n = evt.getPlayer().getName();
+		final String p_n = evt.getPlayer().getName();
 		String[] lines = evt.getLines();
 		String line2 = "";
 		if(lines[0].equals("[RubinBank]") || lines[0].equals("[RB]")){
@@ -68,33 +68,64 @@ public class Listeners implements Listener{
 					if(!lines[3].equals("")){
 						if(lines[3].toLowerCase().equals("einzahlen") || lines[3].toLowerCase().equals("auszahlen") || lines[3].toLowerCase().equals("kontostand")
 								|| lines[3].toLowerCase().equals("überweisen") || lines[3].toLowerCase().equals("erstellen")){
-							HashMap<SignArg, String> args = new HashMap<SignArg, String>();
-							args.put(SignArg.LOCX, Double.toString(evt.getBlock().getLocation().getBlockX()));
-							args.put(SignArg.LOCY, Double.toString(evt.getBlock().getLocation().getBlockY()));
-							args.put(SignArg.LOCZ, Double.toString(evt.getBlock().getLocation().getBlockZ()));
-							args.put(SignArg.LOCWORLD, evt.getBlock().getLocation().getWorld().getName());
-							args.put(SignArg.POS, lines[2].toLowerCase());
-							args.put(SignArg.TYPE, SignType.getType(lines[3].toLowerCase()).toString());
-							args.put(SignArg.MULTI, "0");
-							TimeShift.storeArgs(p_n, args);
-							TimeShift.addShifted(p_n, SignType.BANKOMAT_LOC);
-							line2 = SignType.getType(lines[3].toLowerCase()).toString();
+							ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
+								boolean success = false;
+								@Override
+								public boolean getSuccess() {
+									return success;
+								}
+								
+								@Override
+								public String getQuestion() {
+									return "Wo steht dieser Bankomat?";
+								}
+								
+								@Override
+								public String getPlayer() {
+									return p_n;
+								}
+								
+								@Override
+								public void executeAction(AsyncPlayerChatEvent arg0) {
+									MySQL.insertnoMultiBankomat(
+											evt.getBlock().getLocation(),
+											evt.getLine(3),
+											SignType.getType(evt.getLine(4).toUpperCase()),
+											arg0.getMessage());
+									RubinBank.getHelper().info("Created Sign.");
+									Tools.msg(p_n, ChatColor.GREEN + "Created Bankomat.");
+									success = true;
+								}
+							});
+							line2 = Tools.getTypeLine(SignType.getType(lines[3].toLowerCase()));
 						}
 					}
 					else{
-						HashMap<SignArg, String> args = new HashMap<SignArg, String>();
-						args.put(SignArg.LOCX, Double.toString(evt.getBlock().getLocation().getBlockX()));
-						args.put(SignArg.LOCY, Double.toString(evt.getBlock().getLocation().getBlockY()));
-						args.put(SignArg.LOCZ, Double.toString(evt.getBlock().getLocation().getBlockZ()));
-						args.put(SignArg.LOCWORLD, evt.getBlock().getLocation().getWorld().getName());
-						args.put(SignArg.POS, lines[2].toLowerCase());
-						args.put(SignArg.MULTI, "1");
-						TimeShift.storeArgs(p_n, args);
-						TimeShift.addShifted(p_n, SignType.BANKOMAT_LOC);
+						ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
+							boolean success = false;
+							@Override
+							public boolean getSuccess() {
+								return success;
+							}
+							
+							@Override
+							public String getQuestion() {
+								return "Wo steht dieser Bankomat?";
+							}
+							
+							@Override
+							public String getPlayer() {
+								return p_n;
+							}
+							
+							@Override
+							public void executeAction(AsyncPlayerChatEvent arg0) {
+								MySQL.insertBankomat(evt.getBlock().getLocation(), evt.getLine(3).toLowerCase(), arg0.getMessage());
+								success = true;
+							}
+						});
 						line2 = "";
 					}
-					
-					evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
 				}
 				else{
 					player.sendMessage("Zeile drei ist ungültig.");
