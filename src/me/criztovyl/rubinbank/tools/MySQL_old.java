@@ -12,23 +12,25 @@ import java.util.Map;
 import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
-import me.criztovyl.rubinbank.account.Account.AccountStatement;
+import me.criztovyl.rubinbank.bankomat.BankomatType;
+import me.criztovyl.rubinbank.bankomat.TriggerPosition;
 import me.criztovyl.rubinbank.config.Config;
+import me.criztovyl.rubinbank.signs.Signs;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 
-
-public class MySQL{
+@Deprecated
+public class MySQL_old{
 	private static Connection con;
 	public static void insertBankomat(Location loc, String pos, String location){
 		RubinBank.getHelper().info("Inserted Bankomat");
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(%d, %d, %d, '%s', '%s', '%s')",
 				Config.BankomatsTable(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), pos.toString(), location);
-		con = RubinBank.getCon();
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			con.createStatement().executeUpdate(query);
 			con.close();
 		}
@@ -40,8 +42,8 @@ public class MySQL{
 	public static void insertBankomat(String locX, String locY, String locZ, String locWorld, String pos, String location){
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location) values(%s, %s, %s, '%s', '%s', '%s')",
 				Config.BankomatsTable(), locX, locY, locZ,  locWorld, pos.toString(), location);
-		con = RubinBank.getCon();
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			con.createStatement().executeUpdate(query);
 			con.close();
 		}
@@ -51,11 +53,12 @@ public class MySQL{
 		updateTriggers();
 		RubinBank.getHelper().info("Inserted Bankomat");
 	}
-	public static void insertnoMultiBankomat(Location loc, String pos, SignType type, String location){
+	public static void insertnoMultiBankomat(Location loc, String pos, BankomatType type, String location){
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location, Type, Multi) values(%d, %d, %d, '%s', '%s', '%s', '%s', 0)",
 				Config.BankomatsTable(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), pos.toString(), location, type.toString());
-		con = RubinBank.getCon();
+
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			con.createStatement().executeUpdate(query);
 			con.close();
 		}
@@ -68,8 +71,8 @@ public class MySQL{
 		RubinBank.getHelper().info("Inserted Bankomat");
 		String query = String.format("INSERT INTO %s (LocationX, LocationY, LocationZ, LocationWorld, Pos, Location, Type, Multi) values(%s, %s, %S, '%s', '%s', '%s', '%s', 0)",
 				Config.BankomatsTable(), locX, locY, locZ,  locWorld, pos.toString(), location, type.toString());
-		con = RubinBank.getCon();
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			con.createStatement().executeUpdate(query);
 			con.close();
 		}
@@ -80,8 +83,8 @@ public class MySQL{
 	}
 	public static boolean updateTriggers(){
 		String query = String.format("SELECT * from %s", Config.BankomatsTable());
-		con = RubinBank.getCon();
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			ResultSet rs = con.createStatement().executeQuery(query);
 			
 			while(rs.next()){
@@ -91,85 +94,25 @@ public class MySQL{
 				boolean nonMulti = !rs.getBoolean("Multi");
 				String Type = rs.getString("Type");
 				World world = Bukkit.getWorld(rs.getString("LocationWorld"));
+				String place = rs.getString("Place");
 				if(rs.getString("Pos").toLowerCase().equals("up")){
 					Location trigger = new Location(world, locX, locY, locZ);
 					if(nonMulti){
-						Signs.addSign(trigger, SignType.valueOf(Type), SignPos.UP);
+						Signs.addSign(trigger, BankomatType.valueOf(Type), TriggerPosition.UP, place);
 					}
 					else{
-						Signs.addSign(trigger, SignType.CHOOSING, SignPos.UP);
+						Signs.addSign(trigger, BankomatType.CHOOSING, TriggerPosition.UP, place);
 					}
 				}
 				if(rs.getString("Pos").toLowerCase().equals("down")){
 					Location trigger = new Location(world, locX, locY, locZ);
 					if(nonMulti){
-						Signs.addSign(trigger, SignType.valueOf(Type), SignPos.DOWN);
+						Signs.addSign(trigger, BankomatType.valueOf(Type), TriggerPosition.DOWN, place );
 					}
 					else{
-						Signs.addSign(trigger, SignType.CHOOSING, SignPos.DOWN);
+						Signs.addSign(trigger, BankomatType.CHOOSING, TriggerPosition.DOWN, place);
 					}
 				}
-				/*
-				if(rs.getString("Pos").toLowerCase().equals("2x2d")){
-						Location trigger = new Location(world, locX, locY-1, locZ);
-						triggerLocs.add(trigger);
-						if(nonMulti){
-							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-						}
-						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-						trigger = new Location(world, locX+1, locY-1, locZ);
-						triggerLocs.add(trigger);
-						if(nonMulti){
-							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-						}
-						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-						trigger = new Location(world, locX, locY-1, locZ+1);
-						triggerLocs.add(trigger);
-						if(nonMulti){
-							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-						}
-						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-						trigger = new Location(world, locX+1, locY-1, locZ+1);
-						triggerLocs.add(trigger);
-						if(nonMulti){
-							nonMultiTriggerLocs.add(trigger);
-							nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-						}
-						bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-				}
-				if(rs.getString("Pos").toLowerCase().equals("2x2u")){
-					Location trigger = new Location(world, locX, locY+2, locZ);
-					triggerLocs.add(trigger);
-					if(nonMulti){
-						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-					}
-					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-					trigger = new Location(world, locX+1, locY+2, locZ);
-					triggerLocs.add(trigger);
-					if(nonMulti){
-						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-					}
-					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-					trigger = new Location(world, locX, locY+2, locZ+1);
-					triggerLocs.add(trigger);
-					if(nonMulti){
-						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-					}
-					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-					trigger = new Location(world, locX+1, locY+2, locZ+1);
-					triggerLocs.add(trigger);
-					if(nonMulti){
-						nonMultiTriggerLocs.add(trigger);
-						nonMultiType.put(trigger, SignType.valueOf(rs.getString("Type")));
-					}
-					bankomatOfTrigger.put(trigger, new Location(world, locX, locY, locZ));
-			}*/
 			}
 			con.close();
 			return true;
@@ -182,12 +125,12 @@ public class MySQL{
 	public static boolean removeBankomat(Location loc){
 		String query = String.format("Delete from %s where LocationX=%d AND LocationY=%d AND LocationZ=%d AND LocationWorld='%s'", Config.BankomatsTable(),
 				loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
-		con = RubinBank.getCon();
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			con.createStatement().executeUpdate(query);
 			con.close();
 			ClicklessPlugin.getClickless().removeClicklessSign(loc);
-			MySQL.updateTriggers();
+			MySQL_old.updateTriggers();
 			return true;
 		}
 		catch(SQLException e){
@@ -198,8 +141,8 @@ public class MySQL{
 	public static void addTriggerButton(Location loc, String type){
 		String query = String.format("Insert into %s (LocationX, LocationY, LocationZ, LocationWorld, Type) values(%d, %d, %d, '%s', '%s')", Config.ButtonsTable(),
 				loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName(), type.toString());
-		con = RubinBank.getCon();
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			con.createStatement().executeUpdate(query);
 			con.close();
 		}
@@ -209,9 +152,8 @@ public class MySQL{
 	}
 	public static void updateTriggerButtons(){
 		String query = String.format("Select * from %s", Config.ButtonsTable());
-		con = RubinBank.getCon();
 		try{
-			
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			ResultSet rs = con.createStatement().executeQuery(query);
 			
 			ArrayList<Location> triggerButtons = new ArrayList<Location>();
@@ -236,8 +178,8 @@ public class MySQL{
 	public static boolean removeTriggerButton(Location loc){
 			String query = String.format("Delete from %s where LocationX=%d AND LocationY=%d AND LocationZ=%d AND LocationWorld='$s'", Config.BankomatsTable(),
 					loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
-			con = RubinBank.getCon();
 			try{
+				con = RubinBank.getHelper().getMySQLHelper().getConnection();
 				con.createStatement().executeUpdate(query);
 				con.close();
 				return true;
@@ -251,9 +193,9 @@ public class MySQL{
 		writeAccountToDB(RubinBank.getHelper().getBank().getAccount(owner));
 	}
 	public static void writeAccountToDB(Account account){
-		ArrayList<AccountStatement> stmts = account.getStatements();
-		con = RubinBank.getCon();
+		ArrayList<me.criztovyl.rubinbank.account.AccountStatement> stmts = account.getStatements();
 		try{
+			con = RubinBank.getHelper().getMySQLHelper().getConnection();
 			Statement stmt = con.createStatement();
 			for(int i = 0; i < stmts.size(); i++){
 				String owner = stmts.get(i).getOwner();

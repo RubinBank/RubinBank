@@ -1,14 +1,15 @@
 package me.criztovyl.rubinbank.bank;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.bukkit.ChatColor;
 
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.account.AccountDBSafe;
 import me.criztovyl.rubinbank.tools.Tools;
+
+import org.bukkit.ChatColor;
 
 /**
  * Represents several accounts
@@ -109,24 +110,27 @@ public class Bank {
 	}
 	/**
 	 * Save all Accounts of this Bank to the Database
+	 * @throws SQLException 
 	 */
-	public void save(){
+	public void save() throws SQLException{
 		AccountDBSafe safe = new AccountDBSafe();
 		for(int i = 0; i < accounts.size(); i++){
 			accounts.get(i).saveStatements();
 			HashMap<String, String> save = new HashMap<String, String>();
 			save.put("owner", accounts.get(i).getOwner());
 			save.put("balance", Double.toString(accounts.get(i).getBalance()));
-			safe.saveToDatabase(save, RubinBank.getCon());
+			safe.saveToDatabase(save, RubinBank.getHelper().getMySQLHelper().getConnection());
 		}
 	}
 	/**
 	 * Load all Accounts saved in the Database
+	 * @throws SQLException 
 	 */
-	public void load(){
+	public void load() throws SQLException{
 		RubinBank.getHelper().info("Load Accounts");
 		AccountDBSafe safe = new AccountDBSafe();
-		ArrayList<HashMap<String, String>> loads = safe.loadFromDatabase(RubinBank.getCon());
+		ArrayList<HashMap<String, String>> loads = safe.loadFromDatabase(RubinBank.getHelper().getMySQLHelper().getConnection());
+		if(loads != null)
 		for(int i = 0; i < loads.size(); i++){
 			HashMap<String, String> load = loads.get(i);
 			addAccount(new Account(load.get("owner"), Double.parseDouble(load.get("balance"))));

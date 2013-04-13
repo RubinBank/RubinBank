@@ -1,5 +1,6 @@
 package me.criztovyl.rubinbank.tools;
 
+import me.criztovyl.rubinbank.bankomat.BankomatType;
 import me.criztovyl.rubinbank.config.Config;
 
 import org.bukkit.Bukkit;
@@ -17,7 +18,7 @@ public class Tools{
 		return p.getItemInHand().getTypeId() == Config.getMajorID() ||
 				p.getItemInHand().getTypeId() == Config.getMinorID();
 	}
-	public static String getTypeLine(SignType type){
+	public static String getTypeLine(BankomatType type){
 		switch(type){
 		case AMOUNT:
 			return "Kontostand";

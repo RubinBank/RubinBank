@@ -1,6 +1,6 @@
-package me.criztovyl.rubinbank.tools;
+package me.criztovyl.rubinbank.bankomat;
 
-public enum SignType {
+public enum BankomatType {
 	CHOOSING,
 	IN,
 	OUT,
@@ -11,7 +11,12 @@ public enum SignType {
 	UCP_PASS,
 	BANKOMAT_LOC,
 	CREATE;
-	public static SignType getType(String sth){
+	/**
+	 * Get the BankomatType of a String (German Name)
+	 * @param sth The German name
+	 * @return the BankomatType
+	 */
+	public static BankomatType getType(String sth){
 		sth = sth.toLowerCase();
 		if(sth.equals("einzahlen")){
 			return IN;

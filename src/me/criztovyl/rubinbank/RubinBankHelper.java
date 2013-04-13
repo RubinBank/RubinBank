@@ -1,10 +1,15 @@
 package me.criztovyl.rubinbank;
 
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import me.criztovyl.rubinbank.account.AccountStatementDBSafe;
 import me.criztovyl.rubinbank.bank.Bank;
+import me.criztovyl.rubinbank.bankomat.Bankomats;
+import me.criztovyl.rubinbank.config.Config;
+import me.criztovyl.rubinbank.mysql.MySQLHelper;
 import me.criztovyl.rubinbank.tools.SignArgStore;
 
 public class RubinBankHelper implements PluginHelper{
@@ -12,12 +17,23 @@ public class RubinBankHelper implements PluginHelper{
 	private Logger log;
 	private HashMap<String, SignArgStore> signArgsStores;
 	private Calendar start, end;
+	private MySQLHelper mysql;
+	private Bankomats bankomats;
 	public RubinBankHelper(Logger log){
+		this.log = log;
+		start = Calendar.getInstance();
+	}
+	public void init() throws SQLException{
+		mysql = new MySQLHelper(
+				"jdbc:mysql://" + Config.HostAddress(),
+				Config.HostUser(),
+				Config.HostPassword());
+		bankomats = new Bankomats();
+		bankomats.load();
 		bank = new Bank();
 		bank.load();
-		this.log = log;
 		signArgsStores = new HashMap<String, SignArgStore>();
-		start = Calendar.getInstance();
+		AccountStatementDBSafe.checkAndEdit(mysql.getConnection());
 	}
 	public Bank getBank(){
 		return bank;
@@ -65,5 +81,10 @@ public class RubinBankHelper implements PluginHelper{
 	public void warning(String msg) {
 		log.warning(msg);
 	}
-	
+	public MySQLHelper getMySQLHelper(){
+		return mysql;
+	}
+	public Bankomats getBankomats() {
+		return bankomats;
+	}
 }

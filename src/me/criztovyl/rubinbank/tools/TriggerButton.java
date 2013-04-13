@@ -18,12 +18,12 @@ public class TriggerButton{
 		if(type.equals(TriggerButtonType.AMOUNT)){
 			triggerbuttons.add(triggerLoc);
 			triggerbuttontype.put(triggerLoc, type);
-			MySQL.addTriggerButton(triggerLoc, type.toString());
+			//MySQL_old.addTriggerButton(triggerLoc, type.toString());
 		}	
 		if(type.equals(TriggerButtonType.CREATE)){
 			triggerbuttons.add(triggerLoc);
 			triggerbuttontype.put(triggerLoc, type);
-			MySQL.addTriggerButton(triggerLoc, type.toString());
+			//MySQL_old.addTriggerButton(triggerLoc, type.toString());
 		}
 	}
 	public static TriggerButtonType getType(Location loc){

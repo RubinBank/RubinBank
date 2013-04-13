@@ -1,15 +1,13 @@
 package me.criztovyl.rubinbank;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import me.criztovyl.rubinbank.account.Account;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.rubinbank.listeners.Listeners;
-import me.criztovyl.rubinbank.tools.MySQL;
 import me.criztovyl.rubinbank.tools.Tools;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
@@ -33,51 +31,26 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RubinBank extends JavaPlugin{
 	private static boolean useWorldGuard;
-	private static Connection con;
-	private static boolean conSuccess;
 	private boolean failure = false;
 	private static RubinBankHelper helper;
+	private Logger log;
 	public void onEnable(){
-		helper = new RubinBankHelper(this.getLogger());
+		log = this.getLogger();
+		log.info(Bukkit.getServer().getWorld("world").getUID().toString());
+		try {
+			helper = new RubinBankHelper(this.getLogger());
+			helper.init();
+		} catch (SQLException e1) {
+			log.severe("SQL Exception @ Creating RubinBank Helper Object:\n" + e1.toString());
+			e1.printStackTrace();
+			failure = true;
+			this.disable();
+		}
 		if(Config.enable()){
 			helper.info("RubinBank enabeling...");
 			Bukkit.getServer().getPluginManager().registerEvents(new Listeners(), this);
 			//write the default Configuration if not exists and is set in the Configuration
 			this.saveDefaultConfig();
-			try{
-				//Set Up Connection
-				con = DriverManager.getConnection("jdbc:mysql://" + Config.HostAddress(), Config.HostUser(), Config.HostPassword());
-				//Creates Accounts Table if not exists
-				if(!Config.isSet("MySQL.Host.Table_Accounts")){
-					helper.severe("Accounts Table is not set in the config.yml");
-					failure = true;
-				}
-				//Creates Bankomats Table if not exists and is set in the Configuration
-				if(Config.isSet("MySQL.Host.Table_Bankomats"))
-					con.createStatement().executeUpdate("create table if not exists " + Config.BankomatsTable() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, " +
-							"LocationWorld varchar(50), Pos varchar(8), Multi boolean default true, Type varchar(8), Location varchar(50))");
-				else{
-					helper.severe("Bankomats Table is not set in the config.yml");
-					failure = true;
-				}
-				//Creates the Trigger Buttons Table if not exists and is set in the Configuration
-				if(Config.isSet("MySQL.Host.Table_Buttons"))
-					con.createStatement().executeUpdate("create table if not exists " + Config.ButtonsTable() + " (id int not null auto_increment primary key, LocationX int, LocationY int, LocationZ int, " +
-							"LocationWorld varchar(50), Type varchar(20))");
-				else{
-					helper.severe("Buttons Table is not set in the config.yml");
-					failure = true;
-				}
-				//Creates the Statements Table if not exists and is set in the Configuration
-				if(!Config.isSet("MySQL.Host.Table_Statements")){
-					helper.severe("Statements Table is not set in the Config!");
-					failure = true;
-				}
-				con.close();
-			} catch(SQLException e){
-				helper.severe(e.toString() + "\n @ Initial MySQL Connect");
-				failure = true;
-			}
 			//Find out if WorldGuard is present
 			if(Config.useWorldGuard()){
 				if(Bukkit.getPluginManager().getPlugin("WorldGuard") == null){
@@ -102,9 +75,9 @@ public class RubinBank extends JavaPlugin{
 			helper.info("RubinBank enabled.");
 			if(!failure){
 				//Load the Bankomat Signs to ClicklessSigns
-				MySQL.updateTriggers();
+				//MySQL_old.updateTriggers();
 				//Load the Trigger Buttons
-				MySQL.updateTriggerButtons();
+				//MySQL_old.updateTriggerButtons();
 			}
 			else{
 				helper.severe("There was errors while enabeling. Please Check! RubinBank will be disabled...");
@@ -124,8 +97,14 @@ public class RubinBank extends JavaPlugin{
 	}
 	public void onDisable(){
 		if(!failure){
-			//Save Bank, Accounts and AccountStatements
-			helper.getBank().save();
+			try {
+				//Save Bank, Accounts and AccountStatements
+				helper.getBank().save();
+				//Save New Bankomats
+				helper.getBankomats().save();
+			} catch (SQLException e) {
+				log.severe("There was an Error @ Save Bank:\n" + e.toString());
+			}
 		}
 		helper.info("RubinBank disabeling after " + helper.getSimpleLifeTimeString() + "...");
 		helper.info("RubinBank disabled.");
@@ -404,36 +383,9 @@ public class RubinBank extends JavaPlugin{
 			return false;
 		}
 	}
-	public static Connection getCon() {
-		try {
-			if(con.isClosed()){
-				reopenCon();
-			}
-			conSuccess = true;
-			return con;
-		} catch (SQLException e) {
-			helper.severe(e.toString() + "\n @ RubinBank.getCon()");
-			conSuccess = false;
-			return null;
-		}
-	}
-	public static boolean conWasSuccess(){
-		return conSuccess;
-	}
-	public static void reopenCon(){
-		try {
-			if(con.isClosed()){
-				con = DriverManager.getConnection("jdbc:mysql://" + Config.HostAddress(), Config.HostUser(), Config.HostPassword());
-			}
-			else{
-				helper.info("Connection is not closed.");
-			}
-			conSuccess = true;
-		} catch (SQLException e) {
-			helper.severe(e.toString() + "\n @ RubinBank.getCon()");
-			conSuccess = false;
-		}
-	}
+	/**
+	 * @return The RubinBank PluginHelper
+	 */
 	public static RubinBankHelper getHelper(){
 		return helper;
 	}

@@ -16,7 +16,6 @@ import me.criztovyl.rubinbank.tools.DBSafe;
  *
  */
 public class AccountDBSafe implements DBSafe {
-
 	@Override
 	public void saveToDatabase(HashMap<String, String> save, Connection con) {
 		String query = "";
@@ -28,27 +27,26 @@ public class AccountDBSafe implements DBSafe {
 					"balance double)",
 					Config.AccountsTable());
 			stmt.executeUpdate(query);
-			query = String.format("SELECT * FROM %s", Config.AccountsTable());
-			ResultSet rs = stmt.executeQuery(query);
-			while(rs.next()){
-				if(rs.getString("owner").equals(save.get("owner"))){
-					query = String.format("Update %s set balance=%s where owner='%s'", 
-							Config.AccountsTable(), 
-							save.get("balance"), 
-							save.get("owner"));
-					RubinBank.getHelper().info("[AccDBSafe] Saving \"" + query + "\"");
-					stmt.executeUpdate(query);;
-				}
+			if(inDB(save.get("owner"), con)){
+				query = String.format("Update %s set balance=%s where owner='%s'", 
+						Config.AccountsTable(), 
+						save.get("balance"), 
+						save.get("owner"));
+				RubinBank.getHelper().info("[AccDBSafe] Saving Account of " + save.get("owner"));
+				stmt.executeUpdate(query);
 			}
-			query = String.format("INSERT INTO %s (owner, balance) values('%s', %s)", 
-					Config.AccountsTable(), 
-					save.get("owner"), 
-					save.get("balance"));
-			RubinBank.getHelper().info("[AccDBSafe] Adding \"" + query + "\"");
-			stmt.executeUpdate(query);
+			else {
+				query = String.format("INSERT INTO %s (owner, balance) values('%s', %s)", 
+						Config.AccountsTable(), 
+						save.get("owner"), 
+						save.get("balance"));
+				RubinBank.getHelper().info("[AccDBSafe] Inserting Account of " + save.get("owner"));
+				stmt.executeUpdate(query);
+			}
 			con.close();
 		} catch (SQLException e) {
 			RubinBank.getHelper().severe("Failed to save Account to Database! Error:\n" + e.toString() + "\n@ Query \"" + query + "\"");
+			e.printStackTrace();
 		}
 		
 	}
@@ -77,8 +75,19 @@ public class AccountDBSafe implements DBSafe {
 			return results;
 		} catch(SQLException e){
 			RubinBank.getHelper().severe("Failed to load Account(s) from Database! Error:\n" + e.toString() + "\n@ Query \"" + query + "\"");
+			e.printStackTrace();
 			return null;
 		}
+	}
+	public boolean inDB(String owner, Connection con) throws SQLException{
+		Statement stmt = RubinBank.getHelper().getMySQLHelper().getConnection().createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT * FROM " + Config.AccountsTable());
+		while(rs.next()){
+			if(rs.getString("owner").equals(owner)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

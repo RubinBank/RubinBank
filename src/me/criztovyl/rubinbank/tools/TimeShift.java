@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.bankomat.BankomatType;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.timeshift.MicroShift;
 
@@ -21,12 +22,12 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
  */
 @Deprecated
 public class TimeShift {
-	private static Map<String, SignType> type = new HashMap<String, SignType>();
+	private static Map<String, BankomatType> type = new HashMap<String, BankomatType>();
 	private static Map<String, Double> amounts = new HashMap<String, Double>();
 	private static HashMap<String, HashMap<SignArg, String>> args = new HashMap<String, HashMap<SignArg,String>>();
 	private static ArrayList<String> shifted = new ArrayList<String>();
 	private static ArrayList<String> loopPlayers = new ArrayList<String>();
-	public static void addShifted(String p_n, SignType t){
+	public static void addShifted(String p_n, BankomatType t){
 		shifted.add(p_n);
 		type.put(p_n, t);
 		msg(p_n, ChatColor.DARK_AQUA + "Chat deaktiviert.\n Abbruch mit \"Ende\"");
@@ -63,7 +64,7 @@ public class TimeShift {
 			if(RubinBank.getHelper().getBank().getAccount(p_n).getBalance()  > 0){
 				RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
 				msg(p_n, ChatColor.DARK_AQUA + "Wie viel möchtest du \u00FCberweisen?");
-				type.put(p_n, SignType.TRANSFER_AMOUNT);
+				type.put(p_n, BankomatType.TRANSFER_AMOUNT);
 			}
 			else{
 				msg(p_n, ChatColor.YELLOW + "Dein Konto ist leer.");
@@ -152,7 +153,7 @@ public class TimeShift {
 					}
 					amounts.put(p_n, amount);
 					removeShiftedNoMsg(p_n);
-					addShifted(p_n, SignType.TRANSFER_PLAYERII);
+					addShifted(p_n, BankomatType.TRANSFER_PLAYERII);
 					break;
 				} catch(NumberFormatException e){
 					if(msg.toLowerCase().equals("ende")){
@@ -182,19 +183,19 @@ public class TimeShift {
 			case CHOOSING:
 				if(msg.toLowerCase().equals("abheben") || msg.toLowerCase().equals("auszahlen") || msg.toLowerCase().equals("a")){
 					removeShiftedNoMsg(p_n);
-					addShifted(p_n, SignType.OUT);
+					addShifted(p_n, BankomatType.OUT);
 					break;
 				}
 				if(msg.toLowerCase().equals("einzahlen") || msg.toLowerCase().equals("e")){
 					removeShiftedNoMsg(p_n);
-					addShifted(p_n, SignType.IN);
+					addShifted(p_n, BankomatType.IN);
 					break;
 				}
 				if(msg.toLowerCase().equals("kontostand") || msg.toLowerCase().equals("k")){
 					RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
 					if(loopPlayers.contains(p_n)){
 						removeShiftedNoMsg(p_n);
-						addShifted(p_n, SignType.AMOUNT);
+						addShifted(p_n, BankomatType.AMOUNT);
 					}
 					else{
 						removeShifted(p_n);
@@ -203,7 +204,7 @@ public class TimeShift {
 				}
 				if(msg.toLowerCase().equals("überweisen") || msg.toLowerCase().equals("ü")){
 					removeShiftedNoMsg(p_n);
-					addShifted(p_n, SignType.TRANSFER);
+					addShifted(p_n, BankomatType.TRANSFER);
 					break;
 				}
 				if(msg.toLowerCase().equals("loop")){
@@ -217,11 +218,11 @@ public class TimeShift {
 				removeShifted(p_n);
 				HashMap<SignArg, String> args = getArgs(p_n);
 				if(args.get(SignArg.MULTI).equals("1")){
-					MySQL.insertBankomat(args.get(SignArg.LOCX), args.get(SignArg.LOCY), args.get(SignArg.LOCZ), args.get(SignArg.LOCWORLD),
+					MySQL_old.insertBankomat(args.get(SignArg.LOCX), args.get(SignArg.LOCY), args.get(SignArg.LOCZ), args.get(SignArg.LOCWORLD),
 							args.get(SignArg.POS), args.get(SignArg.LOCATION));
 				}
 				else{
-					MySQL.insertnoMultiBankomat(args.get(SignArg.LOCX), args.get(SignArg.LOCY), args.get(SignArg.LOCZ), args.get(SignArg.LOCWORLD),
+					MySQL_old.insertnoMultiBankomat(args.get(SignArg.LOCX), args.get(SignArg.LOCY), args.get(SignArg.LOCZ), args.get(SignArg.LOCWORLD),
 							args.get(SignArg.POS), args.get(SignArg.TYPE), args.get(SignArg.LOCATION));
 				}
 			}
@@ -242,22 +243,22 @@ public class TimeShift {
 		}
 	}
 	public static void continueBankomat(String p_n, double amount){
-		SignType t = type.get(p_n);
-		if(t.equals(SignType.OUT)){
+		BankomatType t = type.get(p_n);
+		if(t.equals(BankomatType.OUT)){
 			RubinBank.getHelper().getBank().getAccount(p_n).payOutViaInv(amount);
 			if(loopPlayers.contains(p_n)){
 				msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
-				addShifted(p_n, SignType.CHOOSING);
+				addShifted(p_n, BankomatType.CHOOSING);
 			}
 			else{
 				removeShifted(p_n);
 			}
 		}
-		if(t.equals(SignType.IN)){
+		if(t.equals(BankomatType.IN)){
 			RubinBank.getHelper().getBank().getAccount(p_n).payInViaInv(amount);
 			if(loopPlayers.contains(p_n)){
 				msg(p_n, ChatColor.DARK_AQUA + "Was möchtest du als nächstes tun?");
-				addShifted(p_n, SignType.CHOOSING);
+				addShifted(p_n, BankomatType.CHOOSING);
 			}
 			else{
 				removeShifted(p_n);
@@ -285,7 +286,7 @@ public class TimeShift {
 	}
 	public static void reset(){
 		shifted = new ArrayList<String>();
-		type = new HashMap<String, SignType>();
+		type = new HashMap<String, BankomatType>();
 		loopPlayers = new ArrayList<String>();
 	}
 	public static void storeArgs(String p_n, HashMap<SignArg, String> storeArgs){

@@ -3,8 +3,9 @@ package me.criztovyl.rubinbank.listeners;
 
 import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.rubinbank.RubinBank;
-import me.criztovyl.rubinbank.tools.MySQL;
-import me.criztovyl.rubinbank.tools.SignType;
+import me.criztovyl.rubinbank.bankomat.Bankomat;
+import me.criztovyl.rubinbank.bankomat.BankomatType;
+import me.criztovyl.rubinbank.bankomat.TriggerPosition;
 import me.criztovyl.rubinbank.tools.Tools;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
@@ -59,15 +60,29 @@ public class Listeners implements Listener{
 	public static void onSignChange(final SignChangeEvent evt){
 		Player player = evt.getPlayer();
 		final String p_n = evt.getPlayer().getName();
-		String[] lines = evt.getLines();
-		String line2 = "";
+		final String[] lines = evt.getLines();
+		String eline2 = "";
+		final String line3 = evt.getLine(2);
+		final String line4 = evt.getLine(3);
+		//Checks if could be a RubinBank Sign
 		if(lines[0].equals("[RubinBank]") || lines[0].equals("[RB]")){
+			//Checks if it's a Bankomat Sign
 			if(lines[1].toLowerCase().equals("bankomat")){
-				if(lines[2].toLowerCase().equals("up") || lines[2].toLowerCase().equals("down") || lines[2].toLowerCase().equals("2x2d")
-						|| lines[2].toLowerCase().equals("2x2u")){
+				//Checks if there is a Valid Position
+				if(
+						lines[2].toLowerCase().equals("up") || 
+						lines[2].toLowerCase().equals("down")
+					){
+					//Non-Multi Sign
 					if(!lines[3].equals("")){
-						if(lines[3].toLowerCase().equals("einzahlen") || lines[3].toLowerCase().equals("auszahlen") || lines[3].toLowerCase().equals("kontostand")
-								|| lines[3].toLowerCase().equals("überweisen") || lines[3].toLowerCase().equals("erstellen")){
+						//Checks if there is a Valid Type
+						if(
+								lines[3].toLowerCase().equals("einzahlen") || 
+								lines[3].toLowerCase().equals("auszahlen") || 
+								lines[3].toLowerCase().equals("kontostand") || 
+								lines[3].toLowerCase().equals("überweisen") || 
+								lines[3].toLowerCase().equals("erstellen")
+							){
 							ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
 								boolean success = false;
 								@Override
@@ -87,20 +102,24 @@ public class Listeners implements Listener{
 								
 								@Override
 								public void executeAction(AsyncPlayerChatEvent arg0) {
-									MySQL.insertnoMultiBankomat(
+									RubinBank.getHelper().getBankomats().addBankomat(new Bankomat(
 											evt.getBlock().getLocation(),
-											evt.getLine(3),
-											SignType.getType(evt.getLine(4).toUpperCase()),
-											arg0.getMessage());
+											BankomatType.getType(line4),
+											TriggerPosition.valueOf(line3.toUpperCase()),
+											arg0.getMessage(),
+											true));
 									RubinBank.getHelper().info("Created Sign.");
 									Tools.msg(p_n, ChatColor.GREEN + "Created Bankomat.");
 									success = true;
 								}
 							});
-							line2 = Tools.getTypeLine(SignType.getType(lines[3].toLowerCase()));
+							eline2 = Tools.getTypeLine(BankomatType.getType(lines[3].toLowerCase()));
 						}
 					}
+					//Multi-Sign
 					else{
+						final TriggerPosition pos = TriggerPosition.valueOf(lines[2].toUpperCase());
+						final BankomatType type = BankomatType.CHOOSING;
 						ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
 							boolean success = false;
 							@Override
@@ -120,11 +139,16 @@ public class Listeners implements Listener{
 							
 							@Override
 							public void executeAction(AsyncPlayerChatEvent arg0) {
-								MySQL.insertBankomat(evt.getBlock().getLocation(), evt.getLine(3).toLowerCase(), arg0.getMessage());
+								
+								RubinBank.getHelper().getBankomats().addBankomat(new Bankomat(
+										evt.getBlock().getLocation(), 
+										type, 
+										pos, 
+										arg0.getMessage(),
+										true));
 								success = true;
 							}
 						});
-						line2 = "";
 					}
 				}
 				else{
@@ -133,7 +157,7 @@ public class Listeners implements Listener{
 			}
 			evt.setLine(0, ChatColor.DARK_AQUA + "[RubinBank]");
 			evt.setLine(1, ChatColor.DARK_AQUA + "Bankomat");
-			evt.setLine(2, line2);
+			evt.setLine(2, eline2);
 			evt.setLine(3, "");
 		}
 	}
@@ -144,18 +168,15 @@ public class Listeners implements Listener{
 			Sign sign = (Sign) evt.getBlock().getState();
 			if(sign.getLine(0).equals(ChatColor.DARK_AQUA + "[RubinBank]") || sign.getLine(0).equals("[RB]")){
 				if(sign.getLine(1).equals(ChatColor.DARK_AQUA + "Bankomat")){
-					if(MySQL.removeBankomat(evt.getBlock().getLocation())){
-						evt.getPlayer().sendMessage("Schild entfernt.");
-					}
-					else{
-						evt.getPlayer().sendMessage(ChatColor.RED + "Es ist ein Fehler aufgetreten!");
-					}
+					RubinBank.getHelper().getBankomats().removeBankomatByLocation(evt.getBlock().getLocation());
+					evt.getPlayer().sendMessage("Removed Sign.");
 				}
 			}
 		}
 		if(evt.getBlock().getType().equals(Material.STONE_BUTTON) || evt.getBlock().equals(Material.WOOD_BUTTON)){
 			if(TriggerButton.isTriggerButton(evt.getBlock().getLocation())){
-				MySQL.removeTriggerButton(evt.getBlock().getLocation());
+				evt.getPlayer().sendMessage("Unimplemented! Moving to Clickless!");
+				//MySQL_old.removeTriggerButton(evt.getBlock().getLocation());
 			}
 		}
 	}

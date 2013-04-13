@@ -1,4 +1,4 @@
-package me.criztovyl.rubinbank.tools;
+package me.criztovyl.rubinbank.signs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,7 +6,10 @@ import java.util.HashMap;
 import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.clickless.ClicklessSign;
 import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.bankomat.BankomatType;
+import me.criztovyl.rubinbank.bankomat.TriggerPosition;
 import me.criztovyl.rubinbank.config.Config;
+import me.criztovyl.rubinbank.tools.Tools;
 import me.criztovyl.timeshift.TimeShifter;
 
 import org.bukkit.Bukkit;
@@ -16,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class Signs {
-	public static void addSign(final Location loc, SignType t, SignPos pos){
+	public static void addSign(final Location loc, BankomatType t, TriggerPosition pos, final String place){
 		 Location trigger_ = null;
 		switch(pos){
 		case DOWN:
@@ -52,6 +55,13 @@ public class Signs {
 				@Override
 				public Location getTrigger() {
 					return trigger;
+				}
+
+				@Override
+				public HashMap<String, String> getOptions() {
+					HashMap<String, String> options = new HashMap<String, String>();
+					options.put("place", place);
+					return options;
 				}
 			});
 			break;
@@ -90,8 +100,9 @@ public class Signs {
 								double amount = 0;
 								try{
 									amount = Double.parseDouble(msg);
-									RubinBank.getHelper().getBank().getAccount(p_n)
-									.payInViaInv(amount);
+									RubinBank.getHelper().getBank().getAccount(p_n).payInViaInv(
+											amount,
+											getOptions().get("place"));
 									playerSuccess.put(p_n, true);
 									removePlayer(p_n);
 									return;
@@ -105,8 +116,9 @@ public class Signs {
 								double amount = 0;
 								try{
 									amount = Double.parseDouble(msg);
-									RubinBank.getHelper().getBank().getAccount(p_n)
-									.payOutViaInv(amount);
+									RubinBank.getHelper().getBank().getAccount(p_n).payOutViaInv(
+											amount,
+											getOptions().get("place"));
 									playerSuccess.put(p_n, true);
 									removePlayer(p_n);
 									return;
@@ -119,8 +131,7 @@ public class Signs {
 								if(RubinBank.getHelper().getBank().hasAccount(p_n)){
 									transferArgs.put(p_n, msg);
 									playerDo.put(p_n, "TRANSFER_AMOUNT");
-									RubinBank.getHelper().getBank().getAccount(p_n)
-									.sendBalanceMessage();
+									RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
 									msg(p_n, ChatColor.GREEN + "Wie viel möchtest du überweisen?");
 									return;
 								}
@@ -135,8 +146,11 @@ public class Signs {
 								msg = msg.replace(",", ".");
 								try{
 									amount = Double.parseDouble(msg);
-									RubinBank.getHelper().getBank().transfer(p_n, 
-											transferArgs.get(p_n), amount);
+									RubinBank.getHelper().getBank().transfer(
+											p_n, 
+											transferArgs.get(p_n),
+											amount,
+											getOptions().get("place"));
 									playerSuccess.put(p_n, true);
 									removePlayer(p_n);
 									return;
@@ -166,7 +180,8 @@ public class Signs {
 								if(evt.getPlayer().getItemInHand().getTypeId() == Config.getMajorID() ||
 										evt.getPlayer().getItemInHand().getTypeId() == Config.getMinorID()){
 									if(RubinBank.getHelper().getBank().hasAccount(p_n)){
-										RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand();
+										RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand(
+												getOptions().get("place"));
 										msg(p_n, ChatColor.DARK_AQUA + "Done :)");
 										removePlayer(p_n);
 										return;
@@ -180,15 +195,13 @@ public class Signs {
 							if(msg.toLowerCase().equals("auszahlen") || msg.toLowerCase().equals("a")){
 								playerDo.put(p_n, "OUT");
 								playerSuccess.put(p_n, false);
-								RubinBank.getHelper().getBank().getAccount(p_n)
-								.sendBalanceMessage();
+								RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
 								msg(p_n, ChatColor.GREEN + "Wie viel möchtest du auszahlen?");
 								return;
 							}
 							if(msg.toLowerCase().equals("kontostand") || msg.toLowerCase().equals("k")){
 								playerSuccess.put(p_n, true);
-								RubinBank.getHelper().getBank().getAccount(p_n)
-								.sendBalanceMessage();
+								RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
 								return;
 							}
 							if(msg.toLowerCase().equals("überweisen") || msg.toLowerCase().equals("ü")){
@@ -262,6 +275,13 @@ public class Signs {
 				public Location getTrigger() {
 					return trigger;
 				}
+
+				@Override
+				public HashMap<String, String> getOptions() {
+					HashMap<String, String> options = new HashMap<String, String>();
+					options.put("place", place);
+					return options;
+				}
 			});
 			break;
 		case CREATE:
@@ -286,6 +306,13 @@ public class Signs {
 				public Location getTrigger() {
 					return trigger;
 				}
+
+				@Override
+				public HashMap<String, String> getOptions() {
+					HashMap<String, String> options = new HashMap<String, String>();
+					options.put("place", place);
+					return options;
+				}
 			});
 			break;
 		case IN:
@@ -302,7 +329,8 @@ public class Signs {
 					public void preChatAction(String playername) {
 						if(RubinBank.getHelper().getBank().hasAccount(playername)){
 							if(Tools.hasMajorOrMinorInHand(playername)){
-								RubinBank.getHelper().getBank().getAccount(playername).payInItemInHand();
+								RubinBank.getHelper().getBank().getAccount(playername).payInItemInHand(
+										getOptions().get("place"));
 								msg(playername, ChatColor.DARK_AQUA + "Done :)");
 								removePlayer(playername);
 								return;
@@ -326,7 +354,9 @@ public class Signs {
 							msg(evt.getPlayer().getName(), ChatColor.RED + "'" + msg + "' ist keine gültig Zahl!");
 							evt.setCancelled(true);
 						}
-						RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payInViaInv(amount);
+						RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payInViaInv(
+								amount,
+								getOptions().get("place"));
 						msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
 						evt.setCancelled(true);
 					}
@@ -367,7 +397,7 @@ public class Signs {
 				@Override
 				public void action(String p_n) {
 					if(RubinBank.getHelper().getBank().hasAccount(p_n))
-						RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand();
+						RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand(getOptions().get("place"));
 				}
 
 				@Override
@@ -378,6 +408,13 @@ public class Signs {
 				@Override
 				public Location getTrigger() {
 					return trigger;
+				}
+
+				@Override
+				public HashMap<String, String> getOptions() {
+					HashMap<String, String> options = new HashMap<String, String>();
+					options.put("place", place);
+					return options;
 				}
 			});
 			break;
@@ -413,7 +450,9 @@ public class Signs {
 							msg(evt.getPlayer().getName(), ChatColor.RED + "'" + msg +"' ist keine gültige Zahl!");
 						}
 						if(RubinBank.getHelper().getBank().hasAccount(evt.getPlayer().getName())){
-							RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payOutViaInv(amount);
+							RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payOutViaInv(
+									amount,
+									getOptions().get("place"));
 							msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
 						}
 						else{
@@ -468,6 +507,13 @@ public class Signs {
 				public Location getTrigger() {
 					return trigger;
 				}
+
+				@Override
+				public HashMap<String, String> getOptions() {
+					HashMap<String, String> options = new HashMap<String, String>();
+					options.put("place", place);
+					return options;
+				}
 			});
 			break;
 		case TRANSFER:
@@ -512,7 +558,11 @@ public class Signs {
 								msg(evt.getPlayer().getName(), ChatColor.GREEN + "Wie viel möchtest du überweisen?");
 								return;
 							}
-							RubinBank.getHelper().getBank().transfer(evt.getPlayer().getName(), to.get(evt.getPlayer().getName()), amount);
+							RubinBank.getHelper().getBank().transfer(
+									evt.getPlayer().getName(), 
+									to.get(evt.getPlayer().getName()),
+									amount,
+									getOptions().get("place"));
 							msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
 							removePlayer(evt.getPlayer().getName());
 						}
@@ -574,13 +624,16 @@ public class Signs {
 				public Location getTrigger() {
 					return trigger;
 				}
+
+				@Override
+				public HashMap<String, String> getOptions() {
+					HashMap<String, String> options = new HashMap<String, String>();
+					options.put("place", place);
+					return options ;
+				}
 			});
 			break;
 		}
 	}
-}
-enum SignPos{
-	UP,
-	DOWN;
 }
 
