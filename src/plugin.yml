@@ -4,7 +4,7 @@ version: 2013.04.13
 prefix: RubinBank
 author: criztovyl
 website: http://github.com/RubinBank/RubinBank
-depend: [Clickless]
+depend: [Clickless, Vault]
 commands:
     rubinbank:
         description: RubinBank native command

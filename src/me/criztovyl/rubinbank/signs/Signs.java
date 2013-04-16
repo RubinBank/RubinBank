@@ -5,12 +5,12 @@ import java.util.HashMap;
 
 import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.clickless.ClicklessSign;
+import me.criztovyl.questioner.Questioner;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.bankomat.BankomatType;
 import me.criztovyl.rubinbank.bankomat.TriggerPosition;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.rubinbank.tools.Tools;
-import me.criztovyl.timeshift.TimeShifter;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,7 +35,7 @@ public class Signs {
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
 				
 				@Override
-				public TimeShifter getTimeShifter() {
+				public Questioner getQuestioner() {
 					return null;
 				}
 				
@@ -67,7 +67,7 @@ public class Signs {
 			break;
 		case CHOOSING:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifted = new ArrayList<String>();
 					HashMap<String, Boolean> playerSuccess = new HashMap<String, Boolean>();
 					HashMap<String, String> playerDo = new HashMap<String, String>();
@@ -259,8 +259,8 @@ public class Signs {
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override
@@ -288,7 +288,7 @@ public class Signs {
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
 				
 				@Override
-				public TimeShifter getTimeShifter() {
+				public Questioner getQuestioner() {
 					return null;
 				}
 				
@@ -317,7 +317,7 @@ public class Signs {
 			break;
 		case IN:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifteds = new ArrayList<String>();
 					@Override
 					public void removePlayer(String playername) {
@@ -390,8 +390,8 @@ public class Signs {
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override
@@ -420,7 +420,7 @@ public class Signs {
 			break;
 		case OUT:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifteds = new ArrayList<String>();
 					@Override
 					public void removePlayer(String playername) {
@@ -491,8 +491,8 @@ public class Signs {
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override
@@ -518,7 +518,7 @@ public class Signs {
 			break;
 		case TRANSFER:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifteds = new ArrayList<String>();
 					HashMap<String, String> to = new HashMap<String, String>();
 					@Override
@@ -608,8 +608,8 @@ public class Signs {
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override

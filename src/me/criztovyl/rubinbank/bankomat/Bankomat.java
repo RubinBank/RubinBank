@@ -6,10 +6,10 @@ import java.util.UUID;
 
 import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.clickless.ClicklessSign;
+import me.criztovyl.questioner.Questioner;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.config.Config;
 import me.criztovyl.rubinbank.tools.Tools;
-import me.criztovyl.timeshift.TimeShifter;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -81,7 +81,7 @@ public class Bankomat implements Bankomat_I{
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
 				
 				@Override
-				public TimeShifter getTimeShifter() {
+				public Questioner getQuestioner() {
 					return null;
 				}
 				
@@ -89,8 +89,10 @@ public class Bankomat implements Bankomat_I{
 				public void action(String p_n) {
 					if(RubinBank.getHelper().getBank().hasAccount(p_n))
 						RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage(ChatColor.BLUE);
-					else
+					else {
+						RubinBank.getHelper().getTools();
 						Tools.msg(p_n, ChatColor.RED + "Du hast kein Konto!");
+					}
 				}
 
 				@Override
@@ -113,7 +115,7 @@ public class Bankomat implements Bankomat_I{
 			break;
 		case CHOOSING:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifted = new ArrayList<String>();
 					HashMap<String, Boolean> playerSuccess = new HashMap<String, Boolean>();
 					HashMap<String, String> playerDo = new HashMap<String, String>();
@@ -305,8 +307,8 @@ public class Bankomat implements Bankomat_I{
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override
@@ -334,7 +336,7 @@ public class Bankomat implements Bankomat_I{
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
 				
 				@Override
-				public TimeShifter getTimeShifter() {
+				public Questioner getQuestioner() {
 					return null;
 				}
 				
@@ -363,7 +365,7 @@ public class Bankomat implements Bankomat_I{
 			break;
 		case IN:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifteds = new ArrayList<String>();
 					@Override
 					public void removePlayer(String playername) {
@@ -374,6 +376,7 @@ public class Bankomat implements Bankomat_I{
 					@Override
 					public void preChatAction(String playername) {
 						if(RubinBank.getHelper().getBank().hasAccount(playername)){
+							RubinBank.getHelper().getTools();
 							if(Tools.hasMajorOrMinorInHand(playername)){
 								RubinBank.getHelper().getBank().getAccount(playername).payInItemInHand(
 										getOptions().get("place"));
@@ -436,8 +439,8 @@ public class Bankomat implements Bankomat_I{
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override
@@ -466,7 +469,7 @@ public class Bankomat implements Bankomat_I{
 			break;
 		case OUT:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifteds = new ArrayList<String>();
 					@Override
 					public void removePlayer(String playername) {
@@ -537,8 +540,8 @@ public class Bankomat implements Bankomat_I{
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override
@@ -564,7 +567,7 @@ public class Bankomat implements Bankomat_I{
 			break;
 		case TRANSFER:
 			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
-				TimeShifter shifter = new TimeShifter() {
+				Questioner questioner = new Questioner() {
 					ArrayList<String> shifteds = new ArrayList<String>();
 					HashMap<String, String> to = new HashMap<String, String>();
 					@Override
@@ -654,8 +657,8 @@ public class Bankomat implements Bankomat_I{
 					}
 				};
 				@Override
-				public TimeShifter getTimeShifter() {
-					return shifter;
+				public Questioner getQuestioner() {
+					return questioner;
 				}
 				
 				@Override

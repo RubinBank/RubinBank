@@ -56,6 +56,7 @@ public class Bank {
 			}
 		}
 		else{
+			RubinBank.getHelper().getTools();
 			Tools.msg(from, ChatColor.RED + "Du kannst nichts negatives Überweisen!");
 			return false;
 		}

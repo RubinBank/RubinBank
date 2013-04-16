@@ -2,6 +2,7 @@ package me.criztovyl.rubinbank.listeners;
 
 
 import me.criztovyl.clickless.ClicklessPlugin;
+import me.criztovyl.questioner.MicroQuestioner;
 import me.criztovyl.rubinbank.RubinBank;
 import me.criztovyl.rubinbank.bankomat.Bankomat;
 import me.criztovyl.rubinbank.bankomat.BankomatType;
@@ -9,7 +10,6 @@ import me.criztovyl.rubinbank.bankomat.TriggerPosition;
 import me.criztovyl.rubinbank.tools.Tools;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
-import me.criztovyl.timeshift.MicroShift;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -83,7 +83,7 @@ public class Listeners implements Listener{
 								lines[3].toLowerCase().equals("überweisen") || 
 								lines[3].toLowerCase().equals("erstellen")
 							){
-							ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
+							ClicklessPlugin.getMicroQuestions().addQuestioner(new MicroQuestioner() {
 								boolean success = false;
 								@Override
 								public boolean getSuccess() {
@@ -113,14 +113,14 @@ public class Listeners implements Listener{
 									success = true;
 								}
 							});
-							eline2 = Tools.getTypeLine(BankomatType.getType(lines[3].toLowerCase()));
+							eline2 = BankomatType.getType(lines[3].toLowerCase()).getTypeStringGerman();
 						}
 					}
 					//Multi-Sign
 					else{
 						final TriggerPosition pos = TriggerPosition.valueOf(lines[2].toUpperCase());
 						final BankomatType type = BankomatType.CHOOSING;
-						ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
+						ClicklessPlugin.getMicroQuestions().addQuestioner(new MicroQuestioner() {
 							boolean success = false;
 							@Override
 							public boolean getSuccess() {

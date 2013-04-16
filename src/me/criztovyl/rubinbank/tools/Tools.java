@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class Tools{
+	public Tools(){};
 	public static void msg(String p_n, String msg){
 		Bukkit.getServer().getPlayer(p_n).sendMessage(msg);
 	}
@@ -18,7 +19,7 @@ public class Tools{
 		return p.getItemInHand().getTypeId() == Config.getMajorID() ||
 				p.getItemInHand().getTypeId() == Config.getMinorID();
 	}
-	public static String getTypeLine(BankomatType type){
+	public String getTypeLine(BankomatType type){
 		switch(type){
 		case AMOUNT:
 			return "Kontostand";

@@ -35,4 +35,20 @@ public enum BankomatType {
 		}
 		return null;
 	}
+	public String getTypeStringGerman(){
+		switch(this){
+		case AMOUNT:
+			return "Kontostand";
+		case CREATE:
+			return "Konto erstellen";
+		case IN:
+			return "Einzahlen";
+		case OUT:
+			return "Auszahlen";
+		case TRANSFER:
+			return "Überweisen";
+		default:
+			return "";
+		}
+	}
 }

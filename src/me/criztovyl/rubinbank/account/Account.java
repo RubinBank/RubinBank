@@ -172,35 +172,38 @@ public class Account{
 	 * @return If owner is a player true, otherwise false
 	 */
 	public boolean payOutViaInv(double amount, String location){
-		Player p = Bukkit.getServer().getPlayer(owner);
-		if(p != null){
-			
+		if(hasEnoughMoney(amount)){
+			Player p = Bukkit.getServer().getPlayer(owner);
+			if(p != null){
+				
+			}
+			else{
+				RubinBank.getHelper().severe("Can not payOutViaInv: Account Owner '" + getOwner() + "' is not Player!");
+				return false;
+			}
+			int minor = (int)((Math.round((amount - (int) amount)*10.0)/10.0)*10.0);
+			ItemStack majorStack = new ItemStack(Config.getMajorID(), (int) amount);
+			ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);
+			HashMap<Integer, ItemStack> majorfit = new HashMap<Integer, ItemStack>();
+			HashMap<Integer, ItemStack> minorfit = new HashMap<Integer, ItemStack>();
+			if(minor > 0)
+				minorfit = p.getInventory().addItem(minorStack);
+			if((int) amount > 0){
+				majorfit = p.getInventory().addItem(majorStack);
+			}
+			if(!majorfit.isEmpty()){
+				ItemStack stack = majorfit.get(0);
+				amount -=  stack.getAmount();
+			}
+			if(!minorfit.isEmpty()){
+				ItemStack stack = minorfit.get(0);
+				amount = (amount*10 - stack.getAmount())/10;
+			}
+			payOut(amount, location);
+			msg(owner, ChatColor.DARK_AQUA + "Neuer Kontostand: " + getBalance());
+			return true;
 		}
-		else{
-			RubinBank.getHelper().severe("Can not payOutViaInv: Account Owner '" + getOwner() + "' is not Player!");
-			return false;
-		}
-		int minor = (int)((Math.round((amount - (int) amount)*10.0)/10.0)*10.0);
-		ItemStack majorStack = new ItemStack(Config.getMajorID(), (int) amount);
-		ItemStack minorStack = new ItemStack(Config.getMinorID(), minor);
-		HashMap<Integer, ItemStack> majorfit = new HashMap<Integer, ItemStack>();
-		HashMap<Integer, ItemStack> minorfit = new HashMap<Integer, ItemStack>();
-		if(minor > 0)
-			minorfit = p.getInventory().addItem(minorStack);
-		if((int) amount > 0){
-			majorfit = p.getInventory().addItem(majorStack);
-		}
-		if(!majorfit.isEmpty()){
-			ItemStack stack = majorfit.get(0);
-			amount -=  stack.getAmount();
-		}
-		if(!minorfit.isEmpty()){
-			ItemStack stack = minorfit.get(0);
-			amount = (amount*10 - stack.getAmount())/10;
-		}
-		payOut(amount, location);
-		msg(owner, ChatColor.DARK_AQUA + "Neuer Kontostand: " + getBalance());
-		return true;
+		return false;
 	}
 	/**
 	 * Pay out money to the Inventory of the owner
@@ -267,6 +270,7 @@ public class Account{
 	 * @see me.criztovyl.rubinbank.tools.Tools.msg()
 	 */
 	private void msg(String p_n, String msg){
+		RubinBank.getHelper().getTools();
 		Tools.msg(p_n, msg);
 	}
 	/**
