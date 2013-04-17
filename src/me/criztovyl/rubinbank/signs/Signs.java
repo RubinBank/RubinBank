@@ -221,19 +221,6 @@ public class Signs {
 						}
 					}
 					
-					@Override
-					public boolean getSuccess(String playername) {
-						if(playerSuccess.containsKey(playername))
-							return playerSuccess.get(playername);
-						else
-							return false;
-					}
-					
-					@Override
-					public void afterChatAction(String playername) {
-						msg(playername, "Chat reaktiviert.");
-					}
-					
 					private void msg(String p_n, String msg){
 						Bukkit.getServer().getPlayer(p_n).sendMessage(msg);
 					}
@@ -367,16 +354,6 @@ public class Signs {
 					}
 					
 					@Override
-					public boolean getSuccess(String playername) {
-						return !hasPlayer(playername);
-					}
-					
-					@Override
-					public void afterChatAction(String playername) {
-						removePlayer(playername);
-					}
-					
-					@Override
 					public void addPlayer(String playername) {
 						shifteds.add(playername);
 						msg(playername, ChatColor.YELLOW + "Chat deaktiviert.");
@@ -465,16 +442,6 @@ public class Signs {
 					@Override
 					public boolean hasPlayer(String playername) {
 						return shifteds.contains(playername);
-					}
-					
-					@Override
-					public boolean getSuccess(String playername) {
-						return !hasPlayer(playername);
-					}
-					
-					@Override
-					public void afterChatAction(String playername) {
-						removePlayer(playername);
 					}
 					
 					@Override
@@ -585,14 +552,6 @@ public class Signs {
 					public boolean hasPlayer(String playername) {
 						return shifteds.contains(playername);
 					}
-					
-					@Override
-					public boolean getSuccess(String playername) {
-						return !hasPlayer(playername);
-					}
-					
-					@Override
-					public void afterChatAction(String playername) {}
 					
 					@Override
 					public void addPlayer(String playername) {

@@ -389,4 +389,7 @@ public class RubinBank extends JavaPlugin{
     public static RubinBankHelper getHelper(){
         return helper;
     }
+    public static Plugin getPlugin(){
+        return Bukkit.getServer().getPluginManager().getPlugin("RubinBank");
+    }
 }
