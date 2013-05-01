@@ -2,8 +2,7 @@ package me.criztovyl.rubinbank.Vault;
 
 import java.util.List;
 
-import me.criztovyl.rubinbank.RubinBank;
-import me.criztovyl.rubinbank.config.Config;
+import me.criztovyl.rubinbank.RubinBankPlugin;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
@@ -44,7 +43,7 @@ public class Economy_RubinBank implements Economy {
 
         @Override
         public boolean createPlayerAccount(String arg0) {
-                RubinBank.getHelper().getBank().createAccount(arg0);
+                RubinBankPlugin.getHelper().getBank().createAccount(arg0);
                 return true;
         }
 
@@ -55,12 +54,12 @@ public class Economy_RubinBank implements Economy {
 
         @Override
         public String currencyNamePlural() {
-                return Config.getMajorP();
+                return RubinBankPlugin.getHelper().getCurrency().getMajorPlural();
         }
 
         @Override
         public String currencyNameSingular() {
-                return Config.getMajorS();
+                return RubinBankPlugin.getHelper().getCurrency().getMajorSingular();
         }
 
         @Override
@@ -72,7 +71,7 @@ public class Economy_RubinBank implements Economy {
         public EconomyResponse depositPlayer(String arg0, double arg1) {
                 if(hasAccount(arg0)){
                         if(has(arg0, arg1)){
-                                RubinBank.getHelper().getBank().getAccount(arg0).payOut(arg1, "Vault");
+                                RubinBankPlugin.getHelper().getBank().getAccount(arg0).payOut(arg1, "Vault");
                                 return new EconomyResponse(arg1, getBalance(arg0), ResponseType.SUCCESS, "");
                         }
                         else{
@@ -107,7 +106,7 @@ public class Economy_RubinBank implements Economy {
         @Override
         public double getBalance(String arg0) {
                 if(hasAccount(arg0)){
-                        return RubinBank.getHelper().getBank().getAccount(arg0).getBalance();
+                        return RubinBankPlugin.getHelper().getBank().getAccount(arg0).getBalance();
                 }
                 return 0;
         }
@@ -130,7 +129,7 @@ public class Economy_RubinBank implements Economy {
         @Override
         public boolean has(String arg0, double arg1) {
                 if(hasAccount(arg0)){
-                        return RubinBank.getHelper().getBank().getAccount(arg0).hasEnoughMoney(arg1);
+                        return RubinBankPlugin.getHelper().getBank().getAccount(arg0).hasEnoughMoney(arg1);
                 }
                 return false;
         }
@@ -142,7 +141,7 @@ public class Economy_RubinBank implements Economy {
 
         @Override
         public boolean hasAccount(String arg0) {
-                return RubinBank.getHelper().getBank().hasAccount(arg0);
+                return RubinBankPlugin.getHelper().getBank().hasAccount(arg0);
         }
 
         @Override
@@ -173,7 +172,7 @@ public class Economy_RubinBank implements Economy {
         @Override
         public EconomyResponse withdrawPlayer(String arg0, double arg1) {
                 if(hasAccount(arg0)){
-                        RubinBank.getHelper().getBank().getAccount(arg0).payIn(arg1, "Vault");
+                        RubinBankPlugin.getHelper().getBank().getAccount(arg0).payIn(arg1, "Vault");
                         return new EconomyResponse(arg1, getBalance(arg0), ResponseType.SUCCESS, "");
                 }
                 else{

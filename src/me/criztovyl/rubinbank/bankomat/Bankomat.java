@@ -7,9 +7,7 @@ import java.util.UUID;
 import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.clickless.ClicklessSign;
 import me.criztovyl.questioner.Questioner;
-import me.criztovyl.rubinbank.RubinBank;
-import me.criztovyl.rubinbank.config.Config;
-import me.criztovyl.rubinbank.tools.Tools;
+import me.criztovyl.rubinbank.RubinBankPlugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -87,11 +85,10 @@ public class Bankomat implements Bankomat_I{
                                 
                                 @Override
                                 public void action(String p_n) {
-                                        if(RubinBank.getHelper().getBank().hasAccount(p_n))
-                                                RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage(ChatColor.BLUE);
+                                        if(RubinBankPlugin.getHelper().getBank().hasAccount(p_n))
+                                                RubinBankPlugin.getHelper().getBank().getAccount(p_n).sendBalanceMessage(ChatColor.BLUE);
                                         else {
-                                                RubinBank.getHelper().getTools();
-                                                Tools.msg(p_n, ChatColor.RED + "Du hast kein Konto!");
+                                                RubinBankPlugin.getHelper().msg(p_n, ChatColor.RED + "Du hast kein Konto!");
                                         }
                                 }
 
@@ -122,7 +119,7 @@ public class Bankomat implements Bankomat_I{
                                         HashMap<String, String> transferArgs = new HashMap<String, String>();
                                         @Override
                                         public void preChatAction(String playername) {
-                                                if(RubinBank.getHelper().getBank().hasAccount(playername)){
+                                                if(RubinBankPlugin.getHelper().getBank().hasAccount(playername)){
                                                         msg(playername, "Chat deaktiviert.");
                                                         msg(playername, ChatColor.AQUA + "Möchtest du auf dein Konto einzahlen(e), von deinem Konto " +
                                                                         "auszahlen(a), deinen Kontostand abrufen(k) oder etwas Überweisen(ü)?");
@@ -148,7 +145,7 @@ public class Bankomat implements Bankomat_I{
                                                                 double amount = 0;
                                                                 try{
                                                                         amount = Double.parseDouble(msg);
-                                                                        RubinBank.getHelper().getBank().getAccount(p_n).payInViaInv(
+                                                                        RubinBankPlugin.getHelper().getBank().getAccount(p_n).payInViaInv(
                                                                                         amount,
                                                                                         getOptions().get("place"));
                                                                         playerSuccess.put(p_n, true);
@@ -164,7 +161,7 @@ public class Bankomat implements Bankomat_I{
                                                                 double amount = 0;
                                                                 try{
                                                                         amount = Double.parseDouble(msg);
-                                                                        RubinBank.getHelper().getBank().getAccount(p_n).payOutViaInv(
+                                                                        RubinBankPlugin.getHelper().getBank().getAccount(p_n).payOutViaInv(
                                                                                         amount,
                                                                                         getOptions().get("place"));
                                                                         playerSuccess.put(p_n, true);
@@ -176,10 +173,10 @@ public class Bankomat implements Bankomat_I{
                                                                 }
                                                         }
                                                         if(playerDo.get(p_n).toUpperCase().equals("TRANSFER_PLAYERII")){
-                                                                if(RubinBank.getHelper().getBank().hasAccount(p_n)){
+                                                                if(RubinBankPlugin.getHelper().getBank().hasAccount(p_n)){
                                                                         transferArgs.put(p_n, msg);
                                                                         playerDo.put(p_n, "TRANSFER_AMOUNT");
-                                                                        RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
+                                                                        RubinBankPlugin.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
                                                                         msg(p_n, ChatColor.GREEN + "Wie viel möchtest du überweisen?");
                                                                         return;
                                                                 }
@@ -194,7 +191,7 @@ public class Bankomat implements Bankomat_I{
                                                                 msg = msg.replace(",", ".");
                                                                 try{
                                                                         amount = Double.parseDouble(msg);
-                                                                        RubinBank.getHelper().getBank().transfer(
+                                                                        RubinBankPlugin.getHelper().getBank().transfer(
                                                                                         p_n, 
                                                                                         transferArgs.get(p_n),
                                                                                         amount,
@@ -210,7 +207,7 @@ public class Bankomat implements Bankomat_I{
                                                         }
                                                         if(playerDo.get(p_n).toLowerCase().equals("create")){
                                                                 if(msg.toLowerCase().equals("ja") || msg.toLowerCase().equals("j")){
-                                                                        RubinBank.getHelper().getBank().createAccount(p_n);
+                                                                        RubinBankPlugin.getHelper().getBank().createAccount(p_n);
                                                                         msg(p_n, ChatColor.GREEN + "Done :)");
                                                                         removePlayer(p_n);
                                                                         return;
@@ -225,10 +222,12 @@ public class Bankomat implements Bankomat_I{
                                                 //playerDo End
                                                 else{
                                                         if(msg.toLowerCase().equals("einzahlen") || msg.toLowerCase().equals("e")){
-                                                                if(evt.getPlayer().getItemInHand().getTypeId() == Config.getMajorID() ||
-                                                                                evt.getPlayer().getItemInHand().getTypeId() == Config.getMinorID()){
-                                                                        if(RubinBank.getHelper().getBank().hasAccount(p_n)){
-                                                                                RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand(
+                                                            int majorID = RubinBankPlugin.getHelper().getBank().getCurrency().getMajorID();
+                                                            int minorID = RubinBankPlugin.getHelper().getBank().getCurrency().getMinorID();
+                                                                if(evt.getPlayer().getItemInHand().getTypeId() == majorID ||
+                                                                                evt.getPlayer().getItemInHand().getTypeId() == minorID){
+                                                                        if(RubinBankPlugin.getHelper().getBank().hasAccount(p_n)){
+                                                                                RubinBankPlugin.getHelper().getBank().getAccount(p_n).payInItemInHand(
                                                                                                 getOptions().get("place"));
                                                                                 msg(p_n, ChatColor.DARK_AQUA + "Done :)");
                                                                                 removePlayer(p_n);
@@ -243,13 +242,13 @@ public class Bankomat implements Bankomat_I{
                                                         if(msg.toLowerCase().equals("auszahlen") || msg.toLowerCase().equals("a")){
                                                                 playerDo.put(p_n, "OUT");
                                                                 playerSuccess.put(p_n, false);
-                                                                RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
+                                                                RubinBankPlugin.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
                                                                 msg(p_n, ChatColor.GREEN + "Wie viel möchtest du auszahlen?");
                                                                 return;
                                                         }
                                                         if(msg.toLowerCase().equals("kontostand") || msg.toLowerCase().equals("k")){
                                                                 playerSuccess.put(p_n, true);
-                                                                RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
+                                                                RubinBankPlugin.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
                                                                 return;
                                                         }
                                                         if(msg.toLowerCase().equals("überweisen") || msg.toLowerCase().equals("ü")){
@@ -331,7 +330,7 @@ public class Bankomat implements Bankomat_I{
                                 
                                 @Override
                                 public void action(String p_n) {
-                                        RubinBank.getHelper().getBank().createAccount(p_n);
+                                        RubinBankPlugin.getHelper().getBank().createAccount(p_n);
                                 }
 
                                 @Override
@@ -364,10 +363,12 @@ public class Bankomat implements Bankomat_I{
                                         
                                         @Override
                                         public void preChatAction(String playername) {
-                                                if(RubinBank.getHelper().getBank().hasAccount(playername)){
-                                                        RubinBank.getHelper().getTools();
-                                                        if(Tools.hasMajorOrMinorInHand(playername)){
-                                                                RubinBank.getHelper().getBank().getAccount(playername).payInItemInHand(
+                                                if(RubinBankPlugin.getHelper().getBank().hasAccount(playername)){
+                                                    int majorID = RubinBankPlugin.getHelper().getBank().getCurrency().getMajorID();
+                                                    int minorID = RubinBankPlugin.getHelper().getBank().getCurrency().getMinorID();
+                                                    Player p = Bukkit.getServer().getPlayer(playername);
+                                                        if(p.getItemInHand().getTypeId() == majorID || p.getItemInHand().getTypeId() == minorID){
+                                                                RubinBankPlugin.getHelper().getBank().getAccount(playername).payInItemInHand(
                                                                                 getOptions().get("place"));
                                                                 msg(playername, ChatColor.DARK_AQUA + "Done :)");
                                                                 removePlayer(playername);
@@ -392,7 +393,7 @@ public class Bankomat implements Bankomat_I{
                                                         msg(evt.getPlayer().getName(), ChatColor.RED + "'" + msg + "' ist keine gültig Zahl!");
                                                         evt.setCancelled(true);
                                                 }
-                                                RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payInViaInv(
+                                                RubinBankPlugin.getHelper().getBank().getAccount(evt.getPlayer().getName()).payInViaInv(
                                                                 amount,
                                                                 getOptions().get("place"));
                                                 msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
@@ -424,8 +425,8 @@ public class Bankomat implements Bankomat_I{
                                 
                                 @Override
                                 public void action(String p_n) {
-                                        if(RubinBank.getHelper().getBank().hasAccount(p_n))
-                                                RubinBank.getHelper().getBank().getAccount(p_n).payInItemInHand(getOptions().get("place"));
+                                        if(RubinBankPlugin.getHelper().getBank().hasAccount(p_n))
+                                                RubinBankPlugin.getHelper().getBank().getAccount(p_n).payInItemInHand(getOptions().get("place"));
                                 }
 
                                 @Override
@@ -458,8 +459,8 @@ public class Bankomat implements Bankomat_I{
                                         
                                         @Override
                                         public void preChatAction(String playername) {
-                                                if(RubinBank.getHelper().getBank().hasAccount(playername)){
-                                                        RubinBank.getHelper().getBank().getAccount(playername).sendBalanceMessage();
+                                                if(RubinBankPlugin.getHelper().getBank().hasAccount(playername)){
+                                                        RubinBankPlugin.getHelper().getBank().getAccount(playername).sendBalanceMessage();
                                                         msg(playername, ChatColor.GREEN + "Wie viel möchtest du Abheben?");
                                                 }
                                                 else{
@@ -477,8 +478,8 @@ public class Bankomat implements Bankomat_I{
                                                 } catch(NumberFormatException e){
                                                         msg(evt.getPlayer().getName(), ChatColor.RED + "'" + msg +"' ist keine gültige Zahl!");
                                                 }
-                                                if(RubinBank.getHelper().getBank().hasAccount(evt.getPlayer().getName())){
-                                                        RubinBank.getHelper().getBank().getAccount(evt.getPlayer().getName()).payOutViaInv(
+                                                if(RubinBankPlugin.getHelper().getBank().hasAccount(evt.getPlayer().getName())){
+                                                        RubinBankPlugin.getHelper().getBank().getAccount(evt.getPlayer().getName()).payOutViaInv(
                                                                         amount,
                                                                         getOptions().get("place"));
                                                         msg(evt.getPlayer().getName(), ChatColor.GREEN + "Done :)");
@@ -549,8 +550,8 @@ public class Bankomat implements Bankomat_I{
                                         
                                         @Override
                                         public void preChatAction(String playername) {
-                                                if(RubinBank.getHelper().getBank().hasAccount(playername)){
-                                                        RubinBank.getHelper().getBank().getAccount(playername).sendBalanceMessage(ChatColor.BLUE);
+                                                if(RubinBankPlugin.getHelper().getBank().hasAccount(playername)){
+                                                        RubinBankPlugin.getHelper().getBank().getAccount(playername).sendBalanceMessage(ChatColor.BLUE);
                                                         msg(playername, ChatColor.GREEN + "An wen möchtest du überweisen?");
                                                 }
                                                 else{
@@ -577,7 +578,7 @@ public class Bankomat implements Bankomat_I{
                                                                 msg(evt.getPlayer().getName(), ChatColor.GREEN + "Wie viel möchtest du überweisen?");
                                                                 return;
                                                         }
-                                                        RubinBank.getHelper().getBank().transfer(
+                                                        RubinBankPlugin.getHelper().getBank().transfer(
                                                                         evt.getPlayer().getName(), 
                                                                         to.get(evt.getPlayer().getName()),
                                                                         amount,
@@ -587,7 +588,7 @@ public class Bankomat implements Bankomat_I{
                                                 }
                                                 else{
                                                         String to_ = evt.getMessage();
-                                                        if(RubinBank.getHelper().getBank().hasAccount(to_)){
+                                                        if(RubinBankPlugin.getHelper().getBank().hasAccount(to_)){
                                                                 to.put(evt.getPlayer().getName(), to_);
                                                                 msg(evt.getPlayer().getName(), ChatColor.GREEN + "Wie viel möchtest du an " +
                                                                 to_ + " überweisen?");
@@ -644,6 +645,9 @@ public class Bankomat implements Bankomat_I{
                                 }
                         });
                         break;
+                default:
+                    RubinBankPlugin.getHelper().warning("Called an old Bankomat-Type '" + type.toString() + "'");
+                    break;
                 }
         }
         @Override

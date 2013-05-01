@@ -3,11 +3,10 @@ package me.criztovyl.rubinbank.listeners;
 
 import me.criztovyl.clickless.ClicklessPlugin;
 import me.criztovyl.questioner.MicroQuestioner;
-import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.RubinBankPlugin;
 import me.criztovyl.rubinbank.bankomat.Bankomat;
 import me.criztovyl.rubinbank.bankomat.BankomatType;
 import me.criztovyl.rubinbank.bankomat.TriggerPosition;
-import me.criztovyl.rubinbank.tools.Tools;
 import me.criztovyl.rubinbank.tools.TriggerButton;
 import me.criztovyl.rubinbank.tools.TriggerButtonType;
 
@@ -44,13 +43,13 @@ public class Listeners implements Listener{
                         if(evt.getClickedBlock().getType().equals(Material.STONE_BUTTON) || evt.getClickedBlock().equals(Material.WOOD_BUTTON)){
                                 if(TriggerButton.isTriggerButton(evt.getClickedBlock().getLocation())){
                                         if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.AMOUNT)){
-                                                if(RubinBank.getHelper().getBank().hasAccount(p_n)){
-                                                        RubinBank.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
+                                                if(RubinBankPlugin.getHelper().getBank().hasAccount(p_n)){
+                                                        RubinBankPlugin.getHelper().getBank().getAccount(p_n).sendBalanceMessage();
                                                 }
                                         }
                                         if(TriggerButton.getType(evt.getClickedBlock().getLocation()).equals(TriggerButtonType.CREATE)){
-                                                if(!RubinBank.getHelper().getBank().hasAccount(p_n)){
-                                                        RubinBank.getHelper().getBank().createAccount(p_n);
+                                                if(!RubinBankPlugin.getHelper().getBank().hasAccount(p_n)){
+                                                        RubinBankPlugin.getHelper().getBank().createAccount(p_n);
                                                 }
                                         }
                                 }
@@ -103,14 +102,13 @@ public class Listeners implements Listener{
                                                                 
                                                                 @Override
                                                                 public void executeAction(AsyncPlayerChatEvent arg0) {
-                                                                        RubinBank.getHelper().getBankomats().addBankomat(new Bankomat(
+                                                                        RubinBankPlugin.getHelper().getBankomats().addBankomat(new Bankomat(
                                                                                         evt.getBlock().getLocation(),
                                                                                         BankomatType.getType(line4),
                                                                                         TriggerPosition.valueOf(line3.toUpperCase()),
                                                                                         arg0.getMessage(),
                                                                                         true));
-                                                                        RubinBank.getHelper().info("Created Sign.");
-                                                                        Tools.msg(p_n, ChatColor.GREEN + "Created Bankomat.");
+                                                                        RubinBankPlugin.getHelper().msg(p_n, ChatColor.GREEN + "Created Bankomat.");
                                                                         success = true;
                                                                 }
                                                         });
@@ -141,7 +139,7 @@ public class Listeners implements Listener{
                                                         @Override
                                                         public void executeAction(AsyncPlayerChatEvent arg0) {
                                                                 
-                                                                RubinBank.getHelper().getBankomats().addBankomat(new Bankomat(
+                                                                RubinBankPlugin.getHelper().getBankomats().addBankomat(new Bankomat(
                                                                                 evt.getBlock().getLocation(), 
                                                                                 type, 
                                                                                 pos, 
@@ -169,7 +167,7 @@ public class Listeners implements Listener{
                         Sign sign = (Sign) evt.getBlock().getState();
                         if(sign.getLine(0).equals(ChatColor.DARK_AQUA + "[RubinBank]") || sign.getLine(0).equals("[RB]")){
                                 if(sign.getLine(1).equals(ChatColor.DARK_AQUA + "Bankomat")){
-                                        RubinBank.getHelper().getBankomats().removeBankomatByLocation(evt.getBlock().getLocation());
+                                        RubinBankPlugin.getHelper().getBankomats().removeBankomatByLocation(evt.getBlock().getLocation());
                                         evt.getPlayer().sendMessage("Removed Sign.");
                                 }
                         }
@@ -184,19 +182,19 @@ public class Listeners implements Listener{
         @EventHandler
         public static void onPluginEnable(PluginEnableEvent evt){
                 if(evt.getPlugin().getName().equals("WorldGuard")){
-                        RubinBank.setUseWorldGuard();
+                        RubinBankPlugin.setUseWorldGuard();
                         Bukkit.getPluginManager().getPlugin("RubinBank").getLogger().info("WorldGuard found and Support enabled :)");
                 }
                 if(evt.getPlugin().getName().equals("Vault")){
-                    if(!RubinBank.getHelper().isHooked()){
-                        RubinBank.getHelper().registerEconomy();
+                    if(!RubinBankPlugin.getHelper().isHooked()){
+                        RubinBankPlugin.getHelper().registerEconomy();
                     }
                 }
         }
         @EventHandler
         public void onPluginDisable(PluginDisableEvent evt){
             if(evt.getPlugin().getName().equals("Vault")){
-                RubinBank.getHelper().unhookEconomy();
+                RubinBankPlugin.getHelper().unhookEconomy();
             }
         }
 }

@@ -1,6 +1,5 @@
 package me.criztovyl.rubinbank.tools;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,16 +9,13 @@ import java.util.HashMap;
  *
  */
 public interface DBSafe {
-	/**
-	 * Save to Database
-	 * @param save A Map with the values that should be saved
-	 * @param con The Database Connection
-	 */
-	void saveToDatabase(HashMap<String, String> save, Connection con) throws SQLException;
-	/**
-	 * 
-	 * @param con The Database Connection
-	 * @return A List of Maps containing the saved values.
-	 */
-	ArrayList<HashMap<String, String>> loadFromDatabase(Connection con) throws SQLException;
+    /**
+     * Save to Database
+     * @param save A Map with the values that should be saved
+     */
+    void saveToDatabase(HashMap<String, String> save) throws SQLException;
+    /**
+     * @return A List of Maps containing the saved values.
+     */
+    ArrayList<HashMap<String, String>> loadFromDatabase() throws SQLException;
 }

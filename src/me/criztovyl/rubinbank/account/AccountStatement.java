@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
 
-import me.criztovyl.rubinbank.RubinBank;
+import me.criztovyl.rubinbank.mysql.Reopenable;
 
 /**
  * Represents a account statement. Account statements are present until the next stop, then they will be written to the Database and will not appear here again.
@@ -106,7 +106,7 @@ public class AccountStatement{
 	 * @return the amount of the action
 	 */
 	public double getActionAmount(){
-		return Math.round(actionAmount * 10)/10;
+		return Math.round(actionAmount * 10.0)/10.0;
 	}
 	/**
 	 * @return the transfer partner if was a transfer, otherwise an empty String \"\"
@@ -129,7 +129,7 @@ public class AccountStatement{
 	 * @return the account's balance after the action
 	 */
 	public double getNewBalance(){
-		return Math.round(newBalance * 10)/10;
+		return Math.round(newBalance * 10.0)/10.0;
 	}
 	/**
 	 * Get the Date when the action was executed.
@@ -143,6 +143,9 @@ public class AccountStatement{
 	public String getDateString(){
 		return Integer.toString(this.date.get(Calendar.DAY_OF_MONTH)) + "-" + Integer.toString(this.date.get(Calendar.MONTH) + 1) + "-" + Integer.toString(this.date.get(Calendar.YEAR));
 	}
+	/**
+	 * @return the place the action happened
+	 */
 	public String getPlace(){
 		return place;
 	}
@@ -150,8 +153,8 @@ public class AccountStatement{
 	 * Save this Statement to the Database
 	 * @throws SQLException 
 	 */
-	public void save() throws SQLException{
-		AccountStatementDBSafe safe = new AccountStatementDBSafe();
+	public void save(Reopenable reopenable, String table) throws SQLException{
+		AccountStatementDBSafe safe = new AccountStatementDBSafe(reopenable, table);
 		HashMap<String, String> save = new HashMap<String, String>();
 		save.put("owner", getOwner());
 		save.put("action", getType().toString());
@@ -160,7 +163,7 @@ public class AccountStatement{
 		save.put("newBalance", Double.toString(getNewBalance()));
 		save.put("date", getDateString());
 		save.put("place", getPlace());
-		safe.saveToDatabase(save, RubinBank.getHelper().getMySQLHelper().getConnection());
+		safe.saveToDatabase(save);
 	}
 	/**
 	 * Sets the place the action was executed.

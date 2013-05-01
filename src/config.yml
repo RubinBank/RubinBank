@@ -4,12 +4,12 @@ enabled:
 MySQL:
     Host:
         Address: localhost
+        Port: 3306
         User: user
         Password: password
         Database: RubinBank
         Table_Accouts:
         Table_Bankomats:
-        Table_Buttons:
         Table_Statements:
 Currency:
     Name:

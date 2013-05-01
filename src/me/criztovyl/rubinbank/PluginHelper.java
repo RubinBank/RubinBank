@@ -17,11 +17,11 @@ public interface PluginHelper {
 	 */
 	public void severe(String msg);
 	/**
-	 * @return "[PluginName] live since XX:XX:XX:XX (h:m:s:ms)."
+	 * @return "live since XX:XX:XX:XX (h:m:s:ms)."
 	 */
 	public String getLifeTimeString();
 	/**
-	 * @return "XX:XX:XX:XX (h:m:s:ms)"
+	 * @return "XYZ ms"
 	 */
 	public String getSimpleLifeTimeString();
 }
