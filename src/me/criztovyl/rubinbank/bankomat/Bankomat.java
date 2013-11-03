@@ -59,7 +59,14 @@ public class Bankomat implements Bankomat_I{
          * @param args
          */
         public Bankomat(HashMap<String, String> args){
-                World world = Bukkit.getWorld(UUID.fromString(BankomatArgument.LOCWORLD.getArg(args)));
+            String WorldString = BankomatArgument.LOCWORLD.getArg(args);
+            World world;
+                try{
+                    world = Bukkit.getWorld(UUID.fromString(BankomatArgument.LOCWORLD.getArg(args)));
+                }
+                catch(IllegalArgumentException e){
+                    world = Bukkit.getWorld(WorldString);
+                }
                 this.loc = new Location(
                                 world,
                                 Double.parseDouble(BankomatArgument.LOCX.getArg(args)),

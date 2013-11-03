@@ -39,7 +39,6 @@ public class RubinBankPlugin extends JavaPlugin{
      */
     public void onEnable(){
         log = this.getLogger();
-        log.info(Bukkit.getServer().getWorld("world").getUID().toString());
         try {
             helper = new RubinBank(this);
             helper.init();
